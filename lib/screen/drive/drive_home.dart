@@ -261,11 +261,11 @@ class _DrivePageState extends State<DrivePage> {
                     child: IconButton(
                       icon: const Icon(Icons.tune),
                       onPressed: () {
-                        /*showModalBottomSheet(
+                        showModalBottomSheet(
                           context: context,
                           builder: (_) =>
                               const Center(child: Text("Filter Options")),
-                        );*/
+                        );
                       },
                     ),
                   ),
