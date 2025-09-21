@@ -17,6 +17,7 @@ import 'package:vas_reporting/screen/ajuan/vas_home.dart';
 import 'package:vas_reporting/screen/drive/drive_home.dart';
 import 'package:vas_reporting/screen/home/reporting.dart';
 import 'package:vas_reporting/screen/login_page.dart';
+import 'package:vas_reporting/screen/task_tracker_user/tracker_user.dart';
 import 'package:vas_reporting/tools/popup.dart';
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
@@ -207,6 +208,29 @@ class _HomePageState extends State<HomePage> {
                                 ).pushReplacement(routingPage(UjiHome()));
                               },
                             )
+
+                      //Task Tracker User Navigation
+                          : SizedBox(),
+                      jabatan != 'Manager' && divisi != 'VAS'
+                          ? ListTile(
+                        leading: const Icon(IconlyLight.document),
+                        title: Text(
+                          "Task Tracker",
+                          style: GoogleFonts.urbanist(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+
+                        onTap: () {
+                          Navigator.of(context).push(
+                            routingPage(TrackerUser()),
+                          );
+                        },
+                      )
+
+
+
                           : SizedBox(),
                       divisi == 'VAS' && jabatan == 'Manager'
                           ? ListTile(

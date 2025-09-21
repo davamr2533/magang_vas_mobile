@@ -51,6 +51,7 @@ dependencies:
   fl_chart: ^0.66.0                         # untuk chart       
   tbib_splash_screen: ^1.0.0                # untuk views splash screen
   flutter_spinkit: ^5.2.0                   # untuk untuk membuat indikator pemuatan animasi
+  percent_indicator: ^3.4.0                 # untuk membuat indikator persentase di task tracker
   
 dev_dependencies:
   flutter_test:
