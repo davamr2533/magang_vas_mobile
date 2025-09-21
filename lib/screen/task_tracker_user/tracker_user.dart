@@ -85,10 +85,26 @@ class TrackerUser extends StatelessWidget {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("Task Tracker"),
+
+        //icon back
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
+            },
+
+            icon: Icon(Icons.arrow_back_ios_new), color: Colors.black,
+        ),
+
+        //judul halaman
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: const Text("Task Tracker"),
+        ),
+
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         elevation: 0,
+        centerTitle: false,
 
         //agar status bar terlihat
         systemOverlayStyle: const SystemUiOverlayStyle(
