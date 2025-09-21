@@ -60,7 +60,6 @@ class _DrivePageState extends State<DrivePage> {
     });
   }
 
-
   List<String> folders = ["Daftar pengajuan", "Data VAS", "File approve"];
   String query = "";
 
@@ -131,22 +130,21 @@ class _DrivePageState extends State<DrivePage> {
                     Column(
                       children: [
                         divisi == 'VAS' && jabatan == 'Staff'
-                            ?
-                        ListTile(
-                          leading: const Icon(IconlyLight.home),
-                          title: Text(
-                            "Home",
-                            style: GoogleFonts.urbanist(
-                              color: Colors.black,
-                              fontSize: 14,
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushReplacement(routingPage(HomePage()));
-                          },
-                        )
+                            ? ListTile(
+                                leading: const Icon(IconlyLight.home),
+                                title: Text(
+                                  "Home",
+                                  style: GoogleFonts.urbanist(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.of(
+                                    context,
+                                  ).pushReplacement(routingPage(HomePage()));
+                                },
+                              )
                             : SizedBox(),
                         divisi == 'VAS' && jabatan == 'Staff'
                             ? ListTile(
@@ -258,22 +256,40 @@ class _DrivePageState extends State<DrivePage> {
                       color: Colors.red[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: IconButton(
+                    child: PopupMenuButton<String>(
                       icon: const Icon(Icons.tune),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (_) =>
-                              const Center(child: Text("Filter Options")),
-                        );
+                      onSelected: (value) {
+                        if (value == 'date') {
+                          // TODO: filter by date
+                          print("Filter by Date");
+                        } else if (value == 'name') {
+                          // TODO: filter by name
+                          print("Filter by Name");
+                        } else if (value == 'type') {
+                          // TODO: filter by type
+                          print("Filter by Type");
+                        }
                       },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'date',
+                          child: Text("Sort by Date"),
+                        ),
+                        const PopupMenuItem(
+                          value: 'name',
+                          child: Text("Sort by Name"),
+                        ),
+                        const PopupMenuItem(
+                          value: 'type',
+                          child: Text("Sort by File Type"),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-            // 🔹 TabBar
             const TabBar(
               labelColor: Colors.red,
               unselectedLabelColor: Colors.black,
@@ -286,7 +302,7 @@ class _DrivePageState extends State<DrivePage> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildDriveGrid(filtered),
+                  _buildDriveGrid(context, filtered),
                   const Center(child: Text("Shared Drive Content")),
                 ],
               ),
@@ -306,7 +322,7 @@ class _DrivePageState extends State<DrivePage> {
     );
   }
 
-  static Widget _buildDriveGrid(List<String> items) {
+  Widget _buildDriveGrid(BuildContext context, List<String> items) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: GridView.count(
@@ -314,12 +330,14 @@ class _DrivePageState extends State<DrivePage> {
         childAspectRatio: 1.2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        children: items.map((title) => _buildFolderCard(title)).toList(),
+        children: items
+            .map((title) => _buildFolderCard(context, title))
+            .toList(),
       ),
     );
   }
 
-  static Widget _buildFolderCard(String title) {
+  Widget _buildFolderCard(BuildContext context, String title) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.red[100],
@@ -329,7 +347,44 @@ class _DrivePageState extends State<DrivePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.folder, size: 40, color: Colors.deepOrange),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.folder, size: 40, color: Colors.deepOrange),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                    ),
+                    builder: (_) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.drive_file_rename_outline),
+                          title: const Text("Rename"),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.delete_outline),
+                          title: const Text("Delete"),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
