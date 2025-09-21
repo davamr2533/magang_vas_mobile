@@ -4,14 +4,17 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
-import 'package:vas_reporting/data/model/response/get_data_response.dart' as GetDataResponse;
-import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as GetDataVasResponse;
+import 'package:vas_reporting/data/model/response/get_data_response.dart'
+    as GetDataResponse;
+import 'package:vas_reporting/data/model/response/get_data_vas_response.dart'
+    as GetDataVasResponse;
 import 'package:vas_reporting/screen/ajuan/approval_manager.dart';
 import 'package:vas_reporting/screen/ajuan/form_ajuan_vas.dart';
 import 'package:vas_reporting/screen/ajuan/form_pengajuan.dart';
 import 'package:vas_reporting/screen/ajuan/form_uji_internal.dart';
 import 'package:vas_reporting/screen/ajuan/uji_home.dart';
 import 'package:vas_reporting/screen/ajuan/vas_home.dart';
+import 'package:vas_reporting/screen/drive/drive_home.dart';
 import 'package:vas_reporting/screen/home/reporting.dart';
 import 'package:vas_reporting/screen/login_page.dart';
 import 'package:vas_reporting/tools/popup.dart';
@@ -91,10 +94,7 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(top: screenHeight / 11),
               child: Row(
                 children: [
-                   CircleAvatar(
-                    radius: 30,
-                    child: Icon(IconlyBold.user2),
-                  ),
+                  CircleAvatar(radius: 30, child: Icon(IconlyBold.user2)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -137,77 +137,94 @@ class _HomePageState extends State<HomePage> {
                   Column(
                     children: [
                       divisi != 'VAS'
-                      ? ListTile(
-                        leading: const Icon(IconlyLight.paperUpload),
-                        title : Text(
-                          "Form Pengajuan",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FormAjuanUser(),
-                            ),
-                            (Route<dynamic> route) => false,
-                          );
-                        },
-                      )
-                      : SizedBox(),
+                          ? ListTile(
+                              leading: const Icon(IconlyLight.paperUpload),
+                              title: Text(
+                                "Form Pengajuan",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FormAjuanUser(),
+                                  ),
+                                  (Route<dynamic> route) => false,
+                                );
+                              },
+                            )
+                          : SizedBox(),
                       divisi == 'VAS' && jabatan == 'Staff'
-                      ? ListTile(
-                        leading: const Icon(IconlyLight.edit),
-                        title: Text(
-                          "Pengajuan VAS",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacement(routingPage(VasHome()));
-                        },
-                      )
-                      : SizedBox(),
+                          ? ListTile(
+                              leading: const Icon(IconlyLight.edit),
+                              title: Text(
+                                "Pengajuan VAS",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(
+                                  context,
+                                ).pushReplacement(routingPage(VasHome()));
+                              },
+                            )
+                          : SizedBox(),
+                      divisi == 'VAS' && jabatan == 'Staff'
+                          ? ListTile(
+                              leading: const Icon(IconlyLight.folder),
+                              title: Text(
+                                "VAS Drive",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(
+                                  context,
+                                ).pushReplacement(routingPage(DrivePage()));
+                              },
+                            )
+                          : SizedBox(),
                       jabatan != 'Manager' && divisi != 'VAS'
-                      ? ListTile(
-                        leading: const Icon(IconlyLight.activity),
-                        title: Text(
-                          "Pengujian",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacement(routingPage(UjiHome()));
-                        },
-                      )
-                      : SizedBox(), 
+                          ? ListTile(
+                              leading: const Icon(IconlyLight.activity),
+                              title: Text(
+                                "Pengujian",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(
+                                  context,
+                                ).pushReplacement(routingPage(UjiHome()));
+                              },
+                            )
+                          : SizedBox(),
                       divisi == 'VAS' && jabatan == 'Manager'
-                      ?ListTile(
-                        leading: const Icon(IconlyLight.shieldDone),
-                        title: Text(
-                          "Approval Submission",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacement(routingPage(ApprovalManager()));
-                        },
-                      )
-                      : SizedBox()
+                          ? ListTile(
+                              leading: const Icon(IconlyLight.shieldDone),
+                              title: Text(
+                                "Approval Submission",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pushReplacement(
+                                  routingPage(ApprovalManager()),
+                                );
+                              },
+                            )
+                          : SizedBox(),
                     ],
                   ),
                   ListTile(
@@ -236,14 +253,23 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         currentIndex: _selectedIndex,
-        selectedLabelStyle: GoogleFonts.urbanist(color: baseColors.primaryColor, fontSize: 12),
-        unselectedLabelStyle: GoogleFonts.urbanist(color: Colors.grey, fontSize: 10),
+        selectedLabelStyle: GoogleFonts.urbanist(
+          color: baseColors.primaryColor,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: GoogleFonts.urbanist(
+          color: Colors.grey,
+          fontSize: 10,
+        ),
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: baseColors.primaryColor,
         items: const [
-          BottomNavigationBarItem(icon: Icon(IconlyLight.home), label: "Home",),
-          BottomNavigationBarItem(icon: Icon(IconlyLight.chart), label: "Summary"),
+          BottomNavigationBarItem(icon: Icon(IconlyLight.home), label: "Home"),
+          BottomNavigationBarItem(
+            icon: Icon(IconlyLight.chart),
+            label: "Summary",
+          ),
           BottomNavigationBarItem(
             icon: Icon(IconlyLight.document),
             label: "Reporting",
@@ -282,11 +308,12 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             isLoading = false;
           });
-          getData = state.response.data!..sort((a, b) {
-            final dateA = DateTime.parse(a.createdAt ?? '');
-            final dateB = DateTime.parse(b.createdAt ?? '');
-            return dateB.compareTo(dateA); 
-          });
+          getData = state.response.data!
+            ..sort((a, b) {
+              final dateA = DateTime.parse(a.createdAt ?? '');
+              final dateB = DateTime.parse(b.createdAt ?? '');
+              return dateB.compareTo(dateA);
+            });
         }
       },
       child: SafeArea(
@@ -366,64 +393,67 @@ class _HomePageState extends State<HomePage> {
                 Wrap(
                   spacing: 15,
                   runSpacing: 15,
-                  children: [
-                    gridView(
-                      const Color.fromARGB(255, 186, 201, 255),
-                      IconlyLight.timeCircle,
-                      'Submitted',
-                      'Menunggu Approval',
-                      getData
-                          .where((item) => item.statusAjuan == 'Submitted')
-                          .length
-                          .toString(),
-                    ),
-                    gridView(
-                      const Color.fromARGB(255, 255, 228, 188),
-                      IconlyLight.shieldDone,
-                      'Approve',
-                      'Pengajuan disetujui',
-                      getData
-                          .where((item) => item.statusAjuan == 'Approve')
-                          .length
-                          .toString(),
-                    ),
-                    gridView(
-                      const Color.fromARGB(255, 181, 221, 154),
-                      IconlyLight.activity,
-                      'Progress',
-                      'Progress oleh VAS',
-                      getData
-                          .where((item) => item.statusAjuan == 'Progress')
-                          .length
-                          .toString(),
-                    ),
-                    gridView(
-                      const Color.fromARGB(255, 218, 196, 255),
-                      IconlyLight.notification,
-                      'Production',
-                      'Tahap perilisan',
-                      getData
-                          .where((item) => item.statusAjuan == 'Production')
-                          .length
-                          .toString(),
-                    ),
-                    gridView(
-                      const Color.fromARGB(255, 255, 201, 201),
-                      IconlyLight.dangerCircle,
-                      'Decline',
-                      'Pengajuan ditolak',
-                      getData
-                          .where((item) => item.statusAjuan == 'Decline')
-                          .length
-                          .toString(),
-                    ),
-                  ].map((child) {
-                    double screenWidth = MediaQuery.of(context).size.width;
-                    return SizedBox(
-                      width: (screenWidth - 45) / 3.2, // bagi 2, dikurangi spacing
-                      child: child,
-                    );
-                  }).toList(),
+                  children:
+                      [
+                        gridView(
+                          const Color.fromARGB(255, 186, 201, 255),
+                          IconlyLight.timeCircle,
+                          'Submitted',
+                          'Menunggu Approval',
+                          getData
+                              .where((item) => item.statusAjuan == 'Submitted')
+                              .length
+                              .toString(),
+                        ),
+                        gridView(
+                          const Color.fromARGB(255, 255, 228, 188),
+                          IconlyLight.shieldDone,
+                          'Approve',
+                          'Pengajuan disetujui',
+                          getData
+                              .where((item) => item.statusAjuan == 'Approve')
+                              .length
+                              .toString(),
+                        ),
+                        gridView(
+                          const Color.fromARGB(255, 181, 221, 154),
+                          IconlyLight.activity,
+                          'Progress',
+                          'Progress oleh VAS',
+                          getData
+                              .where((item) => item.statusAjuan == 'Progress')
+                              .length
+                              .toString(),
+                        ),
+                        gridView(
+                          const Color.fromARGB(255, 218, 196, 255),
+                          IconlyLight.notification,
+                          'Production',
+                          'Tahap perilisan',
+                          getData
+                              .where((item) => item.statusAjuan == 'Production')
+                              .length
+                              .toString(),
+                        ),
+                        gridView(
+                          const Color.fromARGB(255, 255, 201, 201),
+                          IconlyLight.dangerCircle,
+                          'Decline',
+                          'Pengajuan ditolak',
+                          getData
+                              .where((item) => item.statusAjuan == 'Decline')
+                              .length
+                              .toString(),
+                        ),
+                      ].map((child) {
+                        double screenWidth = MediaQuery.of(context).size.width;
+                        return SizedBox(
+                          width:
+                              (screenWidth - 45) /
+                              3.2, // bagi 2, dikurangi spacing
+                          child: child,
+                        );
+                      }).toList(),
                 ),
                 const SizedBox(height: 16),
                 // Row(
@@ -506,7 +536,10 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   children: getData.take(3).map((item) {
                     return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 0,
+                        vertical: 5,
+                      ),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -517,7 +550,10 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.access_time, color: baseColors.primaryColor),
+                              const Icon(
+                                Icons.access_time,
+                                color: baseColors.primaryColor,
+                              ),
                               const SizedBox(width: 8),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,7 +596,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   }).toList(),
-                )
+                ),
               ],
             ),
           ),
@@ -569,7 +605,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget gridView(Color color, IconData icon,String status, String details, String count) {
+  Widget gridView(
+    Color color,
+    IconData icon,
+    String status,
+    String details,
+    String count,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -597,26 +639,25 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Icon(icon), 
-              SizedBox(width: 5,),
+              Icon(icon),
+              SizedBox(width: 5),
               Expanded(
-                child: Text(details,
+                child: Text(
+                  details,
                   style: GoogleFonts.urbanist(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.fade,
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.fade,
-               ),
               ),
             ],
           ),
           Center(
-            child: Text(count,
-              style: GoogleFonts.urbanist(
-                fontSize: 35, 
-                color: Colors.black
-              ),
+            child: Text(
+              count,
+              style: GoogleFonts.urbanist(fontSize: 35, color: Colors.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -625,55 +666,55 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-DateTime? tryParseDate(String? input) {
-  if (input == null || input.isEmpty) return null;
+  DateTime? tryParseDate(String? input) {
+    if (input == null || input.isEmpty) return null;
 
-  try {
-    if (input.contains("-") && input.contains(":")) {
-      return DateTime.parse(input);
+    try {
+      if (input.contains("-") && input.contains(":")) {
+        return DateTime.parse(input);
+      }
+      if (input.contains("/")) {
+        return DateFormat("dd/MM/yyyy").parse(input);
+      }
+      if (RegExp(r'^\d{1,2}-\d{1,2}-\d{4}$').hasMatch(input)) {
+        return DateFormat("d-M-yyyy").parse(input);
+      }
+    } catch (_) {
+      return null;
     }
-    if (input.contains("/")) {
-      return DateFormat("dd/MM/yyyy").parse(input);
-    }
-    if (RegExp(r'^\d{1,2}-\d{1,2}-\d{4}$').hasMatch(input)) {
-      return DateFormat("d-M-yyyy").parse(input);
-    }
-  } catch (_) {
     return null;
   }
-  return null;
-}
 
-int? getNearestIndex(List<GetDataVasResponse.Data> getData) {
-  final now = DateTime.now();
-  int? nearestIndex;
-  Duration? nearestDiff;
+  int? getNearestIndex(List<GetDataVasResponse.Data> getData) {
+    final now = DateTime.now();
+    int? nearestIndex;
+    Duration? nearestDiff;
 
-  for (var i = 0; i < getData.length; i++) {
-    final item = getData[i];
-    final tanggalStrings = [
-      item.wawancara,
-      item.konfirmasiDesain,
-      item.perancanganDatabase,
-      item.pengembanganSoftware,
-      item.debugging,
-      item.testing,
-      item.trial,
-      item.production,
-      item.createdAt,
-    ];
+    for (var i = 0; i < getData.length; i++) {
+      final item = getData[i];
+      final tanggalStrings = [
+        item.wawancara,
+        item.konfirmasiDesain,
+        item.perancanganDatabase,
+        item.pengembanganSoftware,
+        item.debugging,
+        item.testing,
+        item.trial,
+        item.production,
+        item.createdAt,
+      ];
 
-    for (var tglStr in tanggalStrings) {
-      final date = tryParseDate(tglStr);
-      if (date != null && date.isAfter(now)) {
-        final diff = date.difference(now);
-        if (nearestDiff == null || diff < nearestDiff) {
-          nearestDiff = diff;
-          nearestIndex = i;
+      for (var tglStr in tanggalStrings) {
+        final date = tryParseDate(tglStr);
+        if (date != null && date.isAfter(now)) {
+          final diff = date.difference(now);
+          if (nearestDiff == null || diff < nearestDiff) {
+            nearestDiff = diff;
+            nearestIndex = i;
+          }
         }
       }
     }
+    return nearestIndex;
   }
-  return nearestIndex;
-}
 }

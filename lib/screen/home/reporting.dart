@@ -3,9 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/data/cubit/form/form_cubit.dart';
 import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
-import 'package:vas_reporting/data/model/response/get_data_uji_response.dart' as GetDataUjiResponse;
-import 'package:vas_reporting/data/model/response/get_data_response.dart' as GetDataResponse;
-import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as GetDataVasResponse;
+import 'package:vas_reporting/data/model/response/get_data_uji_response.dart'
+    as GetDataUjiResponse;
+import 'package:vas_reporting/data/model/response/get_data_response.dart'
+    as GetDataResponse;
+import 'package:vas_reporting/data/model/response/get_data_vas_response.dart'
+    as GetDataVasResponse;
 import 'package:vas_reporting/screen/ajuan/vas_home.dart';
 import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/popup.dart';
@@ -19,7 +22,7 @@ class AttendancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Future.microtask(() async {
       final token = await SharedPref.getToken();
-      if(token != null){
+      if (token != null) {
         context.read<GetDataCubit>().getAllData(token: 'Bearer $token');
       }
     });
@@ -33,9 +36,7 @@ class AttendancePage extends StatelessWidget {
           bottom: TabBar(
             indicatorColor: baseColors.primaryColor,
             labelColor: baseColors.primaryColor,
-            labelStyle: GoogleFonts.urbanist(
-              fontSize: 14
-            ),
+            labelStyle: GoogleFonts.urbanist(fontSize: 14),
             tabs: [
               Tab(text: "Pengajuan"),
               Tab(text: "VAS"),
@@ -76,10 +77,12 @@ class _ReportingPengajuanState extends State<ReportingPengajuan> {
     popUpWidget = PopUpWidget(context);
     fetchData();
   }
+
   void fetchData() async {
     token = await SharedPref.getToken();
     getDataCubit.getAllData(token: 'Bearer ${token ?? ""}');
   }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -89,124 +92,197 @@ class _ReportingPengajuanState extends State<ReportingPengajuan> {
           return Text(state.message);
         }
         if (state is GetDataLoading) {
-          return Center(
-            child: AppWidget().LoadingWidget(),
-          );
+          return Center(child: AppWidget().LoadingWidget());
         }
         if (state is GetDataSuccess) {
-          if (state.response.data == null|| state.response.data!.isEmpty) {
+          if (state.response.data == null || state.response.data!.isEmpty) {
             return Text('No data available');
           } else {
-          return Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: baseColors.secondaryColor,
-                  borderRadius: BorderRadius.circular(12),
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: baseColors.secondaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Pengajuan",
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "${state.response.data?.length}",
+                        textAlign: TextAlign.right,
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Pengajuan",
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "${state.response.data?.length}",
-                      textAlign: TextAlign.right,
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: state.response.data?.length,
-                  itemBuilder: (context, index){
-                    return GestureDetector(
-                      onTap: () {
-                        popUpWidget.showAlertWidget(
-                          'Detail Submission',
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10),
-                              informationPopup('Tanggal Pengajuan', state.response.data?[index].createdAt ?? '-', screenWidth/4),
-                              informationPopup('Nomor Pengajuan', state.response.data?[index].nomorPengajuan ?? '-', screenWidth/4),
-                              informationPopup('Nama Pemohon', state.response.data?[index].namaPemohon ?? '-',screenWidth/4),
-                              informationPopup('Divisi', state.response.data?[index].divisi ?? '-',screenWidth/4),
-                              informationPopup('Sistem', state.response.data?[index].sistem ?? '-',screenWidth/4),
-                              informationPopup('Jenis', state.response.data?[index].jenis ?? '-',screenWidth/4),
-                              informationPopup('Rencana Anggaran', state.response.data?[index].rencanaAnggaran ?? '-',screenWidth/4),
-                              informationPopup('Masalah', state.response.data?[index].masalah ?? '-',screenWidth/4),
-                              informationPopup('Output', state.response.data?[index].output ?? '-',screenWidth/4),
-                              informationPopup('Approved by', state.response.data?[index].approvedBy ?? '-', screenWidth/4)
-                            ]),
-                          'OK', '',  AttendancePage(), SizedBox());
-                      
-                      },
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          padding: EdgeInsets.all(10),   
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.response.data?.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          popUpWidget.showAlertWidget(
+                            'Detail Submission',
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 10),
+                                informationPopup(
+                                  'Tanggal Pengajuan',
+                                  state.response.data?[index].createdAt ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Nomor Pengajuan',
+                                  state.response.data?[index].nomorPengajuan ??
+                                      '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Nama Pemohon',
+                                  state.response.data?[index].namaPemohon ??
+                                      '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Divisi',
+                                  state.response.data?[index].divisi ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Sistem',
+                                  state.response.data?[index].sistem ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Jenis',
+                                  state.response.data?[index].jenis ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Rencana Anggaran',
+                                  state.response.data?[index].rencanaAnggaran ??
+                                      '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Masalah',
+                                  state.response.data?[index].masalah ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Output',
+                                  state.response.data?[index].output ?? '-',
+                                  screenWidth / 4,
+                                ),
+                                informationPopup(
+                                  'Approved by',
+                                  state.response.data?[index].approvedBy ?? '-',
+                                  screenWidth / 4,
+                                ),
+                              ],
+                            ),
+                            'OK',
+                            '',
+                            AttendancePage(),
+                            SizedBox(),
+                          );
+                        },
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 5,
+                          ),
+                          padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                          ), 
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.access_time, color: baseColors.primaryColor),
-                              const SizedBox(width: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    color: baseColors.primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        state.response.data?[index].sistem ??
+                                            'Unknown',
+                                        style: GoogleFonts.urbanist(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        state.response.data?[index].jenis ??
+                                            'Unknown',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    state.response.data?[index].sistem ?? 'Unknown',
+                                    state.response.data?[index].divisi ??
+                                        'Unknown',
                                     style: GoogleFonts.urbanist(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                     ),
                                   ),
-                                  Text(state.response.data?[index].jenis ?? 'Unknown', style: GoogleFonts.urbanist(fontSize: 12)),
+                                  Text(
+                                    state
+                                            .response
+                                            .data?[index]
+                                            .nomorPengajuan ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                state.response.data?[index].divisi ?? 'Unknown',
-                                style: GoogleFonts.urbanist(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                state.response.data?[index].nomorPengajuan ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                            ],
-                          ),
-                        ],
-                                          ),
-                      ),
-                    );
-                  }),
-              ),
-            ],
-          );
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
           }
         }
         return SizedBox();
       },
     );
   }
+
   Widget informationPopup(String key, String value, double screenWidth) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
@@ -231,7 +307,6 @@ class _ReportingPengajuanState extends State<ReportingPengajuan> {
               style: GoogleFonts.urbanist(color: Colors.black),
               textAlign: TextAlign.left,
             ),
-            
           ),
         ],
       ),
@@ -258,11 +333,13 @@ class _ReportingProgressState extends State<ReportingProgress> {
     fetchData();
     super.initState();
   }
+
   void fetchData() async {
     token = await SharedPref.getToken();
     await getDataCubit.getAllData(token: 'Bearer ${token ?? ""}');
     await getDataCubit.getDataVas(token: 'Bearer ${token ?? ""}');
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GetDataCubit, GetDataHasState>(
@@ -271,138 +348,219 @@ class _ReportingProgressState extends State<ReportingProgress> {
           return Text(state.message);
         }
         if (state is GetDataLoading) {
-          return Center(
-            child: AppWidget().LoadingWidget(),
-          );
+          return Center(child: AppWidget().LoadingWidget());
         }
         if (state is GetDataVasSuccess) {
-        if (state.response.data == null || state.response.data!.isEmpty) {
-          return const Center(child: Text('No data available'));
-        } else {
-          List<GetDataVasResponse.Data> progressData = state.response.data!;
-          return Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: baseColors.secondaryColor,
-                  borderRadius: BorderRadius.circular(12),
+          if (state.response.data == null || state.response.data!.isEmpty) {
+            return const Center(child: Text('No data available'));
+          } else {
+            List<GetDataVasResponse.Data> progressData = state.response.data!;
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: baseColors.secondaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Pengajuan yang diterima VAS",
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${progressData.length}',
+                        textAlign: TextAlign.right,
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Pengajuan yang diterima VAS",
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${progressData.length}',
-                      textAlign: TextAlign.right,
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: progressData.length,
-                  itemBuilder: (context, index){
-                    return GestureDetector(
-                      onTap: () {
-                        
-                      },
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          padding: EdgeInsets.all(10),   
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: progressData.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 5,
+                          ),
+                          padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                          ), 
-                        child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.access_time, color: baseColors.primaryColor),
-                              const SizedBox(width: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    color: baseColors.primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Nomor Pengajuan',
+                                        style: GoogleFonts.urbanist(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Wawancara',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Konfirmasi desain',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Perancangan Database',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Pengembangan Software',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Debugging',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Testing',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Trial',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Production',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Nomor Pengajuan',
+                                    state
+                                            .response
+                                            .data?[index]
+                                            .nomorPengajuan ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(fontSize: 14),
+                                  ),
+                                  Text(
+                                    progressData[index].wawancara ?? 'Unknown',
                                     style: GoogleFonts.urbanist(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
                                     ),
                                   ),
-                                  Text('Wawancara', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Konfirmasi desain', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Perancangan Database', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Pengembangan Software', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Debugging', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Testing', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Trial', style: GoogleFonts.urbanist(fontSize: 12)),
-                                  Text('Production', style: GoogleFonts.urbanist(fontSize: 12)),
+                                  Text(
+                                    progressData[index].konfirmasiDesain ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].perancanganDatabase ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].pengembanganSoftware ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].debugging ?? 'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].perancanganDatabase ??
+                                        'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].testing ?? 'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].trial ?? 'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    progressData[index].production ?? 'Unknown',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 12,
+                                      color: baseColors.primaryColor,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                state.response.data?[index].nomorPengajuan ?? 'Unknown',
-                                style: GoogleFonts.urbanist(
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                progressData[index].wawancara ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].konfirmasiDesain ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                               progressData[index].perancanganDatabase ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),Text(
-                                progressData[index].pengembanganSoftware ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].debugging ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].perancanganDatabase ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].testing ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].trial ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                              Text(
-                                progressData[index].production ?? 'Unknown',
-                                style: GoogleFonts.urbanist(fontSize: 12, color: baseColors.primaryColor),
-                              ),
-                      
-                            ],
-                          ),
-                        ],
-                                          ),
-                      ),
-                    );
-                  }),
-              ),
-            ],
-          );
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
           }
         }
         return SizedBox();
@@ -428,10 +586,12 @@ class _ReportingPengujianState extends State<ReportingPengujian> {
     fetchData();
     super.initState();
   }
+
   void fetchData() async {
     token = await SharedPref.getToken();
     getDataCubit.getDataUji(token: 'Bearer ${token ?? ""}');
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GetDataCubit, GetDataHasState>(
@@ -440,54 +600,59 @@ class _ReportingPengujianState extends State<ReportingPengujian> {
           return Text(state.message);
         }
         if (state is GetDataLoading) {
-          return Center(
-            child: AppWidget().LoadingWidget(),
-          );
+          return Center(child: AppWidget().LoadingWidget());
         }
         if (state is GetDataUjiSuccess) {
-          if (state.response.data == null|| state.response.data!.isEmpty) {
+          if (state.response.data == null || state.response.data!.isEmpty) {
             return Center(child: Text('No data available'));
           } else {
-          return Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: baseColors.secondaryColor,
-                  borderRadius: BorderRadius.circular(12),
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: baseColors.secondaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Aplikasi Pengujian",
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${state.response.data!.length}',
+                        textAlign: TextAlign.right,
+                        style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Aplikasi Pengujian",
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${state.response.data!.length}',
-                      textAlign: TextAlign.right,
-                      style: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: state.response.data!.length,
-                  itemBuilder: (context, index){
-                    final pengajuan = state.response.data![index];
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                        padding: EdgeInsets.all(10),   
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.response.data!.length,
+                    itemBuilder: (context, index) {
+                      final pengajuan = state.response.data![index];
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 5,
+                        ),
+                        padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                        ), 
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Nomor Pengujian',
@@ -496,126 +661,136 @@ class _ReportingPengujianState extends State<ReportingPengujian> {
                                     fontSize: 14,
                                   ),
                                 ),
-                                Container(
-                                  color: Colors.black,
-                                  height: 1,
-                                ),
+                                Container(color: Colors.black, height: 1),
                                 Text(
-                                  state.response.data?[index].nomorPengajuan ?? 'Unknown',
+                                  state.response.data?[index].nomorPengajuan ??
+                                      'Unknown',
                                   style: GoogleFonts.urbanist(fontSize: 12),
                                 ),
                               ],
                             ),
-                          Column(
-                          children: pengajuan.detail!.map((e) {
-                            return Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.symmetric(vertical: 5),
-                                    height: 1,
-                                    color: Colors.grey,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              children: pengajuan.detail!.map((e) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: Text(
-                                          'Perangkat Lunak',
-                                          style: GoogleFonts.urbanist(
-                                            fontSize: 12
-                                          ),
+                                      Container(
+                                        margin: EdgeInsets.symmetric(
+                                          vertical: 5,
                                         ),
+                                        height: 1,
+                                        color: Colors.grey,
                                       ),
-                                      Text(
-                                        e.perangkatLunak ?? 'Unknown',
-                                        style: GoogleFonts.urbanist(
-                                          fontSize: 12,
-                                          color: baseColors.primaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: Text(
-                                          'Versi',
-                                          style: GoogleFonts.urbanist(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        e.versi ?? 'Unknown',
-                                        style: GoogleFonts.urbanist(
-                                          fontSize: 12,
-                                          color: baseColors.primaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: Text(
-                                          'Metode',
-                                          style: GoogleFonts.urbanist(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        e.metode ?? 'Unknown',
-                                        style: GoogleFonts.urbanist(
-                                          fontSize: 12,
-                                          color: baseColors.primaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: Text(
-                                          'Hasil',
-                                          style: GoogleFonts.urbanist(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        e.hasilUji ?? 'Unknown',
-                                        style: GoogleFonts.urbanist(
-                                          fontSize: 12,
-                                          color: baseColors.primaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  
-                                ],
-                                
-                              ),
-                            );
-                          }).toList(),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                            ),
+                                            child: Text(
+                                              'Perangkat Lunak',
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 12,
                                               ),
-                        ],
-                      )
-
-                    );
-                  }),
-              ),
-            ],
-          );
+                                            ),
+                                          ),
+                                          Text(
+                                            e.perangkatLunak ?? 'Unknown',
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 12,
+                                              color: baseColors.primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                            ),
+                                            child: Text(
+                                              'Versi',
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            e.versi ?? 'Unknown',
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 12,
+                                              color: baseColors.primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                            ),
+                                            child: Text(
+                                              'Metode',
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            e.metode ?? 'Unknown',
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 12,
+                                              color: baseColors.primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                            ),
+                                            child: Text(
+                                              'Hasil',
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            e.hasilUji ?? 'Unknown',
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 12,
+                                              color: baseColors.primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
           }
         }
         return SizedBox();
@@ -623,10 +798,3 @@ class _ReportingPengujianState extends State<ReportingPengujian> {
     );
   }
 }
-
-
-
-
-
-
-
