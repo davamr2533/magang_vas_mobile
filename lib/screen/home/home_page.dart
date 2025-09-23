@@ -204,9 +204,9 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               onTap: () {
-                                Navigator.of(
-                                  context,
-                                ).pushReplacement(routingPage(DrivePage()));
+                                Navigator.of(context).push(
+                                  routingPage(DrivePage()),
+                                );
                               },
                             )
                           : SizedBox(),

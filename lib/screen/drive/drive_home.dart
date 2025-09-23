@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/base/base_colors.dart' as baseColors;
-import 'package:vas_reporting/screen/home/home_page.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 
 import '../../data/cubit/get_data/get_data_cubit.dart';
 import '../../data/model/response/get_data_response.dart' as GetDataResponse;
 import '../../tools/popup.dart';
-import '../../tools/routing.dart';
 import '../../utllis/app_shared_prefs.dart';
-import '../ajuan/uji_home.dart';
-import '../ajuan/vas_home.dart';
-import '../login_page.dart';
 
 class DrivePage extends StatefulWidget {
   const DrivePage({super.key});
@@ -75,94 +70,190 @@ class _DrivePageState extends State<DrivePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          toolbarHeight: 70,
           leading: IconButton(
             onPressed: () {
               Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
             },
             icon: Icon(Icons.arrow_back_ios_new), color: Colors.black,
           ),
+
+          title: Row(
+            children: [
+
+              //Text field search document
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: TextField(
+
+                    style: GoogleFonts.urbanist(
+                        fontSize: 14
+                    ),
+
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+
+                      hintText: "Search Document",
+                      hintStyle: GoogleFonts.urbanist(
+                          fontSize: 14
+                      ),
+                      filled: true,
+                      fillColor: Colors.red[100],
+
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                        ),
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 2
+                        ),
+                      ),
+                    ),
+
+                  ),
+                ),
+              ),
+
+              SizedBox(width: 12),
+
+
+              //Button untuk Settings filter
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.red[100],
+                  borderRadius: BorderRadius.circular(8)
+                ),
+                child: Center(
+                  child: PopupMenuButton<String>(
+                    icon: const Icon(
+                      IconlyBold.filter,
+                      color: orangeNewAmikom,
+                    ),
+                    onSelected: (value) {
+                      if (value == 'date') {
+                        // TODO: filter by date
+                        print("Filter by Date");
+                      } else if (value == 'name') {
+                        // TODO: filter by name
+                        print("Filter by Name");
+                      } else if (value == 'type') {
+                        // TODO: filter by type
+                        print("Filter by Type");
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(
+                        value: 'date',
+                        child: Text("Sort by Date"),
+                      ),
+                      PopupMenuItem(
+                        value: 'name',
+                        child: Text("Sort by Name"),
+                      ),
+                      PopupMenuItem(
+                        value: 'type',
+                        child: Text("Sort by File Type"),
+                      ),
+                    ],
+                  ),
+
+                ),
+
+
+
+
+              ),
+
+
+
+
+            ],
+          )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          // Expanded(
+          //
+          //   child: Container(
+          //     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          //     padding: const EdgeInsets.symmetric(horizontal: 12),
+          //     decoration: BoxDecoration(
+          //       color: Colors.red[100],
+          //       borderRadius: BorderRadius.circular(12),
+          //     ),
+          //     child: Row(
+          //       children: [
+          //
+          //         //Text Field untuk Search Document
+          //         const Icon(Icons.search, color: Colors.black54),
+          //         Expanded(
+          //           child: TextField(
+          //             controller: _searchController,
+          //             onChanged: (val) {
+          //               setState(() {
+          //                 query = val;
+          //               });
+          //             },
+          //             decoration: const InputDecoration(
+          //               hintText: "Search document",
+          //               border: InputBorder.none,
+          //             ),
+          //           ),
+          //         ),
+          //
+          //
+          //
+          //         SizedBox(width: 8),
+          //
+          //         Container(
+          //           width: 50,
+          //           decoration: BoxDecoration(
+          //             color: greenNewAmikom
+          //           ),
+          //         )
+          //
+          //
+          //         //Filter
+          //         // Container(
+          //         //   width: 50,
+          //         //   decoration: BoxDecoration(
+          //         //     color: Colors.red[100],
+          //         //     borderRadius: BorderRadius.circular(12),
+          //         //   ),
+
         ),
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.red[100],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: Colors.black54),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (val) {
-                                setState(() {
-                                  query = val;
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                hintText: "Search document",
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.tune),
-                      onSelected: (value) {
-                        if (value == 'date') {
-                          // TODO: filter by date
-                          print("Filter by Date");
-                        } else if (value == 'name') {
-                          // TODO: filter by name
-                          print("Filter by Name");
-                        } else if (value == 'type') {
-                          // TODO: filter by type
-                          print("Filter by Type");
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'date',
-                          child: Text("Sort by Date"),
-                        ),
-                        const PopupMenuItem(
-                          value: 'name',
-                          child: Text("Sort by Name"),
-                        ),
-                        const PopupMenuItem(
-                          value: 'type',
-                          child: Text("Sort by File Type"),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
             const TabBar(
               labelColor: Colors.red,
