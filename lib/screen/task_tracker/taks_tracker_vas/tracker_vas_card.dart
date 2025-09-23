@@ -428,7 +428,7 @@
 
                                             Spacer(),
 
-                                            //Button untuk update progress
+                                            //Button untuk update current progress
                                             ElevatedButton(
                                                 onPressed: (){
 
