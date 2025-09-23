@@ -16,7 +16,7 @@ class TrackerUser extends StatelessWidget {
       "tahapPengajuan" : "Perancangan DB",
       "divisi" : "NOC",
       "namaPengajuan" : "Stock Toko",
-      "tanggal" : "2025-09-12",
+      "tanggal" : "12 Sep 2025",
       "persentase" : 38,
       "image" : "assets/rancang_db.png",
       "isDone" : false,
@@ -29,7 +29,8 @@ class TrackerUser extends StatelessWidget {
         {"title" : "Testing", "date" : "19-09-2025", "isDone" : false},
         {"title" : "Trial", "date" : "21-09-2025", "isDone" : false},
         {"title" : "Production", "date" : "22-09-2025", "isDone" : false},
-      ]
+      ],
+      "diupdateOleh" : "Fais",
     },
 
     { // sampel data dua
@@ -37,7 +38,7 @@ class TrackerUser extends StatelessWidget {
       "tahapPengajuan" : "Wawancara",
       "divisi" : "Sales",
       "namaPengajuan" : "Dompet Duafa",
-      "tanggal" : "2025-09-12",
+      "tanggal" : "12 Sep 2025",
       "persentase" : 13,
       "image" : "assets/wawancara.png",
       "isDone" : false,
@@ -50,7 +51,8 @@ class TrackerUser extends StatelessWidget {
         {"title" : "Testing", "date" : "16-10-2025", "isDone" : false},
         {"title" : "Trial", "date" : "17-10-2025", "isDone" : false},
         {"title" : "Production", "date" : "19-10-2025", "isDone" : false},
-      ]
+      ],
+      "diupdateOleh" : "Fais",
     },
 
     { // sampel data tiga
@@ -58,7 +60,7 @@ class TrackerUser extends StatelessWidget {
       "tahapPengajuan" : "Pengembangan",
       "divisi" : "Wiko",
       "namaPengajuan" : "Web Wifi Coin",
-      "tanggal" : "2025-09-12",
+      "tanggal" : "13 Sep 2025",
       "persentase" : 50,
       "image" : "assets/pengembangan_software.png",
       "isDone" : false,
@@ -71,7 +73,8 @@ class TrackerUser extends StatelessWidget {
         {"title" : "Testing", "date" : "16-10-2025", "isDone" : false},
         {"title" : "Trial", "date" : "17-10-2025", "isDone" : false},
         {"title" : "Production", "date" : "19-10-2025", "isDone" : false},
-      ]
+      ],
+      "diupdateOleh" : "Fais",
     },
 
   ];
