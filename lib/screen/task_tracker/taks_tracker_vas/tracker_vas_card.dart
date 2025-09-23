@@ -357,6 +357,9 @@
                                           child: TextField(
                                             maxLines: null,
                                             minLines: 5,
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 14
+                                            ),
                                             decoration: InputDecoration(
                                               border: OutlineInputBorder(),
 
