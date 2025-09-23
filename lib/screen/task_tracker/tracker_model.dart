@@ -8,6 +8,7 @@ class Task {
   final String image;
   final bool isDone;
   final List<TimelineStep> timeline;
+  final String diupdateOleh;
 
   Task({
     required this.idPengajuan,
@@ -19,6 +20,7 @@ class Task {
     required this.image,
     this.isDone = false,
     this.timeline = const [],
+    required this.diupdateOleh,
   });
 
   //simulasi pura pura ambil dari API (dummy JSON) :v
@@ -36,6 +38,7 @@ class Task {
           ?.map((e) => TimelineStep.fromJson(e))
           .toList() ??
           [],
+      diupdateOleh: json["diupdateOleh"],
     );
 
   }

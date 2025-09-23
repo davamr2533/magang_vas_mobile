@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
-import 'package:vas_reporting/screen/task_tracker_user/tracker_user_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vas_reporting/screen/task_tracker/tracker_model.dart';
 
 
 class TaskUserCard extends StatefulWidget {

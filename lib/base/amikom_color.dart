@@ -8,3 +8,4 @@ const Color greenNewAmikom = Color(0xFFA1D688);
 const Color grayNewAmikom = Color(0x33000000);
 const Color softGrayNewAmikom = Color(0xFFD8D8D8);
 const Color creamNewAmikom = Color(0x33BCDE7D);
+const Color brownNewAmikom = Color(0xFFA87171);

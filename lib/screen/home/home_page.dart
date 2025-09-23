@@ -9,20 +9,18 @@ import 'package:vas_reporting/data/model/response/get_data_response.dart'
 import 'package:vas_reporting/data/model/response/get_data_vas_response.dart'
     as GetDataVasResponse;
 import 'package:vas_reporting/screen/ajuan/approval_manager.dart';
-import 'package:vas_reporting/screen/ajuan/form_ajuan_vas.dart';
 import 'package:vas_reporting/screen/ajuan/form_pengajuan.dart';
-import 'package:vas_reporting/screen/ajuan/form_uji_internal.dart';
 import 'package:vas_reporting/screen/ajuan/uji_home.dart';
 import 'package:vas_reporting/screen/ajuan/vas_home.dart';
 import 'package:vas_reporting/screen/drive/drive_home.dart';
 import 'package:vas_reporting/screen/home/reporting.dart';
 import 'package:vas_reporting/screen/login_page.dart';
-import 'package:vas_reporting/screen/task_tracker_user/tracker_user.dart';
+import 'package:vas_reporting/screen/task_tracker/taks_tracker_vas/tracker_vas.dart';
+import 'package:vas_reporting/screen/task_tracker/task_tracker_user/tracker_user.dart';
 import 'package:vas_reporting/tools/popup.dart';
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 import 'list_ajuan.dart';
-import 'profile_page.dart';
 import 'package:vas_reporting/base/base_colors.dart' as baseColors;
 
 class HomePage extends StatefulWidget {
@@ -175,6 +173,26 @@ class _HomePageState extends State<HomePage> {
                               },
                             )
                           : SizedBox(),
+
+                      //Task Tracker VAS navigation
+                      divisi == 'VAS' && jabatan == 'Staff'
+                          ? ListTile(
+                        leading: const Icon(IconlyLight.document),
+                        title: Text(
+                          "Task Tracker",
+                          style: GoogleFonts.urbanist(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            routingPage(TrackerVas()),
+                          );
+                        },
+                      )
+                          : SizedBox(),
+
                       divisi == 'VAS' && jabatan == 'Staff'
                           ? ListTile(
                               leading: const Icon(IconlyLight.folder),
@@ -192,6 +210,9 @@ class _HomePageState extends State<HomePage> {
                               },
                             )
                           : SizedBox(),
+
+
+
                       jabatan != 'Manager' && divisi != 'VAS'
                           ? ListTile(
                               leading: const Icon(IconlyLight.activity),
@@ -208,9 +229,10 @@ class _HomePageState extends State<HomePage> {
                                 ).pushReplacement(routingPage(UjiHome()));
                               },
                             )
+                          : SizedBox(),
+
 
                       //Task Tracker User Navigation
-                          : SizedBox(),
                       jabatan != 'Manager' && divisi != 'VAS'
                           ? ListTile(
                         leading: const Icon(IconlyLight.document),
@@ -643,7 +665,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 6,
             offset: const Offset(0, 4),
           ),
