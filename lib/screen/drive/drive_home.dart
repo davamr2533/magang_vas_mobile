@@ -74,140 +74,14 @@ class _DrivePageState extends State<DrivePage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        drawer: Drawer(
-          width: screenWidth / 1.5,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-          ),
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: screenHeight / 11),
-                child: Row(
-                  children: [
-                    CircleAvatar(radius: 30, child: Icon(IconlyBold.user2)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            name ?? "-",
-                            style: GoogleFonts.urbanist(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            "${jabatan ?? '-'} | ${divisi ?? '-'}",
-                            style: GoogleFonts.urbanist(
-                              color: baseColors.primaryColor,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 30, bottom: 10),
-                height: 1,
-                color: Colors.grey,
-              ),
-              Container(
-                height: screenHeight / 1.35,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        divisi == 'VAS' && jabatan == 'Staff'
-                            ? ListTile(
-                                leading: const Icon(IconlyLight.home),
-                                title: Text(
-                                  "Home",
-                                  style: GoogleFonts.urbanist(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(
-                                    context,
-                                  ).pushReplacement(routingPage(HomePage()));
-                                },
-                              )
-                            : SizedBox(),
-                        divisi == 'VAS' && jabatan == 'Staff'
-                            ? ListTile(
-                                leading: const Icon(IconlyLight.edit),
-                                title: Text(
-                                  "Pengajuan VAS",
-                                  style: GoogleFonts.urbanist(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(
-                                    context,
-                                  ).pushReplacement(routingPage(VasHome()));
-                                },
-                              )
-                            : SizedBox(),
-                        divisi == 'VAS' && jabatan == 'Staff'
-                            ? ListTile(
-                                leading: const Icon(IconlyLight.folder),
-                                title: Text(
-                                  "VAS Drive",
-                                  style: GoogleFonts.urbanist(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(
-                                    context,
-                                  ).pushReplacement(routingPage(DrivePage()));
-                                },
-                              )
-                            : SizedBox(),
-                      ],
-                    ),
-                    ListTile(
-                      leading: const Icon(IconlyLight.logout),
-                      title: Text(
-                        "Logout",
-                        style: GoogleFonts.urbanist(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onTap: () async {
-                        await SharedPref.clearLastLogin();
-                        Navigator.of(
-                          context,
-                        ).pushReplacement(routingPage(LoginPage()));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
         appBar: AppBar(
-          toolbarHeight: 0,
-          elevation: 0,
           backgroundColor: Colors.transparent,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
+            },
+            icon: Icon(Icons.arrow_back_ios_new), color: Colors.black,
+          ),
         ),
         body: Column(
           children: [
@@ -218,7 +92,7 @@ class _DrivePageState extends State<DrivePage> {
                   Builder(
                     builder: (context) => IconButton(
                       icon: const Icon(Icons.menu),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ),
                   Expanded(
