@@ -100,7 +100,6 @@
 
             ),
 
-
             //Tanggal terakhir di update
             Positioned(
               right: 0,
@@ -127,7 +126,6 @@
                 )
             ),
 
-
             //Nama Pengajuan
             Positioned(
               left: 10,
@@ -140,7 +138,6 @@
                   ),
                 ),
             ),
-
 
             //Tahap Pengajuan
             Positioned(
@@ -170,17 +167,13 @@
                       ),
                   ),
 
-
                   SizedBox(width: 15),
-
 
                   //Tombol untuk update progress
                   ElevatedButton(
                       onPressed: (){
 
                         //Pop Up untuk Update Progress
-
-
                         showDialog(
                             context: context,
                             barrierDismissible: false,
@@ -218,9 +211,6 @@
 
                                         SizedBox(height: 10),
 
-
-
-
                                         //ID Pengajuan
                                         Text(
                                           "ID Pengajuan",
@@ -229,7 +219,6 @@
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold
                                           ),
-
                                         ),
 
                                         SizedBox(height: 4),
@@ -253,9 +242,6 @@
                                         ),
 
                                         SizedBox(height: 12),
-
-
-
 
                                         //Nama Sistem
                                         Text(
@@ -284,13 +270,9 @@
                                                 fontSize: 14
                                             ),
                                           ),
-
                                         ),
 
                                         SizedBox(height: 12),
-
-
-
 
                                         //Next Progress
                                         Text(
@@ -324,10 +306,6 @@
 
                                         SizedBox(height: 12),
 
-
-
-
-
                                         //Diupdate oleh
                                         Text(
                                           "Diupdate oleh",
@@ -355,13 +333,9 @@
                                                 fontSize: 14
                                             ),
                                           ),
-
                                         ),
 
                                         SizedBox(height: 12),
-
-
-
 
                                         //Catatan
                                         Text(
@@ -375,7 +349,6 @@
                                         ),
 
                                         SizedBox(height: 4),
-
 
                                         //Text field untuk catatan
                                         SizedBox(
@@ -408,7 +381,6 @@
                                                     width: 2
                                                 ),
                                               ),
-
                                             ),
                                           ),
 
@@ -425,9 +397,7 @@
                                         SizedBox(height: 8),
 
                                         Row(
-
                                           children: [
-
 
                                             //Button untuk menutup Pop Up
                                             ElevatedButton(
@@ -455,7 +425,6 @@
 
                                             Spacer(),
 
-
                                             //Button untuk update progress
                                             ElevatedButton(
                                                 onPressed: (){
@@ -476,17 +445,10 @@
                                                       color: Colors.white,
                                                       fontSize: 18
                                                   ),
-
                                                 )
                                             ),
-
-
-
                                           ],
                                         )
-
-
-
 
                                       ],
                                     ),
@@ -495,10 +457,6 @@
                               );
                             }
                         );
-
-
-
-
 
                       },
                       style: ElevatedButton.styleFrom(
@@ -515,28 +473,11 @@
                         size: 25,
                       )
                   )
-
                 ],
               ),
             )
-
-
-
-
           ],
         ),
-
-
-
-
-
-
-
-
-
-
       );
-
     }
-
   }
