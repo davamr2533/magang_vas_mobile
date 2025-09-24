@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/task_tracker/taks_tracker_vas/tracker_vas_card.dart';
 import 'package:vas_reporting/screen/task_tracker/tracker_model.dart';
 
@@ -118,16 +120,92 @@ class TrackerVas extends StatelessWidget {
       ),
 
       //isi halaman
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-        itemCount: tasks.length + 1,
-        itemBuilder: (context, index) {
-          if (index == tasks.length) {
-            return const SizedBox(height: 80);
-          }
-          return TaskVasCard(task: tasks[index]);
-        },
+      body: Column(
+
+
+        children: [
+
+          Row(
+            children: [
+
+              //Search Bar
+              Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20),
+                    child: TextField(
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                      decoration: InputDecoration(
+                        hintText: "Cari task...",
+                        hintStyle: GoogleFonts.urbanist(fontSize: 14, color: darkGrayNewAmikom),
+                        filled: true,
+                        fillColor: Colors.red[100],
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 2,
+                          ),
+                        ),
+                        suffixIcon: Icon(
+                          Icons.search,
+                          color: darkGrayNewAmikom,
+                        ),
+                      ),
+                    ),
+                  ),
+              ),
+
+
+              //Tombol filter
+              Container(
+                width: 45,
+                height: 45,
+                margin: EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: yellowNewAmikom,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.filter_alt_rounded,
+                    color: blueNewAmikom,
+                    size: 30,
+                  ),
+                  onPressed: () {
+
+                  },
+                ),
+              ),
+
+
+            ],
+          ),
+          //Search bar
+
+
+          SizedBox(height: 20),
+
+          //Daftar task
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: tasks.length + 1,
+              itemBuilder: (context, index) {
+                if (index == tasks.length) {
+                  return const SizedBox(height: 80);
+                }
+                return TaskVasCard(task: tasks[index]);
+              },
+            ),
+          ),
+        ],
       ),
+
 
     );
   }
