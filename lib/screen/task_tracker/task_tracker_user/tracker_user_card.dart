@@ -2,13 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/screen/task_tracker/tracker_model.dart';
+import 'package:vas_reporting/data/model/response/get_data_response.dart' as task_model;
+import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as timeline_model;
+
+
+class TimelineStep {
+  final String title;
+  final String date;
+  final bool isDone;
+
+  TimelineStep({required this.title, required this.date, required this.isDone});
+
+}
 
 
 class TaskUserCard extends StatefulWidget {
-  final Task task;
+  final task_model.Data task;
+  final timeline_model.Data timeline;
 
-  const TaskUserCard({super.key, required this.task});
+  const TaskUserCard({super.key, required this.task, required this.timeline});
 
   @override
   TaskUserCardState createState() => TaskUserCardState();
@@ -24,6 +36,51 @@ class TaskUserCardState extends State<TaskUserCard> {
   Widget build(BuildContext context) {
 
     final task = widget.task;
+    final timeline = widget.timeline;
+    int persentase = 0;
+    String tahap = "Konfirmasi Desain";
+    String image = "assets/wawancara.png";
+
+
+    if (tahap == "Wawancara"){
+      persentase = 13;
+      image = "assets/wawancara.png";
+
+    }else if (tahap == "Konfirmasi Desain"){
+      persentase = 25;
+      image = "assets/konfirm_desain.png";
+
+    }else if (tahap == "Perancangan Database"){
+      persentase = 38;
+      image = "assets/rancang_db.png";
+
+    }else if (tahap == "Pengembangan Software"){
+      persentase = 50;
+      image = "assets/pengembangan_software.png";
+
+    }else if (tahap == "Debugging"){
+      persentase = 63;
+      image = "assets/debugging.png";
+
+    }else if (tahap == "Testing"){
+      persentase = 75;
+      image = "assets/testing.png";
+
+    }else if (tahap == "Trial"){
+      persentase = 88;
+      image = "assets/trial.png";
+
+    }else if (tahap == "Production"){
+      persentase = 100;
+      image = "assets/production.png";
+
+    }
+
+
+
+
+
+
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
@@ -57,7 +114,7 @@ class TaskUserCardState extends State<TaskUserCard> {
                 topRight: Radius.circular(15),
               ),
               child: Image.asset(
-                task.image,
+                image,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 150,
@@ -81,7 +138,7 @@ class TaskUserCardState extends State<TaskUserCard> {
             ),
             child: Center(
               child: Text(
-                task.tahapPengajuan,
+                tahap, //Sementara ngawur karena belum ada tablenya xixixii muach
                 style: GoogleFonts.urbanist(
                   color: blackNewAmikom,
                   fontSize: 16,
@@ -96,7 +153,7 @@ class TaskUserCardState extends State<TaskUserCard> {
             right: 20,
             top: 15,
             child: Text(
-              task.idPengajuan,
+              task.nomorPengajuan ?? '_',
               style: GoogleFonts.urbanist(
                 color: Colors.white,
                 fontSize: 14,
@@ -110,7 +167,7 @@ class TaskUserCardState extends State<TaskUserCard> {
             left: 25,
             top: 95,
             child: Text(
-              task.divisi,
+              task.divisi ?? '_',
               style: GoogleFonts.urbanist(
                 color: yellowNewAmikom,
                 fontSize: 20,
@@ -125,7 +182,7 @@ class TaskUserCardState extends State<TaskUserCard> {
             left: 25,
             top: 115,
             child: Text(
-              task.namaPengajuan,
+              task.jenis ?? '_',
               style: GoogleFonts.urbanist(
                 color: Colors.white,
                 fontSize: 32,
@@ -182,13 +239,13 @@ class TaskUserCardState extends State<TaskUserCard> {
               child: Center(
                 child: CircularPercentIndicator(
                   radius: 60,
-                  percent: task.persentase / 100,
+                  percent: persentase / 100,
                   lineWidth: 8,
                   backgroundColor: softGrayNewAmikom,
                   progressColor: blueNewAmikom,
                   circularStrokeCap: CircularStrokeCap.round,
                   center: Text(
-                    "${task.persentase}%",
+                    "$persentase%",
                     style: GoogleFonts.urbanist(
                       color: blackNewAmikom,
                       fontSize: 17,
@@ -220,9 +277,12 @@ class TaskUserCardState extends State<TaskUserCard> {
                 padding: const EdgeInsets.all(10),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: task.timeline.map((step) {
-                      return timelineRow(step.title, step.date, step.isDone);
-                    }).toList(),
+                    children: timeline.timelineSteps.map(
+                        (step) => timelineRow(step.title, step.date, step.isDone)
+                    ).toList()
+
+
+
                   ),
                 ),
               ),
@@ -272,15 +332,4 @@ class TaskUserCardState extends State<TaskUserCard> {
       ],
     );
   }
-
-
-
-
-
-
-
-
-
-
-
 }

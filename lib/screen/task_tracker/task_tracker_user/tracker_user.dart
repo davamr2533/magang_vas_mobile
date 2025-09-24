@@ -1,89 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vas_reporting/data/model/response/get_data_response.dart' as apps;
+import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as vas;
+import 'package:vas_reporting/screen/task_tracker/task_service.dart';
 import 'package:vas_reporting/screen/task_tracker/task_tracker_user/tracker_user_card.dart';
-import 'package:vas_reporting/screen/task_tracker/tracker_model.dart';
-
-class TrackerUser extends StatelessWidget {
-
-  TrackerUser({super.key});
+import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 
 
-  //simulasi dummy API etok-etok untuk Card
-  final List<Map<String, dynamic>> dummyApi = [
 
-    { // sampel data satu
-      "idPengajuan" : "SIMS-VAS-35026",
-      "tahapPengajuan" : "Perancangan DB",
-      "divisi" : "NOC",
-      "namaPengajuan" : "Stock Toko",
-      "tanggal" : "12 Sep 2025",
-      "persentase" : 38,
-      "image" : "assets/rancang_db.png",
-      "isDone" : false,
-      "timeline" : [
-        {"title" : "Wawancara", "date" : "12-09-2025", "isDone" : true},
-        {"title" : "Konfirmasi Desain", "date" : "14-09-2025", "isDone" : true},
-        {"title" : "Perancangan DB", "date" : "15-09-2025", "isDone" : true},
-        {"title" : "Pengembangan Software", "date" : "16-09-2025", "isDone" : false},
-        {"title" : "Debugging", "date" : "18-09-2025", "isDone" : false},
-        {"title" : "Testing", "date" : "19-09-2025", "isDone" : false},
-        {"title" : "Trial", "date" : "21-09-2025", "isDone" : false},
-        {"title" : "Production", "date" : "22-09-2025", "isDone" : false},
-      ],
-      "diupdateOleh" : "Fais",
-    },
 
-    { // sampel data dua
-      "idPengajuan" : "SIMS-VAS-35027",
-      "tahapPengajuan" : "Wawancara",
-      "divisi" : "Sales",
-      "namaPengajuan" : "Dompet Duafa",
-      "tanggal" : "12 Sep 2025",
-      "persentase" : 13,
-      "image" : "assets/wawancara.png",
-      "isDone" : false,
-      "timeline" : [
-        {"title" : "Wawancara", "date" : "01-10-2025", "isDone" : true},
-        {"title" : "Konfirmasi Desain", "date" : "02-10-2025", "isDone" : false},
-        {"title" : "Perancangan DB", "date" : "04-10-2025", "isDone" : false},
-        {"title" : "Pengembangan Software", "date" : "10-10-2025", "isDone" : false},
-        {"title" : "Debugging", "date" : "15-10-2025", "isDone" : false},
-        {"title" : "Testing", "date" : "16-10-2025", "isDone" : false},
-        {"title" : "Trial", "date" : "17-10-2025", "isDone" : false},
-        {"title" : "Production", "date" : "19-10-2025", "isDone" : false},
-      ],
-      "diupdateOleh" : "Fais",
-    },
+class TrackerUser extends StatefulWidget {
 
-    { // sampel data tiga
-      "idPengajuan" : "SIMS-VAS-35028",
-      "tahapPengajuan" : "Pengembangan",
-      "divisi" : "Wiko",
-      "namaPengajuan" : "Web Wifi Coin",
-      "tanggal" : "13 Sep 2025",
-      "persentase" : 50,
-      "image" : "assets/pengembangan_software.png",
-      "isDone" : false,
-      "timeline" : [
-        {"title" : "Wawancara", "date" : "01-10-2025", "isDone" : true},
-        {"title" : "Konfirmasi Desain", "date" : "02-10-2025", "isDone" : true},
-        {"title" : "Perancangan DB", "date" : "04-10-2025", "isDone" : true},
-        {"title" : "Pengembangan Software", "date" : "10-10-2025", "isDone" : true},
-        {"title" : "Debugging", "date" : "15-10-2025", "isDone" : false},
-        {"title" : "Testing", "date" : "16-10-2025", "isDone" : false},
-        {"title" : "Trial", "date" : "17-10-2025", "isDone" : false},
-        {"title" : "Production", "date" : "19-10-2025", "isDone" : false},
-      ],
-      "diupdateOleh" : "Fais",
-    },
+  const TrackerUser({super.key});
 
-  ];
+  @override
+  State<TrackerUser> createState() => _TrackerUserState();
+
+}
+
+class _TrackerUserState extends State<TrackerUser> {
+  late Future<Map<String, dynamic>> futureData;
+  bool _loading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  void _loadTasks() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final token = await SharedPref.getToken(); // ambil token dari shared prefs
+      if (token == null || token.isEmpty) {
+        setState(() {
+          _errorMessage = 'Token tidak ditemukan. Silakan login ulang.';
+          _loading = false;
+        });
+        return;
+      }
+
+      setState(() {
+        futureData = Future.wait([
+          TaskService.fetchTasks(token),
+          TaskService.fetchTimelines(token),
+        ]).then((results) {
+          return {
+            "tasks" : results[0] as List<apps.Data>,
+            "timelines" : results[1] as List<vas.Data>
+          };
+        });
+      });
+
+      // optional: wait for completion to update loading state nicely
+      futureData.then((_) {
+        if (mounted) setState(() => _loading = false);
+      }).catchError((e) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = e.toString();
+            _loading = false;
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+
+
 
 
   @override
   Widget build(BuildContext context) {
 
-    final tasks = dummyApi.map((e) => Task.fromJson(e)).toList();
 
     return Scaffold(
 
@@ -117,18 +116,95 @@ class TrackerUser extends StatelessWidget {
 
       ),
 
+      body: Expanded(
+          child: _loading
+              ?
+          const Center(child: CircularProgressIndicator())
+              :
+          (_errorMessage != null)
 
-      //isi halaman
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: tasks.length + 1,
-        itemBuilder: (context, index) {
-          if (index == tasks.length) {
-            return const SizedBox(height: 80);
-          }
-          return TaskUserCard(task: tasks[index]);
-        },
+
+              ?
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Error: $_errorMessage',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => _loadTasks(),
+                    child: const Text('Coba lagi'),
+                  ),
+                ],
+              ),
+            ),
+          )
+              :
+          FutureBuilder(
+            future: futureData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }else if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Error: ${snapshot.error}'),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => _loadTasks(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("Tidak ada task"));
+              }
+
+              final data = snapshot.data as Map<String, dynamic>;
+              final tasks = data["tasks"] as List<apps.Data>;
+              final timelines = data["timelines"] as List<vas.Data>;
+
+
+              return ListView.builder(
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+
+                  // cari timeline berdasarkan nomorPengajuan
+                  final timeline = timelines.firstWhere(
+                        (t) => t.nomorPengajuan == task.nomorPengajuan,
+                    orElse: () => vas.Data(), // kalau ga ketemu bikin empty
+                  );
+
+                  return TaskUserCard(
+                    task: task,
+                    timeline: timeline,
+                  );
+
+                },
+              );
+
+            }
+          )
       ),
+
+
+
+
+
+
 
 
 

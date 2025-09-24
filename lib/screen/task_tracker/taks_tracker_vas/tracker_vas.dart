@@ -89,6 +89,8 @@ class _TrackerVasState extends State<TrackerVas> {
           statusBarIconBrightness: Brightness.dark,
         ),
       ),
+
+
       body: Column(
         children: [
 
@@ -158,7 +160,8 @@ class _TrackerVasState extends State<TrackerVas> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : (_errorMessage != null)
-                ? Center(
+                ?
+            Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

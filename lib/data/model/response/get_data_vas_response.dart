@@ -16,13 +16,13 @@ class GetDataVasResponse {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
     if (this.data != null) {
@@ -82,7 +82,7 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = this.id;
     data['nomor_pengajuan'] = this.nomorPengajuan;
     data['pengerjaan'] = this.pengerjaan;
@@ -100,3 +100,70 @@ class Data {
     return data;
   }
 }
+
+
+
+
+
+class TimelineStep {
+  final String title;
+  final String date;
+  final bool isDone;
+
+  TimelineStep({
+    required this.title,
+    required this.date,
+    required this.isDone
+  });
+
+}
+
+
+
+extension TimelineExtension on Data {
+  List<TimelineStep> get timelineSteps {
+    return [
+      TimelineStep(
+        title: 'Wawancara',
+        date: wawancara ?? '-',
+        isDone: (wawancara?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Konfirmasi Desain',
+        date: konfirmasiDesain ?? '-',
+        isDone: (konfirmasiDesain?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Perancangan Database',
+        date: perancanganDatabase ?? '-',
+        isDone: (perancanganDatabase?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Pengembangan Software',
+        date: pengembanganSoftware ?? '-',
+        isDone: (pengembanganSoftware?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Debugging',
+        date: debugging ?? '-',
+        isDone: (debugging?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Testing',
+        date: testing ?? '-',
+        isDone: (testing?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Trial',
+        date: trial ?? '-',
+        isDone: (trial?.isNotEmpty ?? false),
+      ),
+      TimelineStep(
+        title: 'Production',
+        date: production ?? '-',
+        isDone: (production?.isNotEmpty ?? false),
+      ),
+    ];
+  }
+}
+
