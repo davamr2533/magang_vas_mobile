@@ -432,19 +432,29 @@ class TaskVasCardState extends State<TaskVasCard> {
 
                 const SizedBox(height: 8),
 
-                Text(
-                    "Success!",
-                    style: GoogleFonts.urbanist(
-                        fontWeight: FontWeight.bold, fontSize: 20
-                    )
+
+                Center(
+                  child: Text(
+                      "Success!",
+                      style: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold, fontSize: 20
+                      )
+                  ),
                 ),
 
-                Text(
-                    "Progress berhasil diupdate!",
-                    style: GoogleFonts.urbanist(
-                        fontSize: 14, color: darkGrayNewAmikom
-                    )
-                ),
+
+
+                Center(
+                  child: Text(
+                      "Progress berhasil diupdate!",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.urbanist(
+                          fontSize: 14, color: darkGrayNewAmikom,
+                      )
+                  ),
+                )
+
+
               ],
             ),
           ),

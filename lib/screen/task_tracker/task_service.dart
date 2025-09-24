@@ -9,6 +9,7 @@ import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as
 class TaskService {
 
 
+  //Koneksi untuk ambil data pengajuan
   static Future<List<data.Data>> fetchTasks(String token) async {
     if (token.trim().isEmpty) {
       throw Exception('Auth token kosong. Pastikan user sudah login.');
@@ -50,6 +51,9 @@ class TaskService {
     }
   }
 
+
+
+  //Koneksi untuk ambil data vas
   static Future<List<timeline.Data>> fetchTimelines(String token) async {
     if (token.trim().isEmpty) {
       throw Exception('Auth token kosong. Pastikan user sudah login.');
