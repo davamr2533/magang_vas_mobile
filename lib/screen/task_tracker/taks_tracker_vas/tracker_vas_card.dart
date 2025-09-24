@@ -178,7 +178,7 @@ class TaskVasCardState extends State<TaskVasCard> {
                           EdgeInsets.only(left: 12, right: 12, bottom: 12),
                           content: SingleChildScrollView(
                             child: SizedBox(
-                              height: 505,
+                              height: 485,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
