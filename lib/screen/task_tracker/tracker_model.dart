@@ -1,5 +1,6 @@
 class Task {
   final String idPengajuan;
+  final String nomorPengajuan;
   final String tahapPengajuan;
   final String divisi;
   final String namaPengajuan;
@@ -12,6 +13,7 @@ class Task {
 
   Task({
     required this.idPengajuan,
+    required this.nomorPengajuan,
     required this.tahapPengajuan,
     required this.divisi,
     required this.namaPengajuan,
@@ -26,7 +28,8 @@ class Task {
   //simulasi pura pura ambil dari API (dummy JSON) :v
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      idPengajuan: json["idPengajuan"],
+      idPengajuan: json["idPengajuan"] ?? '_',
+      nomorPengajuan: json["nomorPengajuan"],
       tahapPengajuan: json["tahapPengajuan"],
       divisi: json["divisi"],
       namaPengajuan: json["namaPengajuan"],

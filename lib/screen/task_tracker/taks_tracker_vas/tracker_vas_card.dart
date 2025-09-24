@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/screen/task_tracker/tracker_model.dart';
+import 'package:vas_reporting/data/model/response/get_data_response.dart';
 
 class TaskVasCard extends StatefulWidget {
-  final Task task;
+  final Data task;
 
   const TaskVasCard({
     super.key,
@@ -19,28 +19,39 @@ class TaskVasCardState extends State<TaskVasCard> {
   @override
   Widget build(BuildContext context) {
     final task = widget.task;
-    String nextProgress = "Progress";
 
-    if (task.tahapPengajuan == "Wawancara") {
-      nextProgress = "Konfirmasi Desain";
-    } else if (task.tahapPengajuan == "Konfirmasi Desain") {
-      nextProgress = "Perancangan DB";
-    } else if (task.tahapPengajuan == "Perancangan DB") {
-      nextProgress = "Pengembangan Software";
-    } else if (task.tahapPengajuan == "Pengembangan Software") {
-      nextProgress = "Debugging";
-    } else if (task.tahapPengajuan == "Debugging") {
-      nextProgress = "Testing";
-    } else if (task.tahapPengajuan == "Testing") {
-      nextProgress = "Trial";
-    } else if (task.tahapPengajuan == "Trial") {
-      nextProgress = "Production";
+    // Tentukan next progress berdasarkan statusAjuan
+    String nextProgress = "Progress";
+    switch (task.statusAjuan) {
+      case "Wawancara":
+        nextProgress = "Konfirmasi Desain";
+        break;
+      case "Konfirmasi Desain":
+        nextProgress = "Perancangan DB";
+        break;
+      case "Perancangan DB":
+        nextProgress = "Pengembangan Software";
+        break;
+      case "Pengembangan Software":
+        nextProgress = "Debugging";
+        break;
+      case "Debugging":
+        nextProgress = "Testing";
+        break;
+      case "Testing":
+        nextProgress = "Trial";
+        break;
+      case "Trial":
+        nextProgress = "Production";
+        break;
+      default:
+        nextProgress = "Progress berikutnya belum ditentukan";
     }
 
     return Container(
       width: double.infinity,
       height: 150,
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -54,20 +65,22 @@ class TaskVasCardState extends State<TaskVasCard> {
       ),
       child: Stack(
         children: [
+
           // Baris divisi dan ID pengajuan
           Container(
-            margin: EdgeInsets.all(10),
-            height: 20,
+            margin: const EdgeInsets.all(10),
             child: Row(
               children: [
+
+                //Nomor Pengajuan
                 Text(
-                  task.idPengajuan,
+                  task.nomorPengajuan ?? '_',
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
                     color: blackNewAmikom,
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   "|",
                   style: GoogleFonts.urbanist(
@@ -76,9 +89,11 @@ class TaskVasCardState extends State<TaskVasCard> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
+
+                //Divisi
                 Text(
-                  task.divisi,
+                  task.divisi ?? '_',
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                     color: blackNewAmikom,
@@ -89,61 +104,64 @@ class TaskVasCardState extends State<TaskVasCard> {
             ),
           ),
 
-          // Tanggal terakhir diupdate
+          //tanggal update
           Positioned(
             right: 0,
             child: Container(
-              width: 110,
-              height: 30,
+              width: 120,
+              height: 35,
               decoration: BoxDecoration(
                 color: yellowNewAmikom,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(0),
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   topRight: Radius.circular(12),
-                  bottomRight: Radius.circular(0),
                 ),
               ),
               child: Center(
                 child: Text(
-                  task.tanggal,
-                  style: GoogleFonts.urbanist(fontSize: 14),
+                  "12 Sep 2025",
+                  // task.statusAjuan ?? '-', //Sementara asal karena belum ada kolom last update nya, nanti mintak bikinin ya mash
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
           ),
 
-          // Nama pengajuan
+          // Nama pengajuan (Jenis)
           Positioned(
             left: 10,
             top: 45,
             child: Text(
-              task.namaPengajuan,
+              task.jenis ?? '_',
               style: GoogleFonts.urbanist(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ),
 
-          // Tahap pengajuan + tombol
+          // Tahap current progress + tombol edit
           Positioned(
             left: 0,
             right: 10,
-            top: 90,
+            bottom: 10,
             child: Row(
               children: [
+
+                //Current Progress
                 Expanded(
                   child: Container(
                     height: 35,
-                    margin: EdgeInsets.only(left: 10),
+                    margin: const EdgeInsets.only(left: 10),
                     decoration: BoxDecoration(
                       color: blueNewAmikom,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
                       child: Text(
-                        task.tahapPengajuan,
+                        task.statusAjuan ?? '_', // Sementara asal karena belum ada tabelnya, mintak bikinin nanti
                         style: GoogleFonts.urbanist(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -153,283 +171,14 @@ class TaskVasCardState extends State<TaskVasCard> {
                     ),
                   ),
                 ),
-                SizedBox(width: 15),
+
+
+                const SizedBox(width: 15),
 
                 // Tombol update progress
                 ElevatedButton(
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          backgroundColor: Colors.white,
-                          title: Text(
-                            "Update Progress",
-                            style: GoogleFonts.urbanist(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          contentPadding:
-                          EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                          content: SingleChildScrollView(
-                            child: SizedBox(
-                              height: 485,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 10),
-                                  Divider(color: grayNewAmikom, height: 1),
-                                  SizedBox(height: 10),
-
-                                  // ID Pengajuan
-                                  _labelForm("ID Pengajuan"),
-                                  _isiForm(task.idPengajuan),
-                                  SizedBox(height: 12),
-
-                                  // Nama Sistem
-                                  _labelForm("Nama Sistem"),
-                                  _isiForm(task.namaPengajuan),
-                                  SizedBox(height: 12),
-
-                                  // Next Progress
-                                  _labelForm("Next Progress"),
-                                  _isiForm(nextProgress),
-                                  SizedBox(height: 12),
-
-                                  // Diupdate oleh
-                                  _labelForm("Diupdate oleh"),
-                                  _isiForm(task.diupdateOleh),
-                                  SizedBox(height: 12),
-
-                                  // Catatan
-                                  _labelForm("Catatan"),
-                                  SizedBox(height: 4),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 100,
-                                    child: TextField(
-                                      maxLines: null,
-                                      minLines: 5,
-                                      style: GoogleFonts.urbanist(fontSize: 14),
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        hintText: "Opsional",
-                                        hintStyle: GoogleFonts.urbanist(
-                                          fontSize: 14,
-                                        ),
-                                        filled: true,
-                                        fillColor: yellowNewAmikom,
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(8),
-                                          borderSide: BorderSide(
-                                            color: Colors.transparent,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(12),
-                                          borderSide: BorderSide(
-                                            color: greenNewAmikom,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 12),
-
-                                  Divider(color: grayNewAmikom, height: 1),
-                                  SizedBox(height: 8),
-
-                                  Row(
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: greenNewAmikom,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(8),
-                                          ),
-                                          elevation: 0,
-                                          fixedSize: const Size(120, 35),
-                                        ),
-                                        child: Text(
-                                          "Back",
-                                          style: GoogleFonts.urbanist(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                      Spacer(),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-
-                                          // Show success dialog
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder:
-                                                (BuildContext dialogContext) {
-                                              final navigator =
-                                              Navigator.of(dialogContext);
-
-                                              Future.delayed(
-                                                const Duration(seconds: 2),
-                                                    () {
-                                                  if (navigator.canPop()) {
-                                                    navigator.pop();
-                                                  }
-                                                },
-                                              );
-
-                                              return Dialog(
-                                                insetPadding: EdgeInsets.only(left: 100, right: 100),
-                                                child: Container(
-                                                  width: 100,
-                                                  padding: EdgeInsets.all(15),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(16)
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                    MainAxisSize.min,
-                                                    children: [
-                                                      Container(
-                                                        width: 80,
-                                                        height: 80,
-                                                        decoration:
-                                                        BoxDecoration(
-                                                          color:
-                                                          softestGrayNewAmikom,
-                                                          borderRadius:
-                                                          BorderRadius
-                                                              .circular(
-                                                              100),
-                                                        ),
-                                                        child: Center(
-                                                          child: Stack(
-                                                            children: [
-                                                              Center(
-                                                                child:
-                                                                Container(
-                                                                  width: 60,
-                                                                  height: 60,
-                                                                  decoration:
-                                                                  BoxDecoration(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    borderRadius:
-                                                                    BorderRadius.circular(
-                                                                        100),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Center(
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .check_circle_rounded,
-                                                                  color:
-                                                                  greenNewAmikom,
-                                                                  size: 75,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 8),
-                                                      Text(
-                                                        "Success!",
-                                                        style: GoogleFonts
-                                                            .urbanist(
-                                                          fontWeight:
-                                                          FontWeight.bold,
-                                                          fontSize: 20,
-                                                          color:
-                                                          blackNewAmikom,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "Progress berhasil diupdate!",
-                                                        style: GoogleFonts
-                                                            .urbanist(
-                                                          fontSize: 14,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 12),
-                                                      Container(
-                                                        width: double.infinity,
-                                                        height: 40,
-                                                        decoration:
-                                                        BoxDecoration(
-                                                          color: greenNewAmikom,
-                                                          borderRadius:
-                                                          BorderRadius
-                                                              .circular(20),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            "Continue",
-                                                            style: GoogleFonts
-                                                                .urbanist(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .bold,
-                                                              color:
-                                                              Colors.white,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: blueNewAmikom,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(8),
-                                          ),
-                                          elevation: 0,
-                                          fixedSize: const Size(120, 35),
-                                        ),
-                                        child: Text(
-                                          "Update",
-                                          style: GoogleFonts.urbanist(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
+                    _showUpdateDialog(context, task, nextProgress);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: greenNewAmikom,
@@ -453,14 +202,267 @@ class TaskVasCardState extends State<TaskVasCard> {
     );
   }
 
+  void _showUpdateDialog(BuildContext context, Data task, String nextProgress) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            "Update Progress",
+            style: GoogleFonts.urbanist(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+
+          contentPadding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                SizedBox(height: 12),
+                Divider(height: 1,color: grayNewAmikom),
+                SizedBox(height: 8),
+
+                _labelForm("ID Pengajuan"),
+                _isiForm(task.nomorPengajuan ?? '_'), //Nomor Pengajuan
+                const SizedBox(height: 12),
+
+                _labelForm("Nama Sistem"),
+                _isiForm(task.jenis ?? '_'), //Nama Sistem
+                const SizedBox(height: 12),
+
+                _labelForm("Next Progress"),
+                _isiForm(nextProgress), //Next Progress
+                const SizedBox(height: 12),
+
+                _labelForm("Diupdate oleh"),
+                _isiForm(task.namaPemohon ?? '_'), //Nama yang melakukan Update
+                const SizedBox(height: 12),
+
+                _labelForm("Catatan"),
+                SizedBox(
+                  width: double.infinity,
+                  height: 100,
+                  child: TextField( //Text field untuk input catatan
+                    maxLines: null,
+                    minLines: 5,
+                    style: GoogleFonts.urbanist(fontSize: 14),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Opsional",
+                      filled: true,
+                      fillColor: yellowNewAmikom,
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.transparent,
+                          width: 0,
+                        ),
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: greenNewAmikom,
+                          width: 1.5,
+                        ),
+                      ),
+
+
+
+
+
+
+                    ),
+
+                  ),
+                ),
+
+                SizedBox(height: 12),
+
+                Divider(height: 1,color: grayNewAmikom),
+
+                SizedBox(height: 8),
+
+                Row(
+                  children: [
+
+                    //Tombol Back
+                    Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: greenNewAmikom,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.circular(8)
+                            )
+                          ),
+                          child: Text(
+                            "Back",
+                            style: GoogleFonts.urbanist(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                    ),
+
+
+                    SizedBox(width: 8),
+
+
+                    //Tombol Update
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showSuccessDialog(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: blueNewAmikom,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.circular(8)
+                          )
+                        ),
+
+                        child: Text(
+                          "Update",
+                          style: GoogleFonts.urbanist(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                    )
+
+                  ],
+                )
+              ],
+            ),
+          ),
+
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+
+        final navigator = Navigator.of(dialogContext);
+
+        Future.delayed(const Duration(seconds: 2), () {
+          if (navigator.canPop()) {
+            navigator.pop();
+          }
+        });
+
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 100),
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                Center(
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                        color: softestGrayNewAmikom,
+                        borderRadius: BorderRadiusGeometry.circular(100)
+                    ),
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadiusGeometry.circular(100)
+                              ),
+                            ),
+                          ),
+
+                          Center(
+                              child: Icon(
+                                Icons.check_circle_rounded,
+                                color: greenNewAmikom,
+                                size: 75,
+                              )
+                          )
+
+
+
+                        ],
+                      ),
+
+
+                    ),
+                  ),
+                ),
+
+
+
+
+
+
+
+                const SizedBox(height: 8),
+
+                Text(
+                    "Success!",
+                    style: GoogleFonts.urbanist(
+                        fontWeight: FontWeight.bold, fontSize: 20
+                    )
+                ),
+
+                Text(
+                    "Progress berhasil diupdate!",
+                    style: GoogleFonts.urbanist(
+                        fontSize: 14, color: darkGrayNewAmikom
+                    )
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _labelForm(String text) {
-    return Text(
-      text,
-      textAlign: TextAlign.start,
-      style: GoogleFonts.urbanist(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-      ),
+    return Container(
+      margin: EdgeInsets.only(bottom: 4),
+      child: Text(
+        text,
+        style: GoogleFonts.urbanist(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      )
     );
   }
 
@@ -472,7 +474,7 @@ class TaskVasCardState extends State<TaskVasCard> {
         borderRadius: BorderRadius.circular(8),
         color: yellowNewAmikom,
       ),
-      padding: EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.only(left: 8),
       alignment: Alignment.centerLeft,
       child: Text(
         value,
