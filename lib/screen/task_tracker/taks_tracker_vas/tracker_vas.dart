@@ -136,7 +136,7 @@ class TrackerVas extends StatelessWidget {
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Cari task...",
-                        hintStyle: GoogleFonts.urbanist(fontSize: 14),
+                        hintStyle: GoogleFonts.urbanist(fontSize: 14, color: darkGrayNewAmikom),
                         filled: true,
                         fillColor: Colors.red[100],
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -150,6 +150,10 @@ class TrackerVas extends StatelessWidget {
                             color: Colors.red,
                             width: 2,
                           ),
+                        ),
+                        suffixIcon: Icon(
+                          Icons.search,
+                          color: darkGrayNewAmikom,
                         ),
                       ),
                     ),
