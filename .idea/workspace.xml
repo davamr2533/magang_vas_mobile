@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="Perbaikan timeline task tracker user v2">
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="fhf">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_tracker/task_tracker_user/tracker_user_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_tracker/task_tracker_user/tracker_user_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,6 +91,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Perbaikan timeline task tracker user v2" />
-    <option name="LAST_COMMIT_MESSAGE" value="Perbaikan timeline task tracker user v2" />
+    <MESSAGE value="fhf" />
+    <option name="LAST_COMMIT_MESSAGE" value="fhf" />
   </component>
 </project>

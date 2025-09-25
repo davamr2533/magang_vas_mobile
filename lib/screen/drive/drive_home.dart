@@ -317,6 +317,42 @@ class _DriveHomeState extends State<DriveHome> {
           },
           child: const Icon(Icons.add),
         ),
+        bottomNavigationBar: BottomNavigationBar (
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.red,
+          unselectedItemColor: Colors.black54,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+
+            // Aksi tiap menu
+            if (index == 0) {
+              // Berkas terbaru
+              print("Buka Berkas Terbaru");
+            } else if (index == 1) {
+              // Berbintang
+              print("Buka Berbintang");
+            } else if (index == 2) {
+              // Sampah
+              print("Buka Sampah");
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.access_time),
+              label: "Berkas Terbaru",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.star_border),
+              label: "Berbintang",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.delete_outline),
+              label: "Sampah",
+            ),
+          ],
+        ),
       ),
     );
   }
