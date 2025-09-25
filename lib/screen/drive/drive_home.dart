@@ -1,15 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/folder_page.dart';
+import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
 import '../../data/cubit/get_data/get_data_cubit.dart';
 import '../../data/model/response/get_data_response.dart' as GetDataResponse;
 import '../../tools/popup.dart';
 import '../../utllis/app_shared_prefs.dart';
+import 'folder_model.dart';
 
 class DriveHome extends StatefulWidget {
   const DriveHome({super.key});
@@ -26,10 +30,12 @@ class _DriveHomeState extends State<DriveHome> {
   String? divisi;
   String? jabatan;
   String? token;
+  String query ="";
   bool isLoading = false;
 
   List<GetDataResponse.Data> getData = [];
   List<GetDataResponse.Data> getDeadline = [];
+  List<FolderModel> folders =[];
   GetDataResponse.Data? deadline;
 
   late GetDataCubit getDataCubit;
@@ -38,36 +44,36 @@ class _DriveHomeState extends State<DriveHome> {
   @override
   void initState() {
     super.initState();
-    getDataCubit = context.read<GetDataCubit>();
-    fetchData();
+    fetchDummyData();
   }
 
-  void fetchData() async {
-    token = await SharedPref.getToken();
-    name = await SharedPref.getName();
-    divisi = await SharedPref.getDivisi();
-    jabatan = await SharedPref.getPosition();
+  Future<void> fetchDummyData() async {
 
-    setState(() {});
-  }
+    // Dummy JSON
+    const dummyJson = '''
+    [
+      {"id": 1, "namaFolder": "Daftar pengajuan VAS", "createdAt": "2025-09-01"},
+      {"id": 2, "namaFolder": "Data VAS", "createdAt": "2025-09-10"},
+      {"id": 3, "namaFolder": "File Approve", "createdAt": "2025-09-15"},
+      {"id": 4, "namaFolder": "Dokumen HR", "createdAt": "2025-09-20"}
+    ]
+    ''';
 
-  void _onItemTapped(int index) {
+    final List<dynamic> jsonData = jsonDecode(dummyJson);
+    final fetchedFolders =
+    jsonData.map((e) => FolderModel.fromJson(e)).toList();
+
     setState(() {
-      _selectedIndex = index;
+      folders = fetchedFolders;
+      isLoading = false;
     });
   }
-
-  List<String> folders = [
-    "Daftar pengajuan yang di terima oleh VAS",
-    "Data VAS",
-    "File approve",
-  ];
-  String query = "";
 
   @override
   Widget build(BuildContext context) {
     final filtered = folders
-        .where((f) => f.toLowerCase().contains(query.toLowerCase()))
+        .where((f) =>
+        f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return DefaultTabController(
@@ -223,7 +229,15 @@ class _DriveHomeState extends State<DriveHome> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildDrive(context, filtered, false),
+                  DriveGrid(
+                    items: filtered.map((f) => f.namaFolder).toList(),
+                    isList: false,
+                    onFolderTap: (folderName) {
+                      Navigator.of(context).push(
+                        routingPage(FolderPage(folderName: folderName)),
+                      );
+                    },
+                  ),
                   const Center(child: Text("Shared Drive Content")),
                 ],
               ),
@@ -234,150 +248,14 @@ class _DriveHomeState extends State<DriveHome> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             setState(() {
-              folders.add("Folder Baru ${folders.length + 1}");
+              folders.add(FolderModel(
+                id: folders.length + 1,
+                namaFolder: "Folder Baru ${folders.length + 1}",
+                createdAt: DateTime.now().toIso8601String(),
+              ));
             });
           },
           child: const Icon(Icons.add),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrive(BuildContext context, List<String> items, bool isList) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child:
-          //isList
-          //     ? ListView.builder(
-          //         itemCount: items.length,
-          //         itemBuilder: (context, index) =>
-          //             _buildFolderCard(context, items[index], true),
-          //       )
-          //     :
-          GridView.count(
-            crossAxisCount: 2,
-            childAspectRatio: 1.1,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            children: items
-                .map((title) => _buildFolderCard(context, title, true))
-                .toList(),
-          ),
-    );
-  }
-
-  Widget _buildFolderCard(BuildContext context, String title, bool isFolder) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {
-        if (isFolder) {
-          Navigator.of(context).pushReplacement(routingPage(FolderPage()));
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.red[100],
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    title,
-                  ),
-                ),
-
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                      ),
-                      builder: (_) => Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.folder,
-                                  color: Colors.deepOrange,
-                                  size: 28,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.drive_file_rename_outline,
-                              color: Colors.deepOrange,
-                            ),
-                            title: const Text("Ganti nama"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.info_outline,
-                              color: Colors.deepOrange,
-                            ),
-                            title: const Text("Detail informasi"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.star_border,
-                              color: Colors.deepOrange,
-                            ),
-                            title: const Text("Hapus dari berbintang"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.deepOrange,
-                            ),
-                            title: const Text("Hapus"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            Flexible(
-              child: Icon(Icons.folder, size: 100, color: Colors.deepOrange),
-            ),
-          ],
         ),
       ),
     );
