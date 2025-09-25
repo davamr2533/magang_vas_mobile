@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
+import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
 
 import '../../tools/routing.dart';
@@ -134,20 +135,7 @@ class _FolderPageState extends State<FolderPage> {
 
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            folders.add(
-              FolderModel(
-                id: folders.length + 1,
-                namaFolder: "Folder Baru ${folders.length + 1}",
-                createdAt: DateTime.now().toIso8601String(),
-              ),
-            );
-          });
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: AnimatedFabMenu()
     );
   }
 

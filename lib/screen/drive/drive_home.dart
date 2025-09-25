@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/folder_page.dart';
 import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
+import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
@@ -303,20 +304,7 @@ class _DriveHomeState extends State<DriveHome> {
           ],
         ),
 
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              folders.add(
-                FolderModel(
-                  id: folders.length + 1,
-                  namaFolder: "Folder Baru ${folders.length + 1}",
-                  createdAt: DateTime.now().toIso8601String(),
-                ),
-              );
-            });
-          },
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: AnimatedFabMenu()
       ),
     );
   }
