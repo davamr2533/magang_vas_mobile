@@ -66,7 +66,7 @@ class TaskUserCardState extends State<TaskUserCard> {
       persentase = 25;
       image = "assets/konfirm_desain.png";
     } else if (tahap == "Perancangan Database") {
-      persentase = 38;q
+      persentase = 38;
       image = "assets/rancang_db.png";
     } else if (tahap == "Pengembangan Software") {
       persentase = 50;
