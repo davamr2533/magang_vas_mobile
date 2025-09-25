@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vas_reporting/base/base_colors.dart';
+import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
 import 'package:vas_reporting/data/model/response/get_data_response.dart' as task_model;
 import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as timeline_model;
-
+import 'package:vas_reporting/tools/loading.dart';
+import 'package:vas_reporting/tools/popup.dart';
+import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 
 class TimelineStep {
   final String title;
@@ -12,9 +17,7 @@ class TimelineStep {
   final bool isDone;
 
   TimelineStep({required this.title, required this.date, required this.isDone});
-
 }
-
 
 class TaskUserCard extends StatefulWidget {
   final task_model.Data task;
@@ -24,70 +27,71 @@ class TaskUserCard extends StatefulWidget {
 
   @override
   TaskUserCardState createState() => TaskUserCardState();
-
 }
 
 class TaskUserCardState extends State<TaskUserCard> {
+  late GetDataCubit getDataCubit;
+  late PopUpWidget popUpWidget;
+  String? token;
+  List<task_model.Data> dataStatus = [];
+
+  @override
+  void initState() {
+    getDataCubit = context.read<GetDataCubit>();
+    popUpWidget = PopUpWidget(context);
+    fetchData();
+    super.initState();
+  }
+
+  void fetchData() async {
+    token = await SharedPref.getToken();
+    await getDataCubit.getAllData(token: 'Bearer ${token ?? ""}');
+    await getDataCubit.getDataVas(token: 'Bearer ${token ?? ""}');
+  }
 
   //variable
   bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-
     final task = widget.task;
-    final timeline = widget.timeline;
+
     int persentase = 0;
     String tahap = "Konfirmasi Desain";
     String image = "assets/wawancara.png";
 
-
-    if (tahap == "Wawancara"){
+    if (tahap == "Wawancara") {
       persentase = 13;
       image = "assets/wawancara.png";
-
-    }else if (tahap == "Konfirmasi Desain"){
+    } else if (tahap == "Konfirmasi Desain") {
       persentase = 25;
       image = "assets/konfirm_desain.png";
-
-    }else if (tahap == "Perancangan Database"){
+    } else if (tahap == "Perancangan Database") {
       persentase = 38;
       image = "assets/rancang_db.png";
-
-    }else if (tahap == "Pengembangan Software"){
+    } else if (tahap == "Pengembangan Software") {
       persentase = 50;
       image = "assets/pengembangan_software.png";
-
-    }else if (tahap == "Debugging"){
+    } else if (tahap == "Debugging") {
       persentase = 63;
       image = "assets/debugging.png";
-
-    }else if (tahap == "Testing"){
+    } else if (tahap == "Testing") {
       persentase = 75;
       image = "assets/testing.png";
-
-    }else if (tahap == "Trial"){
+    } else if (tahap == "Trial") {
       persentase = 88;
       image = "assets/trial.png";
-
-    }else if (tahap == "Production"){
+    } else if (tahap == "Production") {
       persentase = 100;
       image = "assets/production.png";
-
     }
-
-
-
-
-
-
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
       margin: const EdgeInsets.only(left: 0, right: 0, bottom: 20),
       width: double.infinity,
-      height: isExpanded ? 445 : 230, // panjang card jika di expand
+      height: isExpanded ? 445 : 230,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -101,7 +105,6 @@ class TaskUserCardState extends State<TaskUserCard> {
       ),
       child: Stack(
         children: [
-
           //Gambar Tahapan Task
           Container(
             width: double.infinity,
@@ -118,12 +121,11 @@ class TaskUserCardState extends State<TaskUserCard> {
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 150,
-                color: Colors.black.withValues(alpha: 0.25), // FIX
+                color: Colors.black.withValues(alpha: 0.25),
                 colorBlendMode: BlendMode.darken,
               ),
             ),
           ),
-
 
           // Tahap Pengajuan
           Container(
@@ -138,7 +140,7 @@ class TaskUserCardState extends State<TaskUserCard> {
             ),
             child: Center(
               child: Text(
-                tahap, //Sementara ngawur karena belum ada tablenya xixixii muach
+                tahap,
                 style: GoogleFonts.urbanist(
                   color: blackNewAmikom,
                   fontSize: 16,
@@ -146,7 +148,6 @@ class TaskUserCardState extends State<TaskUserCard> {
               ),
             ),
           ),
-
 
           // ID Pengajuan
           Positioned(
@@ -160,7 +161,6 @@ class TaskUserCardState extends State<TaskUserCard> {
               ),
             ),
           ),
-
 
           // Divisi
           Positioned(
@@ -176,7 +176,6 @@ class TaskUserCardState extends State<TaskUserCard> {
             ),
           ),
 
-
           // Nama Pengajuan
           Positioned(
             left: 25,
@@ -190,7 +189,6 @@ class TaskUserCardState extends State<TaskUserCard> {
               ),
             ),
           ),
-
 
           // Tombol expand
           Positioned(
@@ -224,7 +222,6 @@ class TaskUserCardState extends State<TaskUserCard> {
             ),
           ),
 
-
           // Persentase Progress
           Positioned(
             right: 0,
@@ -257,7 +254,6 @@ class TaskUserCardState extends State<TaskUserCard> {
             ),
           ),
 
-
           // Timeline expand
           Positioned(
             left: 20,
@@ -277,12 +273,252 @@ class TaskUserCardState extends State<TaskUserCard> {
                 padding: const EdgeInsets.all(10),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: timeline.timelineSteps.map(
-                        (step) => timelineRow(step.title, step.date, step.isDone)
-                    ).toList()
-
-
-
+                    children: [
+                      BlocBuilder<GetDataCubit, GetDataHasState>(
+                        builder: (context, state) {
+                          if (state is GetDataVasFailure) {
+                            return Text(state.message);
+                          }
+                          if (state is GetDataLoading) {
+                            return Center(child: AppWidget().LoadingWidget());
+                          }
+                          if (state is GetDataVasSuccess) {
+                            if (state.response.data == null ||
+                                state.response.data!.isEmpty) {
+                              return const Center(
+                                  child: Text('No data available'));
+                            } else {
+                              List<timeline_model.Data> progressData =
+                              state.response.data!;
+                              return Column(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.all(16),
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: creamNewAmikom,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Total Pengajuan yang diterima VAS",
+                                          style: GoogleFonts.urbanist(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${progressData.length}',
+                                          textAlign: TextAlign.right,
+                                          style: GoogleFonts.urbanist(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                    const NeverScrollableScrollPhysics(),
+                                    itemCount: progressData.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 5,
+                                          ),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.access_time,
+                                                    color: pinkNewAmikom,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Nomor Pengajuan',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Wawancara',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Konfirmasi desain',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Perancangan Database',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Pengembangan Software',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Debugging',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Testing',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Trial',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Production',
+                                                        style: GoogleFonts
+                                                            .urbanist(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    state.response.data?[index]
+                                                        .nomorPengajuan ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                        fontSize: 14),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .wawancara ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .konfirmasiDesain ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .perancanganDatabase ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .pengembanganSoftware ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .debugging ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index].testing ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index].trial ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    progressData[index]
+                                                        .production ??
+                                                        'Unknown',
+                                                    style: GoogleFonts.urbanist(
+                                                      fontSize: 12,
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+                          }
+                          return SizedBox();
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -292,7 +528,6 @@ class TaskUserCardState extends State<TaskUserCard> {
       ),
     );
   }
-
 
   //Widget timeline progress task tracker
   Widget timelineRow(String title, String date, bool isDone) {
