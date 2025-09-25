@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/folder_page.dart';
 import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
-import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
@@ -304,7 +303,56 @@ class _DriveHomeState extends State<DriveHome> {
           ],
         ),
 
-        floatingActionButton: AnimatedFabMenu()
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              folders.add(
+                FolderModel(
+                  id: folders.length + 1,
+                  namaFolder: "Folder Baru ${folders.length + 1}",
+                  createdAt: DateTime.now().toIso8601String(),
+                ),
+              );
+            });
+          },
+          child: const Icon(Icons.add),
+        ),
+        bottomNavigationBar: BottomNavigationBar (
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.red,
+          unselectedItemColor: Colors.black54,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+
+            // Aksi tiap menu
+            if (index == 0) {
+              // Berkas terbaru
+              print("Buka Berkas Terbaru");
+            } else if (index == 1) {
+              // Berbintang
+              print("Buka Berbintang");
+            } else if (index == 2) {
+              // Sampah
+              print("Buka Sampah");
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.access_time),
+              label: "Berkas Terbaru",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.star_border),
+              label: "Berbintang",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.delete_outline),
+              label: "Sampah",
+            ),
+          ],
+        ),
       ),
     );
   }

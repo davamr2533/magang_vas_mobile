@@ -9,7 +9,7 @@ import 'package:vas_reporting/data/model/response/get_data_vas_response.dart' as
 class TaskService {
 
 
-  //Koneksi untuk ambil data pengajuan
+  //Koneksi untuk ambil data pengajuan dari databse
   static Future<List<data.Data>> fetchTasks(String token) async {
     if (token.trim().isEmpty) {
       throw Exception('Auth token kosong. Pastikan user sudah login.');
