@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'FolderCard.dart';
+import 'folder_card.dart';
 
 class DriveGrid extends StatelessWidget {
   final List<String> items;
@@ -21,8 +20,11 @@ class DriveGrid extends StatelessWidget {
       child: isList
           ? ListView.builder(
         itemCount: items.length,
-        itemBuilder: (context, index) =>
-            FolderCard(title: items[index], onTap: onFolderTap),
+        itemBuilder: (context, index) => FolderCard(
+          title: items[index],
+          isList: true,
+          onTap: onFolderTap,
+        ),
       )
           : GridView.count(
         crossAxisCount: 2,
@@ -30,7 +32,11 @@ class DriveGrid extends StatelessWidget {
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         children: items
-            .map((title) => FolderCard(title: title, onTap: onFolderTap))
+            .map((title) => FolderCard(
+          title: title,
+          isList: false,
+          onTap: onFolderTap,
+        ))
             .toList(),
       ),
     );

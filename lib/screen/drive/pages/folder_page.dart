@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
+import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
-import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
+import 'package:vas_reporting/screen/drive/template/drive_layout_option.dart';
 
 import '../../../../tools/routing.dart';
-import '../../folder_model.dart';
+import '../folder_model.dart';
 
 class FolderPage extends StatefulWidget {
   final String folderName;
@@ -80,7 +80,7 @@ class _FolderPageState extends State<FolderPage> {
       ),
       body: Column(
         children: [
-          SortAndViewBar(
+          SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
             style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.bold),
@@ -107,24 +107,12 @@ class _FolderPageState extends State<FolderPage> {
                     },
                   );
                 } else {
-                  return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final folder = items[index];
-                      return ListTile(
-                        leading: const Icon(
-                          Icons.folder,
-                          color: Colors.orange,
-                        ),
-                        title: Text(folder.namaFolder),
-                        subtitle: Text("Created: ${folder.createdAt}"),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            routingPage(
-                              FolderPage(folderName: folder.namaFolder),
-                            ),
-                          );
-                        },
+                  return DriveGrid(
+                    items: items.map((f) => f.namaFolder).toList(),
+                    isList: true,
+                    onFolderTap: (folderName) {
+                      Navigator.of(context).push(
+                        routingPage(FolderPage(folderName: folderName)),
                       );
                     },
                   );

@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
-import 'package:vas_reporting/screen/drive/template/page/folder_page.dart';
-import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
+import 'package:vas_reporting/screen/drive/pages/folder_page.dart';
+import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
-import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
+import 'package:vas_reporting/screen/drive/template/drive_layout_option.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
 import '../../data/cubit/get_data/get_data_cubit.dart';
@@ -294,7 +294,7 @@ class _DriveHomeState extends State<DriveHome> {
                 Tab(text: "Shared Drive"),
               ],
             ),
-            SortAndViewBar(
+            SortAndViewOption(
               currentSort: currentSort,
               currentView: currentView,
               style: GoogleFonts.urbanist(
@@ -326,28 +326,17 @@ class _DriveHomeState extends State<DriveHome> {
                           },
                         );
                       } else {
-                        return ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final folder = items[index];
-                            return ListTile(
-                              leading: const Icon(
-                                Icons.folder,
-                                color: Colors.orange,
-                              ),
-                              title: Text(folder.namaFolder),
-                              subtitle: Text("Created: ${folder.createdAt}"),
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  routingPage(
-                                    FolderPage(folderName: folder.namaFolder),
-                                  ),
-                                );
-                              },
+                        return DriveGrid(
+                          items: items.map((f) => f.namaFolder).toList(),
+                          isList: true,
+                          onFolderTap: (folderName) {
+                            Navigator.of(context).push(
+                              routingPage(FolderPage(folderName: folderName)),
                             );
                           },
                         );
                       }
+
                     },
                   ),
                   const Center(child: Text("Shared Drive Content")),

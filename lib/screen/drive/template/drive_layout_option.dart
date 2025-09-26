@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 enum SortOption { nameAsc, nameDesc, date }
 enum ViewOption { grid, list }
 
-class SortAndViewBar extends StatelessWidget {
+class SortAndViewOption extends StatelessWidget {
   final SortOption currentSort;
   final ViewOption currentView;
   final TextStyle style;
   final ValueChanged<SortOption> onSortChanged;
   final ValueChanged<ViewOption> onViewChanged;
 
-  const SortAndViewBar({
+  const SortAndViewOption({
     super.key,
     required this.currentSort,
     required this.currentView,
