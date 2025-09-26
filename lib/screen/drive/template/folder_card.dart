@@ -6,10 +6,12 @@ import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import '../../../tools/popup.dart';
 import '../../../tools/routing.dart';
 
+// <<====== WIDGET FOLDER CARD ======>>
+// Menampilkan folder dalam bentuk card (ListView atau GridView)
 class FolderCard extends StatelessWidget {
-  final String title;
-  final bool isList;
-  final void Function(String)? onTap;
+  final String title;                     // nama folder
+  final bool isList;                      // mode tampilan
+  final void Function(String)? onTap;     // callback klik folder
 
   const FolderCard({
     super.key,
@@ -20,9 +22,8 @@ class FolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     if (isList) {
-      // 🔹 MODE LIST VIEW
+      // <<====== MODE LIST VIEW ======>>
       return ListTile(
         leading: const Icon(Icons.folder, color: Colors.orange),
         title: Text(title, overflow: TextOverflow.ellipsis),
@@ -34,7 +35,7 @@ class FolderCard extends StatelessWidget {
         ),
       );
     } else {
-      // 🔹 MODE GRID VIEW
+      // <<====== MODE GRID VIEW ======>>
       return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => onTap?.call(title),
@@ -47,7 +48,7 @@ class FolderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // header row
+              // <<====== HEADER (Judul + Tombol Opsi) ======>>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -67,6 +68,7 @@ class FolderCard extends StatelessWidget {
                 ],
               ),
 
+              // <<====== ICON FOLDER ======>>
               const Flexible(
                 child: Icon(Icons.folder, size: 100, color: Colors.deepOrange),
               ),
@@ -77,6 +79,7 @@ class FolderCard extends StatelessWidget {
     }
   }
 
+  // <<====== BOTTOM SHEET MENU OPSI ======>>
   void _showOptions(BuildContext context) {
     final rootContext = context;
 
@@ -90,6 +93,7 @@ class FolderCard extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Header folder di bottomsheet
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -111,15 +115,12 @@ class FolderCard extends StatelessWidget {
             ),
             const Divider(height: 1),
 
-            // 🔹 Rename
+            // <<====== OPSI: Ganti Nama ======>>
             ListTile(
-              leading: const Icon(
-                Icons.drive_file_rename_outline,
-                color: Colors.deepOrange,
-              ),
+              leading: const Icon(Icons.drive_file_rename_outline, color: Colors.deepOrange),
               title: const Text("Ganti nama"),
               onTap: () async {
-                Navigator.pop(sheetContext); // tutup bottomsheet dulu
+                Navigator.pop(sheetContext); // tutup bottomsheet
                 final newName = await popup.showTextInputDialog(
                   title: "Ganti nama",
                   initialValue: title,
@@ -132,20 +133,19 @@ class FolderCard extends StatelessWidget {
               },
             ),
 
-            // 🔹 Tambah ke berbintang
+            // <<====== OPSI: Tambah ke Berbintang ======>>
             ListTile(
               leading: const Icon(Icons.star_border, color: Colors.deepOrange),
               title: const Text("Tambahkan ke Berbintang"),
-              onTap:() async
-              {
+              onTap: () {
                 Navigator.pop(sheetContext);
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(content: Text("Folder \"$title\" ditambahkan ke Berbintang")),
                 );
-              }
+              },
             ),
 
-            // 🔹 Detail
+            // <<====== OPSI: Detail Informasi ======>>
             ListTile(
               leading: const Icon(Icons.info_outline, color: Colors.deepOrange),
               title: const Text("Detail informasi"),
@@ -166,29 +166,21 @@ class FolderCard extends StatelessWidget {
               },
             ),
 
-            // 🔹 Hapus
+            // <<====== OPSI: Hapus ======>>
             ListTile(
-              leading: const Icon(
-                Icons.delete_outline,
-                color: Colors.deepOrange,
-              ),
+              leading: const Icon(Icons.delete_outline, color: Colors.deepOrange),
               title: const Text("Hapus"),
               onTap: () async {
                 Navigator.pop(sheetContext);
                 final confirm = await popup.showConfirmDialog(
                   title: "Pindahkan ke Sampah?",
-                  message:
-                      "Folder \"$title\" akan dihapus selamanya setelah 30 hari",
+                  message: "Folder \"$title\" akan dihapus selamanya setelah 30 hari",
                   confirmText: "Pindahkan ke Sampah",
                   cancelText: "Batal",
                 );
                 if (confirm == true) {
                   ScaffoldMessenger.of(rootContext).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Berhasil memindahkan Folder \"$title\" ke Sampah.",
-                      ),
-                    ),
+                    SnackBar(content: Text("Berhasil memindahkan Folder \"$title\" ke Sampah.")),
                   );
                 }
               },

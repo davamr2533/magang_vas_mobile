@@ -9,10 +9,11 @@ import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart'
 import '../../../../tools/routing.dart';
 import '../folder_model.dart';
 
+// <<====== FOLDER PAGE ======>>
 class FolderPage extends StatefulWidget {
-  final String folderName;
-  final bool canBack;
-  final bool canUpload;
+  final String folderName; // Nama folder yang sedang dibuka
+  final bool canBack;      // Apakah tombol back ditampilkan
+  final bool canUpload;    // Apakah tombol upload ditampilkan
 
   const FolderPage({
     super.key,
@@ -26,28 +27,26 @@ class FolderPage extends StatefulWidget {
 }
 
 class _FolderPageState extends State<FolderPage> {
-  SortOption currentSort = SortOption.nameAsc;
-  ViewOption currentView = ViewOption.grid;
+  // <<====== STATE ======>>
+  SortOption currentSort = SortOption.nameAsc; // default sort: nama A-Z
+  ViewOption currentView = ViewOption.grid;    // default view: grid
 
-  // int _selectedIndex = 0;
-  // String? name;
-  // String? divisi;
-  // String? jabatan;
-  // String? token;
-  String query = "";
-  bool isLoading = false;
+  String query = ""; // teks pencarian
+  bool isLoading = false; // status loading
   TextStyle style = GoogleFonts.urbanist(fontSize: 14);
 
+  // Data folder
   List<FolderModel> folders = [];
 
+  // <<====== INIT STATE ======>>
   @override
   void initState() {
     super.initState();
-    fetchDummyData();
+    fetchDummyData(); // ambil data dummy
   }
 
+  // <<====== FETCH DUMMY DATA ======>>
   Future<void> fetchDummyData() async {
-    // Dummy JSON
     const dummyJson = '''
     [
       {"id": 1, "namaFolder": "Daftar pengajuan VAS", "createdAt": "2025-09-01"},
@@ -58,9 +57,8 @@ class _FolderPageState extends State<FolderPage> {
     ''';
 
     final List<dynamic> jsonData = jsonDecode(dummyJson);
-    final fetchedFolders = jsonData
-        .map((e) => FolderModel.fromJson(e))
-        .toList();
+    final fetchedFolders =
+    jsonData.map((e) => FolderModel.fromJson(e)).toList();
 
     setState(() {
       folders = fetchedFolders;
@@ -68,27 +66,29 @@ class _FolderPageState extends State<FolderPage> {
     });
   }
 
+  // <<====== BUILD UI ======>>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // <<====== APP BAR ======>>
       appBar: AppBar(
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
         leading: widget.canBack
             ? IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back_ios_new),
-                color: Colors.black,
-              )
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new),
+          color: Colors.black,
+        )
             : null,
-
         title: Text(widget.folderName),
         centerTitle: true,
       ),
+
+      // <<====== BODY ======>>
       body: Column(
         children: [
+          // Sort & View Option (grid/list)
           SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
@@ -96,36 +96,36 @@ class _FolderPageState extends State<FolderPage> {
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
-            onSortChanged: (sort) {
-              setState(() => currentSort = sort);
-            },
-            onViewChanged: (view) {
-              setState(() => currentView = view);
-            },
+            onSortChanged: (sort) => setState(() => currentSort = sort),
+            onViewChanged: (view) => setState(() => currentView = view),
           ),
 
+          // Daftar folder/file
           Expanded(
             child: Builder(
               builder: (context) {
                 final items = getFilteredAndSortedFolders();
+
+                // Grid view
                 if (currentView == ViewOption.grid) {
                   return DriveGrid(
                     items: items.map((f) => f.namaFolder).toList(),
                     isList: false,
                     onFolderTap: (folderName) {
-                      Navigator.of(
-                        context,
-                      ).push(routingPage(FolderPage(folderName: folderName)));
+                      Navigator.of(context)
+                          .push(routingPage(FolderPage(folderName: folderName)));
                     },
                   );
-                } else {
+                }
+
+                // List view
+                else {
                   return DriveGrid(
                     items: items.map((f) => f.namaFolder).toList(),
                     isList: true,
                     onFolderTap: (folderName) {
-                      Navigator.of(
-                        context,
-                      ).push(routingPage(FolderPage(folderName: folderName)));
+                      Navigator.of(context)
+                          .push(routingPage(FolderPage(folderName: folderName)));
                     },
                   );
                 }
@@ -134,24 +134,29 @@ class _FolderPageState extends State<FolderPage> {
           ),
         ],
       ),
+
+      // Floating Action Button (upload/tambah folder/file)
       floatingActionButton: widget.canUpload ? AnimatedFabMenu() : null,
     );
   }
 
+  // <<====== FILTER & SORT ======>>
   List<FolderModel> getFilteredAndSortedFolders() {
-    // Filter dulu
+    // Filter by query
     List<FolderModel> filtered = folders
         .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
-    // Sort sesuai pilihan
+    // Sorting
     switch (currentSort) {
       case SortOption.nameAsc:
         filtered.sort((a, b) => a.namaFolder.compareTo(b.namaFolder));
         break;
+
       case SortOption.nameDesc:
         filtered.sort((a, b) => b.namaFolder.compareTo(a.namaFolder));
         break;
+
       case SortOption.date:
         filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;

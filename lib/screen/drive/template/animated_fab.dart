@@ -10,55 +10,120 @@ class AnimatedFabMenu extends StatefulWidget {
   State<AnimatedFabMenu> createState() => _AnimatedFabMenuState();
 }
 
-class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
+class _AnimatedFabMenuState extends State<AnimatedFabMenu>
+    with SingleTickerProviderStateMixin {
   bool isOpen = false;
+  late AnimationController _controller;
 
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleMenu() {
+    setState(() {
+      isOpen = !isOpen;
+      if (isOpen) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        if (isOpen)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 70.0),
-            child: _buildFabWithLabel(
-              icon: Icons.create_new_folder,
-              label: "Folder",
-                onTap: () async {// tutup bottomsheet dulu
-                  final popup = PopUpWidget(context);
-                  final newName = await popup.showTextInputDialog(
-                    title: "Folder baru",
-                    hintText: "Folder tanpa nama",
-                    confirmText: "Buat"
-                  );
-                  if (newName != null && newName.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(
-                          "Folder \"$newName\" berhasil dibuat")),
-                    );
-                  };
-                }
-            ),
-          ),
+        // Upload File
+        _buildAnimatedFab(
+          offsetY: 140,
+          icon: Icons.upload_file,
+          label: "Upload",
+          onTap: _pickFile,
+        ),
 
-        if (isOpen)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 140.0),
-            child: _buildFabWithLabel(
-              icon: Icons.upload_file,
-              label: "Upload",
-              onTap: () => _pickFile(),
-            ),
-          ),
+        // Buat Folder
+        _buildAnimatedFab(
+          offsetY: 70,
+          icon: Icons.create_new_folder,
+          label: "Folder",
+          onTap: () async {
+            final popup = PopUpWidget(context);
+            final newName = await popup.showTextInputDialog(
+              title: "Folder baru",
+              hintText: "Folder tanpa nama",
+              confirmText: "Buat",
+            );
+            if (newName != null && newName.isNotEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Folder \"$newName\" berhasil dibuat")),
+              );
+            }
+          },
+        ),
 
+        // Main FAB
         FloatingActionButton(
           heroTag: "mainFab",
-          onPressed: () => setState(() => isOpen = !isOpen),
-          child: Icon(isOpen ? Icons.close : Icons.add),
+          onPressed: _toggleMenu,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: isOpen ? 0.125 : 0), // 0.125 = 45°
+            duration: const Duration(milliseconds: 250),
+            builder: (context, angle, child) {
+              return Transform.rotate(
+                angle: angle * 3.1416 * 2, // radian
+                child: const Icon(Icons.add),
+              );
+            },
+          ),
         ),
+
       ],
+    );
+  }
+
+  Widget _buildAnimatedFab({
+    required double offsetY,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final slide = Tween<Offset>(
+          begin: Offset(0, offsetY / 60), // posisi awal agak ke bawah
+          end: const Offset(0, 0),
+        ).animate(CurvedAnimation(
+          parent: _controller,
+          curve: Curves.easeOut,
+        ));
+
+        return Transform.translate(
+          offset: Offset(0, slide.value.dy * offsetY),
+          child: Opacity(
+            opacity: _controller.value,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: offsetY),
+              child: _buildFabWithLabel(
+                icon: icon,
+                label: label,
+                onTap: onTap,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -76,12 +141,12 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(6),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
                 blurRadius: 4,
                 offset: Offset(0, 2),
-              )
+              ),
             ],
           ),
           child: Text(label, style: const TextStyle(fontSize: 14)),
@@ -96,41 +161,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
     );
   }
 
-  /// 🔹 Dialog Tambah Folder
-  void _showAddFolderDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Tambah Folder"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Nama folder"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final folderName = controller.text.trim();
-              if (folderName.isNotEmpty) {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Folder '$folderName' ditambahkan")),
-                );
-              }
-            },
-            child: const Text("Tambah"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 🔹 File Picker untuk Upload
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 

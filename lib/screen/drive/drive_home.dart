@@ -19,6 +19,7 @@ import '../home/list_ajuan.dart';
 import '../home/reporting.dart';
 import 'folder_model.dart';
 
+/// Halaman utama Drive (berisi daftar folder, navigasi bawah, dan tab My Drive/Shared Drive).
 class DriveHome extends StatefulWidget {
   const DriveHome({super.key});
 
@@ -27,20 +28,22 @@ class DriveHome extends StatefulWidget {
 }
 
 class _DriveHomeState extends State<DriveHome> {
+  // <<====== CONTROLLER ======>>
   final TextEditingController _searchController = TextEditingController();
 
+  // <<====== SORT & VIEW OPTION ======>>
   SortOption currentSort = SortOption.nameAsc;
   ViewOption currentView = ViewOption.grid;
 
-  int _selectedIndex = 0;
-  // String? name;
-  // String? divisi;
-  // String? jabatan;
-  // String? token;
-  String query = "";
-  bool isLoading = false;
+  // <<====== NAVIGATION & STATUS ======>>
+  int _selectedIndex = 0; // index bottom nav
+  String query = ""; // pencarian
+  bool isLoading = false; // loading state
+
+  // <<====== STYLE ======>>
   TextStyle style = GoogleFonts.urbanist(fontSize: 14);
 
+  // <<====== DATA ======>>
   List<GetDataResponse.Data> getData = [];
   List<GetDataResponse.Data> getDeadline = [];
   List<FolderModel> folders = [];
@@ -49,14 +52,15 @@ class _DriveHomeState extends State<DriveHome> {
   late GetDataCubit getDataCubit;
   late PopUpWidget popUpWidget;
 
+  // <<====== INIT STATE ======>>
   @override
   void initState() {
     super.initState();
-    fetchDummyData();
+    fetchDummyData(); // load data dummy saat pertama kali dibuka
   }
 
+  // <<====== FETCH DATA DUMMY ======>>
   Future<void> fetchDummyData() async {
-    // Dummy JSON
     const dummyJson = '''
     [
       {"id": 1, "namaFolder": "Daftar pengajuan VAS", "createdAt": "2025-09-01"},
@@ -67,9 +71,8 @@ class _DriveHomeState extends State<DriveHome> {
     ''';
 
     final List<dynamic> jsonData = jsonDecode(dummyJson);
-    final fetchedFolders = jsonData
-        .map((e) => FolderModel.fromJson(e))
-        .toList();
+    final fetchedFolders =
+    jsonData.map((e) => FolderModel.fromJson(e)).toList();
 
     setState(() {
       folders = fetchedFolders;
@@ -77,17 +80,21 @@ class _DriveHomeState extends State<DriveHome> {
     });
   }
 
+  // <<====== BUILD UI ======>>
   @override
   Widget build(BuildContext context) {
+    // Daftar halaman bottom navigation
     final List<Widget> pages = [
       _driveContent(),
-      const FolderPage(folderName: "Berkas Terbaru", canBack: false, canUpload: false,),
+      const FolderPage(folderName: "Berkas Terbaru", canBack: false, canUpload: false),
       const FolderPage(folderName: "Berbintang", canBack: false, canUpload: false),
       const FolderPage(folderName: "Sampah", canBack: false, canUpload: false),
     ];
 
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: pages),
+
+      // <<====== BOTTOM NAVIGATION ======>>
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.red,
@@ -97,93 +104,70 @@ class _DriveHomeState extends State<DriveHome> {
             _selectedIndex = index;
           });
 
-          // Aksi tiap menu
+          // Debug print saat pindah menu
           if (index == 0) {
-            // Berkas terbaru
-            print("Buka Berkas Terbaru");
+            print("Buka Drive Home");
           } else if (index == 1) {
-            // Berbintang
-            print("Buka Berbintang");
+            print("Buka Berkas Terbaru");
           } else if (index == 2) {
-            // Sampah
+            print("Buka Berbintang");
+          } else if (index == 3) {
             print("Buka Sampah");
           }
         },
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              label: "Drive Home"
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.access_time),
-            label: "Berkas Terbaru",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: "Berbintang",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.delete_outline),
-            label: "Sampah",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Drive Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.access_time), label: "Berkas Terbaru"),
+          BottomNavigationBarItem(icon: Icon(Icons.star_border), label: "Berbintang"),
+          BottomNavigationBarItem(icon: Icon(Icons.delete_outline), label: "Sampah"),
         ],
       ),
     );
   }
 
+  // <<====== DRIVE CONTENT (UI) ======>>
   Widget _driveContent() {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
-          },
-          icon: Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.pop(context), // kembali ke halaman sebelumnya
+          icon: const Icon(Icons.arrow_back_ios_new),
           color: Colors.black,
         ),
 
+        // <<====== APPBAR: SEARCH + FILTER ======>>
         title: Row(
           children: [
-            //Text field search document
+            // Search bar
             Expanded(
               child: SizedBox(
                 height: 40,
                 child: TextField(
                   style: GoogleFonts.urbanist(fontSize: 14),
-
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-
                     hintText: "Search Document",
                     hintStyle: GoogleFonts.urbanist(fontSize: 14),
                     filled: true,
                     fillColor: Colors.red[100],
-
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 0,
-                    ),
-
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.transparent),
+                      borderSide: const BorderSide(color: Colors.transparent),
                     ),
-
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.red, width: 2),
+                      borderSide: const BorderSide(color: Colors.red, width: 2),
                     ),
-
-                    //suffixIcon : Icon(IconlyLight.search)
                   ),
                 ),
               ),
             ),
 
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
 
-            //Button untuk Settings filter
+            // Tombol filter (popup menu)
             Container(
               width: 40,
               height: 40,
@@ -196,98 +180,30 @@ class _DriveHomeState extends State<DriveHome> {
                   icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
                   onSelected: (value) {
                     if (value == 'date') {
-                      // TODO: filter by date
                       print("Filter by Date");
                     } else if (value == 'name') {
-                      // TODO: filter by name
                       print("Filter by Name");
                     } else if (value == 'type') {
-                      // TODO: filter by type
                       print("Filter by Type");
                     }
                   },
                   itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'date',
-                      child: Text(
-                        "Sort by Date",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'name',
-                      child: Text(
-                        "Sort by Name",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'type',
-                      child: Text(
-                        "Sort by File Type",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
+                    PopupMenuItem(value: 'date', child: Text("Sort by Date", style: GoogleFonts.urbanist(fontSize: 14))),
+                    PopupMenuItem(value: 'name', child: Text("Sort by Name", style: GoogleFonts.urbanist(fontSize: 14))),
+                    PopupMenuItem(value: 'type', child: Text("Sort by File Type", style: GoogleFonts.urbanist(fontSize: 14))),
                   ],
                 ),
               ),
             ),
           ],
         ),
-
-        // Expanded(
-        //
-        //   child: Container(
-        //     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-        //     padding: const EdgeInsets.symmetric(horizontal: 12),
-        //     decoration: BoxDecoration(
-        //       color: Colors.red[100],
-        //       borderRadius: BorderRadius.circular(12),
-        //     ),
-        //     child: Row(
-        //       children: [
-        //
-        //         //Text Field untuk Search Document
-        //         const Icon(Icons.search, color: Colors.black54),
-        //         Expanded(
-        //           child: TextField(
-        //             controller: _searchController,
-        //             onChanged: (val) {
-        //               setState(() {
-        //                 query = val;
-        //               });
-        //             },
-        //             decoration: const InputDecoration(
-        //               hintText: "Search document",
-        //               border: InputBorder.none,
-        //             ),
-        //           ),
-        //         ),
-        //
-        //
-        //
-        //         SizedBox(width: 8),
-        //
-        //         Container(
-        //           width: 50,
-        //           decoration: BoxDecoration(
-        //             color: greenNewAmikom
-        //           ),
-        //         )
-        //
-        //
-        //         //Filter
-        //         // Container(
-        //         //   width: 50,
-        //         //   decoration: BoxDecoration(
-        //         //     color: Colors.red[100],
-        //         //     borderRadius: BorderRadius.circular(12),
-        //         //   ),
       ),
+
       body: DefaultTabController(
         length: 2,
         child: Column(
           children: [
+            // <<====== TAB MENU ======>>
             const TabBar(
               labelColor: Colors.red,
               unselectedLabelColor: Colors.black,
@@ -296,45 +212,41 @@ class _DriveHomeState extends State<DriveHome> {
                 Tab(text: "Shared Drive"),
               ],
             ),
+
+            // <<====== SORT & VIEW OPTION ======>>
             SortAndViewOption(
               currentSort: currentSort,
               currentView: currentView,
-              style: GoogleFonts.urbanist(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              onSortChanged: (sort) {
-                setState(() => currentSort = sort);
-              },
-              onViewChanged: (view) {
-                setState(() => currentView = view);
-              },
+              style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.bold),
+              onSortChanged: (sort) => setState(() => currentSort = sort),
+              onViewChanged: (view) => setState(() => currentView = view),
             ),
 
+            // <<====== TAB CONTENT ======>>
             Expanded(
               child: TabBarView(
                 children: [
                   Builder(
                     builder: (context) {
                       final items = getFilteredAndSortedFolders();
+
+                      // Grid view
                       if (currentView == ViewOption.grid) {
                         return DriveGrid(
                           items: items.map((f) => f.namaFolder).toList(),
                           isList: false,
                           onFolderTap: (folderName) {
-                            Navigator.of(context).push(
-                              routingPage(FolderPage(folderName: folderName)),
-                            );
+                            Navigator.of(context).push(routingPage(FolderPage(folderName: folderName)));
                           },
                         );
-                      } else {
+                      }
+                      // List view
+                      else {
                         return DriveGrid(
                           items: items.map((f) => f.namaFolder).toList(),
                           isList: true,
                           onFolderTap: (folderName) {
-                            Navigator.of(context).push(
-                              routingPage(FolderPage(folderName: folderName)),
-                            );
+                            Navigator.of(context).push(routingPage(FolderPage(folderName: folderName)));
                           },
                         );
                       }
@@ -347,17 +259,20 @@ class _DriveHomeState extends State<DriveHome> {
           ],
         ),
       ),
+
+      // <<====== FLOATING ACTION BUTTON ======>>
       floatingActionButton: AnimatedFabMenu(),
     );
   }
 
+  // <<====== FILTER & SORT FOLDER ======>>
   List<FolderModel> getFilteredAndSortedFolders() {
-    // Filter dulu
+    // Filter
     List<FolderModel> filtered = folders
         .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
-    // Sort sesuai pilihan
+    // Sort
     switch (currentSort) {
       case SortOption.nameAsc:
         filtered.sort((a, b) => a.namaFolder.compareTo(b.namaFolder));
