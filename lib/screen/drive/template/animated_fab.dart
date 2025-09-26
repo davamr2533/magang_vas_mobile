@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
+import 'package:vas_reporting/tools/popup.dart';
 
 class AnimatedFabMenu extends StatefulWidget {
   const AnimatedFabMenu({super.key});
@@ -10,8 +13,10 @@ class AnimatedFabMenu extends StatefulWidget {
 class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
   bool isOpen = false;
 
+
   @override
   Widget build(BuildContext context) {
+
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
@@ -21,7 +26,20 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
             child: _buildFabWithLabel(
               icon: Icons.create_new_folder,
               label: "Folder",
-              onTap: () => print("Tambah Folder diklik"),
+                onTap: () async {// tutup bottomsheet dulu
+                  final popup = PopUpWidget(context);
+                  final newName = await popup.showTextInputDialog(
+                    title: "Folder baru",
+                    hintText: "Folder tanpa nama",
+                    confirmText: "Buat"
+                  );
+                  if (newName != null && newName.isNotEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(
+                          "Folder \"$newName\" berhasil dibuat")),
+                    );
+                  };
+                }
             ),
           ),
 
@@ -31,7 +49,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
             child: _buildFabWithLabel(
               icon: Icons.upload_file,
               label: "Upload",
-              onTap: () => print("Upload diklik"),
+              onTap: () => _pickFile(),
             ),
           ),
 
@@ -76,5 +94,51 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu> {
         ),
       ],
     );
+  }
+
+  /// 🔹 Dialog Tambah Folder
+  void _showAddFolderDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Tambah Folder"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Nama folder"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final folderName = controller.text.trim();
+              if (folderName.isNotEmpty) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Folder '$folderName' ditambahkan")),
+                );
+              }
+            },
+            child: const Text("Tambah"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🔹 File Picker untuk Upload
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.single;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File dipilih: ${file.name}")),
+      );
+    }
   }
 }

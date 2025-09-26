@@ -8,7 +8,7 @@ import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/folder_page.dart';
 import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
-import 'package:vas_reporting/screen/drive/template/drive_layout_option.dart';
+import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
 import '../../data/cubit/get_data/get_data_cubit.dart';
@@ -79,15 +79,14 @@ class _DriveHomeState extends State<DriveHome> {
 
   @override
   Widget build(BuildContext context) {
-
     final List<Widget> pages = [
       _driveContent(),
-      const MyTaskPage(),
-      const AttendancePage(),
+      const FolderPage(folderName: "Berkas Terbaru", canBack: false, canUpload: false,),
+      const FolderPage(folderName: "Berbintang", canBack: false, canUpload: false),
+      const FolderPage(folderName: "Sampah", canBack: false, canUpload: false),
     ];
 
     return Scaffold(
-
       body: IndexedStack(index: _selectedIndex, children: pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -111,7 +110,10 @@ class _DriveHomeState extends State<DriveHome> {
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Drive Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              label: "Drive Home"
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.access_time),
             label: "Berkas Terbaru",
@@ -336,7 +338,6 @@ class _DriveHomeState extends State<DriveHome> {
                           },
                         );
                       }
-
                     },
                   ),
                   const Center(child: Text("Shared Drive Content")),
@@ -348,7 +349,6 @@ class _DriveHomeState extends State<DriveHome> {
       ),
       floatingActionButton: AnimatedFabMenu(),
     );
-
   }
 
   List<FolderModel> getFilteredAndSortedFolders() {

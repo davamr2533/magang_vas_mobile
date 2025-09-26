@@ -11,10 +11,16 @@ class FolderCard extends StatelessWidget {
   final bool isList;
   final void Function(String)? onTap;
 
-  const FolderCard({super.key, required this.title, this.isList = false, this.onTap});
+  const FolderCard({
+    super.key,
+    required this.title,
+    this.isList = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+
     if (isList) {
       // 🔹 MODE LIST VIEW
       return ListTile(
@@ -72,14 +78,15 @@ class FolderCard extends StatelessWidget {
   }
 
   void _showOptions(BuildContext context) {
-    final popup = PopUpWidget(context);
+    final rootContext = context;
 
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
+        final popup = PopUpWidget(rootContext);
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -106,19 +113,36 @@ class FolderCard extends StatelessWidget {
 
             // 🔹 Rename
             ListTile(
-              leading: const Icon(Icons.drive_file_rename_outline,
-                  color: Colors.deepOrange),
+              leading: const Icon(
+                Icons.drive_file_rename_outline,
+                color: Colors.deepOrange,
+              ),
               title: const Text("Ganti nama"),
               onTap: () async {
-                Navigator.pop(context); // tutup bottomsheet dulu
+                Navigator.pop(sheetContext); // tutup bottomsheet dulu
                 final newName = await popup.showTextInputDialog(
                   title: "Ganti nama",
                   initialValue: title,
                 );
                 if (newName != null && newName.isNotEmpty) {
-                  debugPrint("Folder diganti jadi: $newName");
+                  ScaffoldMessenger.of(rootContext).showSnackBar(
+                    SnackBar(content: Text("Folder \"$title\" diganti menjadi \"$newName\"")),
+                  );
                 }
               },
+            ),
+
+            // 🔹 Tambah ke berbintang
+            ListTile(
+              leading: const Icon(Icons.star_border, color: Colors.deepOrange),
+              title: const Text("Tambahkan ke Berbintang"),
+              onTap:() async
+              {
+                Navigator.pop(sheetContext);
+                ScaffoldMessenger.of(rootContext).showSnackBar(
+                  SnackBar(content: Text("Folder \"$title\" ditambahkan ke Berbintang")),
+                );
+              }
             ),
 
             // 🔹 Detail
@@ -126,8 +150,8 @@ class FolderCard extends StatelessWidget {
               leading: const Icon(Icons.info_outline, color: Colors.deepOrange),
               title: const Text("Detail informasi"),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
+                Navigator.pop(sheetContext);
+                Navigator.of(rootContext).push(
                   routingPage(
                     DetailPage(
                       title: title,
@@ -144,19 +168,28 @@ class FolderCard extends StatelessWidget {
 
             // 🔹 Hapus
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.deepOrange),
+              leading: const Icon(
+                Icons.delete_outline,
+                color: Colors.deepOrange,
+              ),
               title: const Text("Hapus"),
               onTap: () async {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 final confirm = await popup.showConfirmDialog(
                   title: "Pindahkan ke Sampah?",
                   message:
-                  "Folder \"$title\" akan dihapus selamanya setelah 30 hari",
+                      "Folder \"$title\" akan dihapus selamanya setelah 30 hari",
                   confirmText: "Pindahkan ke Sampah",
                   cancelText: "Batal",
                 );
                 if (confirm == true) {
-                  debugPrint("Folder \"$title\" dihapus");
+                  ScaffoldMessenger.of(rootContext).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Berhasil memindahkan Folder \"$title\" ke Sampah.",
+                      ),
+                    ),
+                  );
                 }
               },
             ),
@@ -167,7 +200,4 @@ class FolderCard extends StatelessWidget {
       },
     );
   }
-
-
-
 }

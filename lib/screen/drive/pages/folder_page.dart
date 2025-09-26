@@ -4,23 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
-import 'package:vas_reporting/screen/drive/template/drive_layout_option.dart';
+import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart';
 
 import '../../../../tools/routing.dart';
 import '../folder_model.dart';
 
 class FolderPage extends StatefulWidget {
   final String folderName;
+  final bool canBack;
+  final bool canUpload;
 
-
-  const FolderPage({super.key, required this.folderName});
+  const FolderPage({
+    super.key,
+    required this.folderName,
+    this.canBack = true,
+    this.canUpload = true,
+  });
 
   @override
   State<FolderPage> createState() => _FolderPageState();
 }
 
 class _FolderPageState extends State<FolderPage> {
-
   SortOption currentSort = SortOption.nameAsc;
   ViewOption currentView = ViewOption.grid;
 
@@ -67,14 +72,18 @@ class _FolderPageState extends State<FolderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         toolbarHeight: 70,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context); // kembali ke halaman sebelumnya
-          },
-          icon: const Icon(Icons.arrow_back_ios_new),
-          color: Colors.black,
-        ),
+        leading: widget.canBack
+            ? IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back_ios_new),
+                color: Colors.black,
+              )
+            : null,
+
         title: Text(widget.folderName),
         centerTitle: true,
       ),
@@ -83,7 +92,10 @@ class _FolderPageState extends State<FolderPage> {
           SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
-            style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.bold),
+            style: GoogleFonts.urbanist(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
             onSortChanged: (sort) {
               setState(() => currentSort = sort);
             },
@@ -101,9 +113,9 @@ class _FolderPageState extends State<FolderPage> {
                     items: items.map((f) => f.namaFolder).toList(),
                     isList: false,
                     onFolderTap: (folderName) {
-                      Navigator.of(context).push(
-                        routingPage(FolderPage(folderName: folderName)),
-                      );
+                      Navigator.of(
+                        context,
+                      ).push(routingPage(FolderPage(folderName: folderName)));
                     },
                   );
                 } else {
@@ -111,19 +123,18 @@ class _FolderPageState extends State<FolderPage> {
                     items: items.map((f) => f.namaFolder).toList(),
                     isList: true,
                     onFolderTap: (folderName) {
-                      Navigator.of(context).push(
-                        routingPage(FolderPage(folderName: folderName)),
-                      );
+                      Navigator.of(
+                        context,
+                      ).push(routingPage(FolderPage(folderName: folderName)));
                     },
                   );
                 }
               },
             ),
           ),
-
         ],
       ),
-      floatingActionButton: AnimatedFabMenu()
+      floatingActionButton: widget.canUpload ? AnimatedFabMenu() : null,
     );
   }
 
@@ -149,4 +160,3 @@ class _FolderPageState extends State<FolderPage> {
     return filtered;
   }
 }
-
