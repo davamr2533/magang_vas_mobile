@@ -5,8 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
-import 'package:vas_reporting/screen/drive/folder_page.dart';
+import 'package:vas_reporting/screen/drive/template/page/folder_page.dart';
 import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
+import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
@@ -14,6 +15,8 @@ import '../../data/cubit/get_data/get_data_cubit.dart';
 import '../../data/model/response/get_data_response.dart' as GetDataResponse;
 import '../../tools/popup.dart';
 import '../../utllis/app_shared_prefs.dart';
+import '../home/list_ajuan.dart';
+import '../home/reporting.dart';
 import 'folder_model.dart';
 
 class DriveHome extends StatefulWidget {
@@ -30,10 +33,10 @@ class _DriveHomeState extends State<DriveHome> {
   ViewOption currentView = ViewOption.grid;
 
   int _selectedIndex = 0;
-  String? name;
-  String? divisi;
-  String? jabatan;
-  String? token;
+  // String? name;
+  // String? divisi;
+  // String? jabatan;
+  // String? token;
   String query = "";
   bool isLoading = false;
   TextStyle style = GoogleFonts.urbanist(fontSize: 14);
@@ -76,161 +79,212 @@ class _DriveHomeState extends State<DriveHome> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 70,
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
-            },
-            icon: Icon(Icons.arrow_back_ios_new),
-            color: Colors.black,
+
+    final List<Widget> pages = [
+      _driveContent(),
+      const MyTaskPage(),
+      const AttendancePage(),
+    ];
+
+    return Scaffold(
+
+      body: IndexedStack(index: _selectedIndex, children: pages),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.red,
+        unselectedItemColor: Colors.black54,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+
+          // Aksi tiap menu
+          if (index == 0) {
+            // Berkas terbaru
+            print("Buka Berkas Terbaru");
+          } else if (index == 1) {
+            // Berbintang
+            print("Buka Berbintang");
+          } else if (index == 2) {
+            // Sampah
+            print("Buka Sampah");
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Drive Home"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.access_time),
+            label: "Berkas Terbaru",
           ),
-
-          title: Row(
-            children: [
-              //Text field search document
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: TextField(
-                    style: GoogleFonts.urbanist(fontSize: 14),
-
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-
-                      hintText: "Search Document",
-                      hintStyle: GoogleFonts.urbanist(fontSize: 14),
-                      filled: true,
-                      fillColor: Colors.red[100],
-
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 0,
-                      ),
-
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-
-                      //suffixIcon : Icon(IconlyLight.search)
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 12),
-
-              //Button untuk Settings filter
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: PopupMenuButton<String>(
-                    icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
-                    onSelected: (value) {
-                      if (value == 'date') {
-                        // TODO: filter by date
-                        print("Filter by Date");
-                      } else if (value == 'name') {
-                        // TODO: filter by name
-                        print("Filter by Name");
-                      } else if (value == 'type') {
-                        // TODO: filter by type
-                        print("Filter by Type");
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'date',
-                        child: Text(
-                          "Sort by Date",
-                          style: GoogleFonts.urbanist(fontSize: 14),
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'name',
-                        child: Text(
-                          "Sort by Name",
-                          style: GoogleFonts.urbanist(fontSize: 14),
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'type',
-                        child: Text(
-                          "Sort by File Type",
-                          style: GoogleFonts.urbanist(fontSize: 14),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star_border),
+            label: "Berbintang",
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.delete_outline),
+            label: "Sampah",
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Expanded(
-          //
-          //   child: Container(
-          //     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          //     padding: const EdgeInsets.symmetric(horizontal: 12),
-          //     decoration: BoxDecoration(
-          //       color: Colors.red[100],
-          //       borderRadius: BorderRadius.circular(12),
-          //     ),
-          //     child: Row(
-          //       children: [
-          //
-          //         //Text Field untuk Search Document
-          //         const Icon(Icons.search, color: Colors.black54),
-          //         Expanded(
-          //           child: TextField(
-          //             controller: _searchController,
-          //             onChanged: (val) {
-          //               setState(() {
-          //                 query = val;
-          //               });
-          //             },
-          //             decoration: const InputDecoration(
-          //               hintText: "Search document",
-          //               border: InputBorder.none,
-          //             ),
-          //           ),
-          //         ),
-          //
-          //
-          //
-          //         SizedBox(width: 8),
-          //
-          //         Container(
-          //           width: 50,
-          //           decoration: BoxDecoration(
-          //             color: greenNewAmikom
-          //           ),
-          //         )
-          //
-          //
-          //         //Filter
-          //         // Container(
-          //         //   width: 50,
-          //         //   decoration: BoxDecoration(
-          //         //     color: Colors.red[100],
-          //         //     borderRadius: BorderRadius.circular(12),
-          //         //   ),
+  Widget _driveContent() {
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 70,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context); //Navigasi kembali ke halaman sebelumnya
+          },
+          icon: Icon(Icons.arrow_back_ios_new),
+          color: Colors.black,
         ),
-        body: Column(
+
+        title: Row(
+          children: [
+            //Text field search document
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: TextField(
+                  style: GoogleFonts.urbanist(fontSize: 14),
+
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+
+                    hintText: "Search Document",
+                    hintStyle: GoogleFonts.urbanist(fontSize: 14),
+                    filled: true,
+                    fillColor: Colors.red[100],
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 0,
+                    ),
+
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.red, width: 2),
+                    ),
+
+                    //suffixIcon : Icon(IconlyLight.search)
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            //Button untuk Settings filter
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.red[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: PopupMenuButton<String>(
+                  icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
+                  onSelected: (value) {
+                    if (value == 'date') {
+                      // TODO: filter by date
+                      print("Filter by Date");
+                    } else if (value == 'name') {
+                      // TODO: filter by name
+                      print("Filter by Name");
+                    } else if (value == 'type') {
+                      // TODO: filter by type
+                      print("Filter by Type");
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'date',
+                      child: Text(
+                        "Sort by Date",
+                        style: GoogleFonts.urbanist(fontSize: 14),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'name',
+                      child: Text(
+                        "Sort by Name",
+                        style: GoogleFonts.urbanist(fontSize: 14),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'type',
+                      child: Text(
+                        "Sort by File Type",
+                        style: GoogleFonts.urbanist(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        // Expanded(
+        //
+        //   child: Container(
+        //     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        //     padding: const EdgeInsets.symmetric(horizontal: 12),
+        //     decoration: BoxDecoration(
+        //       color: Colors.red[100],
+        //       borderRadius: BorderRadius.circular(12),
+        //     ),
+        //     child: Row(
+        //       children: [
+        //
+        //         //Text Field untuk Search Document
+        //         const Icon(Icons.search, color: Colors.black54),
+        //         Expanded(
+        //           child: TextField(
+        //             controller: _searchController,
+        //             onChanged: (val) {
+        //               setState(() {
+        //                 query = val;
+        //               });
+        //             },
+        //             decoration: const InputDecoration(
+        //               hintText: "Search document",
+        //               border: InputBorder.none,
+        //             ),
+        //           ),
+        //         ),
+        //
+        //
+        //
+        //         SizedBox(width: 8),
+        //
+        //         Container(
+        //           width: 50,
+        //           decoration: BoxDecoration(
+        //             color: greenNewAmikom
+        //           ),
+        //         )
+        //
+        //
+        //         //Filter
+        //         // Container(
+        //         //   width: 50,
+        //         //   decoration: BoxDecoration(
+        //         //     color: Colors.red[100],
+        //         //     borderRadius: BorderRadius.circular(12),
+        //         //   ),
+      ),
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
           children: [
             const TabBar(
               labelColor: Colors.red,
@@ -302,59 +356,10 @@ class _DriveHomeState extends State<DriveHome> {
             ),
           ],
         ),
-
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              folders.add(
-                FolderModel(
-                  id: folders.length + 1,
-                  namaFolder: "Folder Baru ${folders.length + 1}",
-                  createdAt: DateTime.now().toIso8601String(),
-                ),
-              );
-            });
-          },
-          child: const Icon(Icons.add),
-        ),
-        bottomNavigationBar: BottomNavigationBar (
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.red,
-          unselectedItemColor: Colors.black54,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-
-            // Aksi tiap menu
-            if (index == 0) {
-              // Berkas terbaru
-              print("Buka Berkas Terbaru");
-            } else if (index == 1) {
-              // Berbintang
-              print("Buka Berbintang");
-            } else if (index == 2) {
-              // Sampah
-              print("Buka Sampah");
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.access_time),
-              label: "Berkas Terbaru",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.star_border),
-              label: "Berbintang",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.delete_outline),
-              label: "Sampah",
-            ),
-          ],
-        ),
       ),
+      floatingActionButton: AnimatedFabMenu(),
     );
+
   }
 
   List<FolderModel> getFilteredAndSortedFolders() {

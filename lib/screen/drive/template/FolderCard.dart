@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vas_reporting/screen/drive/template/page/detail_page.dart';
+
+import '../../../tools/routing.dart';
 
 class FolderCard extends StatelessWidget {
   final String title;
@@ -94,7 +97,16 @@ class FolderCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.info_outline, color: Colors.deepOrange),
           title: const Text("Detail informasi"),
-          onTap: () => Navigator.pop(context),
+          onTap: () => Navigator.of(context).push(
+            routingPage(DetailPage(
+              title: title,
+              jenis: "Folder",
+              lokasi: "VAS Drive",
+              dibuat: "15 Sep 2025",
+              diubah: "15 Sep 2025 oleh Fais",
+              icon: Icons.folder_rounded,
+            ),),
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.star_border, color: Colors.deepOrange),

@@ -6,8 +6,8 @@ import 'package:vas_reporting/screen/drive/template/DriveGrid.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sortAndViewBar.dart';
 
-import '../../tools/routing.dart';
-import 'folder_model.dart';
+import '../../../../tools/routing.dart';
+import '../../folder_model.dart';
 
 class FolderPage extends StatefulWidget {
   final String folderName;
