@@ -1,3 +1,4 @@
+
 // lib/.../tracker_vas.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/data/model/response/get_data_response.dart';
 import 'package:vas_reporting/screen/task_tracker/taks_tracker_vas/tracker_vas_card.dart';
 import 'package:vas_reporting/screen/task_tracker/task_service.dart';
+import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 
 class TrackerVas extends StatefulWidget {
@@ -158,7 +160,7 @@ class _TrackerVasState extends State<TrackerVas> {
           //Daftar Pengajuan
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: AppWidget().LoadingWidget())
                 : (_errorMessage != null)
                 ?
             Center(
@@ -184,7 +186,7 @@ class _TrackerVasState extends State<TrackerVas> {
               future: futureTasks,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: AppWidget().LoadingWidget());
                 } else if (snapshot.hasError) {
                   return Center(
                     child: Padding(

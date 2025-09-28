@@ -12,7 +12,6 @@ class GetDataInitial extends GetDataHasState {}
 
 class GetDataSuccess extends GetDataHasState {
   final GetDataResponse response;
-
   const GetDataSuccess(this.response);
 
   @override
