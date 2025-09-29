@@ -1,94 +1,220 @@
-import 'dart:convert';
-
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
-import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
-import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart';
-
-import '../../../../tools/routing.dart';
 import '../folder_model.dart';
+import '../template/drive_layout.dart';
+import '../template/sort_and_layout_option.dart';
+import '../template/animated_fab.dart';
+import 'detail_page.dart';
 
-// <<====== FOLDER PAGE ======>>
 class FolderPage extends StatefulWidget {
-  final String folderName; // Nama folder yang sedang dibuka
-  final bool canBack;      // Apakah tombol back ditampilkan
-  final bool canUpload;    // Apakah tombol upload ditampilkan
+  final FolderModel initialFolder;
+  final ViewOption initialView;
+  final VoidCallback? onRootPop;
 
   const FolderPage({
     super.key,
-    required this.folderName,
-    this.canBack = true,
-    this.canUpload = true,
+    required this.initialFolder,
+    this.initialView = ViewOption.grid,
+    this.onRootPop,
   });
 
   @override
-  State<FolderPage> createState() => _FolderPageState();
+  State<FolderPage> createState() => FolderPageState();
 }
 
-class _FolderPageState extends State<FolderPage> {
-  // <<====== STATE ======>>
-  SortOption currentSort = SortOption.nameAsc; // default sort: nama A-Z
-  ViewOption currentView = ViewOption.grid;    // default view: grid
+class FolderPageState extends State<FolderPage>
+    with SingleTickerProviderStateMixin {
+  // ----------------- State utama -----------------
+  late List<FolderModel> navigationStack;
+  SortOption currentSort = SortOption.nameAsc;
+  late ViewOption currentView;
 
-  String query = ""; // teks pencarian
-  bool isLoading = false; // status loading
-  TextStyle style = GoogleFonts.urbanist(fontSize: 14);
+  // ----------------- Detail Page -----------------
+  bool showDetail = false;
+  FolderModel? selectedFolder;
 
-  // Data folder
-  List<FolderModel> folders = [];
+  // ----------------- Animasi -----------------
+  late final AnimationController _controller;
+  late final Animation<Offset> _slideAnimation;
 
-  // <<====== INIT STATE ======>>
+  // ----------------- Lifecycle -----------------
   @override
   void initState() {
     super.initState();
-    fetchDummyData(); // ambil data dummy
+    navigationStack = [widget.initialFolder];
+    currentView = widget.initialView;
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
-  // <<====== FETCH DUMMY DATA ======>>
-  Future<void> fetchDummyData() async {
-    const dummyJson = '''
-    [
-      {"id": 1, "namaFolder": "Daftar pengajuan VAS", "createdAt": "2025-09-01"},
-      {"id": 2, "namaFolder": "Data VAS", "createdAt": "2025-09-10"},
-      {"id": 3, "namaFolder": "File Approve", "createdAt": "2025-09-15"},
-      {"id": 4, "namaFolder": "Dokumen HR", "createdAt": "2025-09-20"}
-    ]
-    ''';
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-    final List<dynamic> jsonData = jsonDecode(dummyJson);
-    final fetchedFolders =
-    jsonData.map((e) => FolderModel.fromJson(e)).toList();
+  // ----------------- Getter -----------------
+  /// Folder yang sedang aktif ditampilkan.
+  FolderModel get currentFolder => navigationStack.last;
 
+  /// Item (sub-folder) di dalam folder aktif.
+  List<FolderModel> get currentItems => currentFolder.children;
+
+  /// Apakah bisa kembali ke folder sebelumnya.
+  bool canGoBack() => navigationStack.length > 1;
+  void goBack() => popFolder();
+
+  // ----------------- Navigasi Folder -----------------
+  /// Masuk ke dalam folder baru.
+  void pushFolder(FolderModel folder) {
+    setState(() => navigationStack.add(folder));
+  }
+
+  /// Kembali ke folder sebelumnya, atau keluar dari root.
+  void popFolder() {
+    if (navigationStack.length > 1) {
+      setState(() => navigationStack.removeLast());
+    } else {
+      if (widget.onRootPop != null) {
+        widget.onRootPop!();
+      } else {
+        if (widget.initialFolder.isSpecial) {
+          debugPrint("Back di tab spesial, tetap di root");
+        } else {
+          Navigator.pop(context, currentView);
+        }
+      }
+    }
+  }
+
+  // ----------------- Detail Page -----------------
+  /// Buka halaman detail folder.
+  void openDetail(FolderModel folder) {
     setState(() {
-      folders = fetchedFolders;
-      isLoading = false;
+      selectedFolder = folder;
+      showDetail = true;
+    });
+    _controller.forward(from: 0);
+  }
+
+  /// Tutup halaman detail folder.
+  void closeDetail() {
+    _controller.reverse().then((_) {
+      setState(() {
+        showDetail = false;
+        selectedFolder = null;
+      });
     });
   }
 
-  // <<====== BUILD UI ======>>
+  // ----------------- Sorting -----------------
+  /// Mengurutkan folder sesuai pilihan sort.
+  List<FolderModel> getFilteredAndSortedFolders(List<FolderModel> input) {
+    final filtered = List<FolderModel>.from(input);
+    switch (currentSort) {
+      case SortOption.nameAsc:
+        filtered.sort((a, b) => a.namaFolder.compareTo(b.namaFolder));
+        break;
+      case SortOption.nameDesc:
+        filtered.sort((a, b) => b.namaFolder.compareTo(a.namaFolder));
+        break;
+      case SortOption.date:
+        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+    }
+    return filtered;
+  }
+
+  // ----------------- UI -----------------
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // <<====== APP BAR ======>>
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: 70,
-        leading: widget.canBack
-            ? IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new),
-          color: Colors.black,
-        )
-            : null,
-        title: Text(widget.folderName),
-        centerTitle: true,
-      ),
+    final items = getFilteredAndSortedFolders(currentItems);
 
-      // <<====== BODY ======>>
-      body: Column(
-        children: [
-          // Sort & View Option (grid/list)
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          debugPrint("Tombol kembali ditekan!");
+          debugPrint("Jumlah folder di stack: ${navigationStack.length}");
+          debugPrint(
+            "Nama folder di stack: ${navigationStack.map((f) => f.namaFolder).toList()}",
+          );
+          popFolder();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(),
+        body: Stack(
+          children: [
+            PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 400),
+              transitionBuilder: (child, animation, secondaryAnimation) {
+                return SharedAxisTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.scaled,
+                  fillColor: Colors.white,
+                  child: child,
+                );
+              },
+              child: _buildBody(items),
+            ),
+            if (showDetail && selectedFolder != null)
+              SlideTransition(
+                position: _slideAnimation,
+                child: DetailPage(
+                  title: selectedFolder!.namaFolder,
+                  jenis: "Folder",
+                  lokasi: "VAS Drive",
+                  dibuat: "15 Sep 2025",
+                  diubah: "15 Sep 2025 oleh Fais",
+                  icon: Icons.folder_rounded,
+                ),
+              ),
+          ],
+        ),
+        floatingActionButton: !widget.initialFolder.isSpecial
+            ? AnimatedFabMenu()
+            : null,
+      ),
+    );
+  }
+
+  /// Membuat AppBar dengan tombol back sesuai kondisi folder.
+  AppBar _buildAppBar() {
+    final isRoot = navigationStack.length == 1;
+    final isSpecial = widget.initialFolder.isSpecial;
+
+    return AppBar(
+      backgroundColor: Colors.white,
+      automaticallyImplyLeading: false,
+      leading: (!isRoot || !isSpecial)
+          ? IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+        onPressed: popFolder,
+      )
+          : null,
+      title: Text(currentFolder.namaFolder),
+      centerTitle: true,
+    );
+  }
+
+  /// Membuat body utama, menampilkan sort option + daftar folder.
+  Widget _buildBody(List<FolderModel> items) {
+    return Column(
+      key: ValueKey(currentFolder.id),
+      children: [
+        if (items.isNotEmpty)
           SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
@@ -99,69 +225,30 @@ class _FolderPageState extends State<FolderPage> {
             onSortChanged: (sort) => setState(() => currentSort = sort),
             onViewChanged: (view) => setState(() => currentView = view),
           ),
-
-          // Daftar folder/file
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                final items = getFilteredAndSortedFolders();
-
-                // Grid view
-                if (currentView == ViewOption.grid) {
-                  return DriveGrid(
-                    items: items.map((f) => f.namaFolder).toList(),
-                    isList: false,
-                    onFolderTap: (folderName) {
-                      Navigator.of(context)
-                          .push(routingPage(FolderPage(folderName: folderName)));
-                    },
-                  );
-                }
-
-                // List view
-                else {
-                  return DriveGrid(
-                    items: items.map((f) => f.namaFolder).toList(),
-                    isList: true,
-                    onFolderTap: (folderName) {
-                      Navigator.of(context)
-                          .push(routingPage(FolderPage(folderName: folderName)));
-                    },
-                  );
-                }
-              },
+        Expanded(
+          child: items.isEmpty
+              ? Center(
+            child: Text(
+              "Folder Kosong",
+              style: GoogleFonts.urbanist(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
             ),
+          )
+              : DriveGrid(
+            items: items.map((f) => f.namaFolder).toList(),
+            isList: currentView == ViewOption.list,
+            onFolderTap: (folderName) {
+              final tapped = items.firstWhere(
+                    (f) => f.namaFolder == folderName,
+              );
+              pushFolder(tapped);
+            },
           ),
-        ],
-      ),
-
-      // Floating Action Button (upload/tambah folder/file)
-      floatingActionButton: widget.canUpload ? AnimatedFabMenu() : null,
+        ),
+      ],
     );
-  }
-
-  // <<====== FILTER & SORT ======>>
-  List<FolderModel> getFilteredAndSortedFolders() {
-    // Filter by query
-    List<FolderModel> filtered = folders
-        .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    // Sorting
-    switch (currentSort) {
-      case SortOption.nameAsc:
-        filtered.sort((a, b) => a.namaFolder.compareTo(b.namaFolder));
-        break;
-
-      case SortOption.nameDesc:
-        filtered.sort((a, b) => b.namaFolder.compareTo(a.namaFolder));
-        break;
-
-      case SortOption.date:
-        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        break;
-    }
-
-    return filtered;
   }
 }

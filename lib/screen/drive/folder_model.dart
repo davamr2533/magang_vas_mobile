@@ -1,19 +1,27 @@
 class FolderModel {
   final int id;
   final String namaFolder;
-  final String createdAt;
+  final DateTime createdAt;
+  final List<FolderModel> children;
+  final bool isSpecial;
 
   FolderModel({
     required this.id,
     required this.namaFolder,
     required this.createdAt,
+    this.children = const [],
+    this.isSpecial = false
   });
 
   factory FolderModel.fromJson(Map<String, dynamic> json) {
     return FolderModel(
       id: json['id'],
       namaFolder: json['namaFolder'],
-      createdAt: json['createdAt'],
+      createdAt: DateTime.parse(json['createdAt']),
+      children: (json['children'] as List<dynamic>?)
+          ?.map((e) => FolderModel.fromJson(e))
+          .toList() ??
+          [],
     );
   }
 }
