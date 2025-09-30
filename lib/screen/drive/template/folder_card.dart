@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
@@ -28,13 +28,27 @@ class FolderCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           splashColor: Colors.orange.withValues(alpha: 0.5),
-          highlightColor: Colors.orange.withValues(alpha: 0.2), // warna saat ditekan
+          highlightColor: Colors.orange.withValues(
+            alpha: 0.2,
+          ), // warna saat ditekan
           splashFactory: InkRipple.splashFactory,
           onTap: () => onTap?.call(title),
           child: ListTile(
             leading: const Icon(Icons.folder, color: Colors.orange),
-            title: Text(title, overflow: TextOverflow.ellipsis),
-            subtitle: const Text("Folder"),
+            title: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.urbanist(
+                fontSize: 16
+              ),
+            ),
+            subtitle: Text(
+              "Folder",
+              style: GoogleFonts.urbanist(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.more_vert),
               onPressed: () => _showOptions(context),
@@ -45,11 +59,13 @@ class FolderCard extends StatelessWidget {
     } else {
       // <<====== MODE GRID VIEW ======>>
       return Material(
-        color: Colors.transparent, // penting untuk ripple
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           splashColor: Colors.orange.withValues(alpha: 0.5),
-          highlightColor: Colors.orange.withValues(alpha: 0.2), // warna saat ditekan
+          highlightColor: Colors.orange.withValues(
+            alpha: 0.2,
+          ), // warna saat ditekan
           splashFactory: InkRipple.splashFactory,
           borderRadius: BorderRadius.circular(16),
           onTap: () => onTap?.call(title),
@@ -69,7 +85,9 @@ class FolderCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: GoogleFonts.urbanist(
+                          fontSize: 16,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -122,9 +140,8 @@ class FolderCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: GoogleFonts.urbanist(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -140,7 +157,7 @@ class FolderCard extends StatelessWidget {
                 Icons.drive_file_rename_outline,
                 color: Colors.deepOrange,
               ),
-              title: const Text("Ganti nama"),
+              title: Text("Ganti nama", style: GoogleFonts.urbanist()),
               onTap: () async {
                 Navigator.pop(sheetContext); // tutup bottomsheet
                 final newName = await popup.showTextInputDialog(
@@ -152,6 +169,7 @@ class FolderCard extends StatelessWidget {
                     SnackBar(
                       content: Text(
                         "Folder \"$title\" diganti menjadi \"$newName\"",
+                        style: GoogleFonts.urbanist(),
                       ),
                     ),
                   );
@@ -162,13 +180,17 @@ class FolderCard extends StatelessWidget {
             // <<====== OPSI: Tambah ke Berbintang ======>>
             ListTile(
               leading: const Icon(Icons.star_border, color: Colors.deepOrange),
-              title: const Text("Tambahkan ke Berbintang"),
+              title: Text(
+                "Tambahkan ke Berbintang",
+                style: GoogleFonts.urbanist(),
+              ),
               onTap: () {
                 Navigator.pop(sheetContext);
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(
                     content: Text(
                       "Folder \"$title\" ditambahkan ke Berbintang",
+                      style: GoogleFonts.urbanist(),
                     ),
                   ),
                 );
@@ -178,7 +200,7 @@ class FolderCard extends StatelessWidget {
             // <<====== OPSI: Detail Informasi ======>>
             ListTile(
               leading: const Icon(Icons.info_outline, color: Colors.deepOrange),
-              title: const Text("Detail informasi"),
+              title: Text("Detail informasi", style: GoogleFonts.urbanist()),
               onTap: () {
                 Navigator.pop(sheetContext);
                 Navigator.of(rootContext).push(
@@ -203,7 +225,7 @@ class FolderCard extends StatelessWidget {
                 Icons.delete_outline,
                 color: Colors.deepOrange,
               ),
-              title: const Text("Hapus"),
+              title: Text("Hapus", style: GoogleFonts.urbanist()),
               onTap: () async {
                 Navigator.pop(sheetContext);
                 final confirm = await popup.showConfirmDialog(
@@ -218,6 +240,7 @@ class FolderCard extends StatelessWidget {
                     SnackBar(
                       content: Text(
                         "Berhasil memindahkan Folder \"$title\" ke Sampah.",
+                        style: GoogleFonts.urbanist(),
                       ),
                     ),
                   );

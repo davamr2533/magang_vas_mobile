@@ -64,14 +64,12 @@ class _DriveHomeState extends State<DriveHome> {
   }
 
   void _navigateToFolder(FolderModel folder) async {
-    // Tunggu hasil yang dikembalikan oleh FolderPage, yang tipenya adalah ViewOption
     final result = await Navigator.of(context).push<ViewOption>(
       DriveRouting(
         page: FolderPage(initialFolder: folder, initialView: currentView),
       ),
     );
 
-    // Jika ada hasil yang dikembalikan dan berbeda dari state saat ini, perbarui UI
     if (result != null && result != currentView) {
       setState(() {
         currentView = result;
@@ -82,9 +80,7 @@ class _DriveHomeState extends State<DriveHome> {
   List<FolderModel> _getAllItemsRecursive(List<FolderModel> folders) {
     List<FolderModel> allItems = [];
     for (var folder in folders) {
-      // Tambahkan folder itu sendiri
       allItems.add(folder);
-      // Jika punya anak, tambahkan juga semua anaknya secara rekursif
       if (folder.children.isNotEmpty) {
         allItems.addAll(_getAllItemsRecursive(folder.children));
       }
@@ -98,7 +94,6 @@ class _DriveHomeState extends State<DriveHome> {
       isList: currentView == ViewOption.list,
       onFolderTap: (folderName) {
         final tapped = items.firstWhere((f) => f.namaFolder == folderName);
-        // Panggil fungsi baru di sini
         _navigateToFolder(tapped);
       },
     );
@@ -110,7 +105,6 @@ class _DriveHomeState extends State<DriveHome> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          // AppBar Anda yang sudah ada sebelumnya
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 1,
@@ -129,6 +123,10 @@ class _DriveHomeState extends State<DriveHome> {
                     style: GoogleFonts.urbanist(fontSize: 14),
                     decoration: InputDecoration(
                       hintText: "Search Document",
+                      hintStyle: GoogleFonts.urbanist(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
                       filled: true,
                       fillColor: Colors.red[100],
                       contentPadding: const EdgeInsets.symmetric(
@@ -180,11 +178,15 @@ class _DriveHomeState extends State<DriveHome> {
               ),
             ],
           ),
-          // Pindahkan TabBar ke bottom properti dari AppBar
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: Colors.red,
             unselectedLabelColor: Colors.black,
-            tabs: [
+            labelStyle: GoogleFonts.urbanist(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedLabelStyle: GoogleFonts.urbanist(fontSize: 14),
+            tabs: const [
               Tab(text: "My Drive"),
               Tab(text: "Shared Drive"),
             ],
@@ -206,7 +208,12 @@ class _DriveHomeState extends State<DriveHome> {
               child: TabBarView(
                 children: [
                   buildDriveGrid(items),
-                  const Center(child: Text("Shared Drive Content")),
+                  Center(
+                    child: Text(
+                      "Shared Drive Content",
+                      style: GoogleFonts.urbanist(),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -245,7 +252,7 @@ class _DriveHomeState extends State<DriveHome> {
     );
 
     final pages = [
-      _buildDriveHomePage(), // ini akan rebuild sesuai currentView
+      _buildDriveHomePage(),
       TabPageWrapper(
         rootFolder: recentFolder,
         initialView: currentView,
@@ -270,6 +277,8 @@ class _DriveHomeState extends State<DriveHome> {
         selectedItemColor: Colors.red,
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Colors.black54,
+        selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: GoogleFonts.urbanist(),
         onTap: (index) => setState(() => _selectedIndex = index),
         items: const [
           BottomNavigationBarItem(

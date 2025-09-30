@@ -143,11 +143,11 @@ class FolderPageState extends State<FolderPage>
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          debugPrint("Tombol kembali ditekan!");
-          debugPrint("Jumlah folder di stack: ${navigationStack.length}");
-          debugPrint(
-            "Nama folder di stack: ${navigationStack.map((f) => f.namaFolder).toList()}",
-          );
+          // debugPrint("Tombol kembali ditekan!");
+          // debugPrint("Jumlah folder di stack: ${navigationStack.length}");
+          // debugPrint(
+          //   "Nama folder di stack: ${navigationStack.map((f) => f.namaFolder).toList()}",
+          // );
           popFolder();
         }
       },
