@@ -20,6 +20,7 @@ import 'package:vas_reporting/screen/home/reporting.dart';
 import 'package:vas_reporting/screen/login_page.dart';
 import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_user/track_user_page.dart';
+import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
 import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
 import 'package:vas_reporting/screen/task_tracker/taks_tracker_vas/tracker_vas.dart';
 import 'package:vas_reporting/tools/popup.dart';
@@ -192,7 +193,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                         onTap: () {
                           Navigator.of(context).push(
-                            routingPage(TrackerVas()),
+                            routingPage(
+                              BlocProvider(
+                                create: (context) => TaskTrackCubit(TaskTrackService()),
+                                child: TrackVasPage(),
+                              ),
+                            )
                           );
                         },
                       )

@@ -4,21 +4,15 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="Penambahan Bottom bar uji coba">
-      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/cubit/uji_cubit.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/cubit/uji_state.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_service.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_user/track_user_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_cubit.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_state.dart" afterDir="false" />
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="Integrasi API task track user">
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/home/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home/home_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_cubit.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_tracker/taks_tracker_vas/tracker_vas.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_tracker/taks_tracker_vas/tracker_vas_card.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_tracker/task_service.dart" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,6 +44,9 @@
     &quot;accountId&quot;: &quot;ba575121-673a-4bd1-a981-f556aec9e82f&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -119,7 +116,23 @@
       <option name="project" value="LOCAL" />
       <updated>1758787497833</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Integrasi API task track user">
+      <option name="closed" value="true" />
+      <created>1759307727326</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1759307727326</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Integrasi API task track user">
+      <option name="closed" value="true" />
+      <created>1759307764524</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1759307764524</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -137,6 +150,7 @@
     <MESSAGE value="Perbaikan timeline task tracker user v2" />
     <MESSAGE value="fhf" />
     <MESSAGE value="Penambahan Bottom bar uji coba" />
-    <option name="LAST_COMMIT_MESSAGE" value="Penambahan Bottom bar uji coba" />
+    <MESSAGE value="Integrasi API task track user" />
+    <option name="LAST_COMMIT_MESSAGE" value="Integrasi API task track user" />
   </component>
 </project>

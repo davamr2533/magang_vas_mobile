@@ -7,8 +7,11 @@ class TaskTrackService {
   //API untuk get data dari tabel activity_task_tracker
   static const String getTaskTrackerURL = "http://202.169.231.66:82/api/v1/vas/get-task-tracker";
 
+  //API untuk update progress task tracker ke tabel activity_task_tracker
+  static const String updateTaskTrackerURL = "http://202.169.231.66:82/api/v1/vas/update-progress-task";
 
-  //Method untuk mengembalikan data dari JSON
+
+  //Method untuk get data dari tabel task tracker
   Future<Map<String, dynamic>?> getTaskTracker() async {
     final token = await SharedPref.getToken();
 
@@ -28,4 +31,40 @@ class TaskTrackService {
     }
   }
 
+  //Method untuk update progress
+  Future<bool> updateTaskTracker({
+    required String nomorPengajuan,
+    required String taskClosed,
+    required String taskProgress,
+    required String catatan,
+    required String updatedBy,
+  }) async {
+    final token = await SharedPref.getToken();
+
+    final body = {
+      "nomor_pengajuan": nomorPengajuan,
+      "task_closed": taskClosed,
+      "task_progress": taskProgress,
+      "catatan": catatan,
+      "updated_by": updatedBy,
+    };
+
+    final response = await http.post(
+      Uri.parse(updateTaskTrackerURL),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data["status"] == "success";
+    } else {
+      return false;
+    }
+
+
+  }
 }
