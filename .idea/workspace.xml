@@ -5,16 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="Penambahan Bottom bar uji coba">
+      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/cubit/uji_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/cubit/uji_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_response.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/UjicobaApiBaru/uji_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_response.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_user/track_user_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_track_state.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/cubit/get_data/get_data_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/cubit/get_data/get_data_state.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_tracker/taks_tracker_vas/tracker_vas.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_tracker/taks_tracker_vas/tracker_vas.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/home/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home/home_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +27,13 @@
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dart File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -64,6 +75,11 @@
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\vas-mobile\lib\screen\UjicobaApiBaru\cubit" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
       <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />

@@ -8,6 +8,9 @@ import 'package:vas_reporting/data/model/response/get_data_response.dart'
     as GetDataResponse;
 import 'package:vas_reporting/data/model/response/get_data_vas_response.dart'
     as GetDataVasResponse;
+import 'package:vas_reporting/screen/UjicobaApiBaru/cubit/uji_cubit.dart';
+import 'package:vas_reporting/screen/UjicobaApiBaru/uji_page.dart';
+import 'package:vas_reporting/screen/UjicobaApiBaru/uji_service.dart';
 import 'package:vas_reporting/screen/ajuan/approval_manager.dart';
 import 'package:vas_reporting/screen/ajuan/form_pengajuan.dart';
 import 'package:vas_reporting/screen/ajuan/uji_home.dart';
@@ -15,6 +18,9 @@ import 'package:vas_reporting/screen/ajuan/vas_home.dart';
 import 'package:vas_reporting/screen/drive/drive_home.dart';
 import 'package:vas_reporting/screen/home/reporting.dart';
 import 'package:vas_reporting/screen/login_page.dart';
+import 'package:vas_reporting/screen/task_track/task_track_service.dart';
+import 'package:vas_reporting/screen/task_track/task_track_user/track_user_page.dart';
+import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
 import 'package:vas_reporting/screen/task_tracker/taks_tracker_vas/tracker_vas.dart';
 import 'package:vas_reporting/screen/task_tracker/task_tracker_user/tracker_user.dart';
 import 'package:vas_reporting/tools/popup.dart';
@@ -246,7 +252,13 @@ class _HomePageState extends State<HomePage> {
 
                         onTap: () {
                           Navigator.of(context).push(
-                            routingPage(TrackerUser()),
+                            routingPage(
+                              BlocProvider(
+                                create: (context) => TaskTrackCubit(TaskTrackService()),
+                                child: TrackUserPage(),
+                              ),
+
+                            ),
                           );
                         },
                       )
