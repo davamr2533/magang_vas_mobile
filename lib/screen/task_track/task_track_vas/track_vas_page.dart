@@ -78,6 +78,19 @@ class _TrackVasPage extends State<TrackVasPage> {
             } else if (state is TaskTrackSuccess) {
               final tasks = state.tasks;
 
+              if (tasks.isEmpty) {
+                return Center(
+                  child: Text(
+                    "Tidak ada Task",
+                    style: GoogleFonts.urbanist(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                );
+              }
+
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: tasks.length + 1,
@@ -100,6 +113,9 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                   final String nextProgress =
                       progressFlow[task.currentProgress] ?? "-";
+
+                  //Handle jika task kosong
+
 
                   return Container(
                     width: double.infinity,

@@ -93,6 +93,20 @@ class _TrackUserPage extends State<TrackUserPage> {
                   expandedList = List.generate(tasks.length, (_) => false);
                 }
 
+                //Handle jika task kosong
+                if (tasks.isEmpty) {
+                  return Center(
+                    child: Text(
+                      "Tidak ada Task berjalan",
+                      style: GoogleFonts.urbanist(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+
 
                 //Refresh Halaman
                 return RefreshIndicator(
@@ -105,6 +119,7 @@ class _TrackUserPage extends State<TrackUserPage> {
                       itemBuilder: (context, index) {
                         final task = tasks[index];
                         final isExpanded = expandedList[index];
+                        String current = task.currentProgress;
 
                         if (task.currentProgress == "Wawancara") {
                           persentase = 0;
@@ -115,10 +130,12 @@ class _TrackUserPage extends State<TrackUserPage> {
                           image = "assets/konfirm_desain.png";
 
                         } else if (task.currentProgress == "Perancangan Database") {
+                          current = "Perancangan DB";
                           persentase = 29;
                           image = "assets/rancang_db.png";
 
                         } else if (task.currentProgress == "Pengembangan Software") {
+                          current = "Software Dev";
                           persentase = 42;
                           image = "assets/pengembangan_software.png";
 
@@ -195,7 +212,7 @@ class _TrackUserPage extends State<TrackUserPage> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    task.currentProgress,
+                                    current,
                                     style: GoogleFonts.urbanist(
                                       color: blackNewAmikom,
                                       fontSize: 16,
