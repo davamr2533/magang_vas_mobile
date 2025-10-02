@@ -108,13 +108,13 @@ class _TrackVasPage extends State<TrackVasPage> {
                     "Debugging": "Testing",
                     "Testing": "Trial",
                     "Trial": "Production",
-                    "Production": "Wawancara",
+                    "Production": "-",
+                    "-": "Wawancara",
                   };
 
-                  final String nextProgress =
-                      progressFlow[task.currentProgress] ?? "-";
+                  final String nextProgress = progressFlow[task.currentProgress] ?? "-";
 
-                  //Handle jika task kosong
+
 
 
                   return Container(
@@ -235,6 +235,9 @@ class _TrackVasPage extends State<TrackVasPage> {
                                 ),
                               ),
                               const SizedBox(width: 15),
+
+
+
                               ElevatedButton(
                                 onPressed: () {
                                   showDialog(
@@ -380,23 +383,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                                                   Expanded(
                                                     child: ElevatedButton(
                                                       onPressed: () async {
-                                                        final service =
-                                                        TaskTrackService();
-                                                        final success =
-                                                        await service.updateTaskTracker(
-                                                          nomorPengajuan: task.nomorPengajuan,
-                                                          taskClosed: task.currentProgress,
-                                                          taskProgress: nextProgress,
-                                                          updatedBy: await SharedPref.getName() ?? '_',
-                                                          catatan: _catatanController.text,
-                                                        );
-
-
-
-
-                                                        if (success && context.mounted) {
-
-                                                          //Menampilkan pesan sukses
+                                                        if (task.currentProgress == "Production" && context.mounted) {
 
                                                           showDialog(
                                                             context: context,
@@ -439,8 +426,8 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                                                                                 Center(
                                                                                     child: Icon(
-                                                                                      Icons.check_circle_rounded,
-                                                                                      color: greenNewAmikom,
+                                                                                      Icons.cancel_rounded,
+                                                                                      color: Colors.red,
                                                                                       size: 75,
                                                                                     )
                                                                                 )
@@ -459,7 +446,7 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                                                                       Center(
                                                                         child: Text(
-                                                                            "Success!",
+                                                                            "Production!",
                                                                             style: GoogleFonts.urbanist(
                                                                                 fontWeight: FontWeight.bold, fontSize: 20
                                                                             )
@@ -470,13 +457,15 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                                                                       Center(
                                                                         child: Text(
-                                                                            "Progress berhasil diupdate!",
+                                                                            "Silahkan lakukan pengujian!",
                                                                             textAlign: TextAlign.center,
                                                                             style: GoogleFonts.urbanist(
                                                                               fontSize: 14, color: darkGrayNewAmikom,
                                                                             )
                                                                         ),
-                                                                      )
+                                                                      ),
+
+
 
 
                                                                     ],
@@ -500,8 +489,139 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                                                           });
 
+                                                        } else {
+                                                          //Jika currentProgress bukan Production
+
+                                                          final service = TaskTrackService();
+
+                                                          //variabel untuk update data di database
+                                                          final success = await service.updateTaskTracker(
+                                                            nomorPengajuan: task.nomorPengajuan,
+                                                            taskClosed: task.currentProgress,
+                                                            taskProgress: nextProgress,
+                                                            updatedBy: await SharedPref.getName() ?? '_',
+                                                            catatan: _catatanController.text,
+                                                          );
+
+                                                          //jika sukses maka menampilkan pesan sukses
+                                                          if (success && task.currentProgress != "Production" && context.mounted) {
+
+                                                            //Menampilkan pesan sukses
+                                                            showDialog(
+                                                              context: context,
+                                                              barrierDismissible: false,
+                                                              builder: (BuildContext dialogContext) {
+
+                                                                return Dialog(
+                                                                  insetPadding: const EdgeInsets.symmetric(horizontal: 100),
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.all(15),
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors.white,
+                                                                      borderRadius: BorderRadius.circular(16),
+                                                                    ),
+                                                                    child: Column(
+                                                                      mainAxisSize: MainAxisSize.min,
+                                                                      children: [
+
+                                                                        Center(
+                                                                          child: Container(
+                                                                            width: 80,
+                                                                            height: 80,
+                                                                            decoration: BoxDecoration(
+                                                                                color: softestGrayNewAmikom,
+                                                                                borderRadius: BorderRadiusGeometry.circular(100)
+                                                                            ),
+                                                                            child: Center(
+                                                                              child: Stack(
+                                                                                children: [
+                                                                                  Center(
+                                                                                    child: Container(
+                                                                                      width: 60,
+                                                                                      height: 60,
+                                                                                      decoration: BoxDecoration(
+                                                                                          color: Colors.white,
+                                                                                          borderRadius: BorderRadiusGeometry.circular(100)
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+
+                                                                                  Center(
+                                                                                      child: Icon(
+                                                                                        Icons.check_circle_rounded,
+                                                                                        color: greenNewAmikom,
+                                                                                        size: 75,
+                                                                                      )
+                                                                                  )
+
+
+
+                                                                                ],
+                                                                              ),
+
+
+                                                                            ),
+                                                                          ),
+                                                                        ),
+
+                                                                        const SizedBox(height: 8),
+
+                                                                        Center(
+                                                                          child: Text(
+                                                                              "Success!",
+                                                                              style: GoogleFonts.urbanist(
+                                                                                  fontWeight: FontWeight.bold, fontSize: 20
+                                                                              )
+                                                                          ),
+                                                                        ),
+
+
+
+                                                                        Center(
+                                                                          child: Text(
+                                                                              "Progress berhasil diupdate!",
+                                                                              textAlign: TextAlign.center,
+                                                                              style: GoogleFonts.urbanist(
+                                                                                fontSize: 14, color: darkGrayNewAmikom,
+                                                                              )
+                                                                          ),
+                                                                        )
+
+
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+
+                                                            Future.delayed(const Duration(seconds: 2), () {
+                                                              if (context.mounted) {
+                                                                Navigator.of(context).pushReplacement(
+                                                                  routingPage(
+                                                                    BlocProvider(
+                                                                      create: (context) => TaskTrackCubit(TaskTrackService()),
+                                                                      child: const TrackVasPage(),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                            });
+
+
+                                                          }
+
 
                                                         }
+
+
+
+
+
+
+
+
                                                       },
                                                       style: ElevatedButton
                                                           .styleFrom(
