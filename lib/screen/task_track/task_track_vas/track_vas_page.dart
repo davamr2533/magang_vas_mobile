@@ -34,8 +34,6 @@ class _TrackVasPage extends State<TrackVasPage> {
 
   @override
   Widget build(BuildContext context) {
-    String divisi = "NOC"; //menunggu API baru
-    String jenis = "Dompet Duafa"; //menunggu API baru
 
     //Supaya back dari button android bisa di routing
     return PopScope(
@@ -144,7 +142,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                divisi,
+                                task.divisi,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   color: blackNewAmikom,
@@ -184,7 +182,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                           left: 10,
                           top: 45,
                           child: Text(
-                            jenis,
+                            task.jenis,
                             style: GoogleFonts.urbanist(
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
@@ -256,7 +254,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                                               _isiForm(task.nomorPengajuan),
                                               const SizedBox(height: 12),
                                               _labelForm("Nama Sistem"),
-                                              _isiForm(jenis),
+                                              _isiForm(task.jenis),
                                               const SizedBox(height: 12),
                                               _labelForm("Next Progress"),
                                               _isiForm(nextProgress),

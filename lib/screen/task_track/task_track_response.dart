@@ -2,6 +2,8 @@
 class TaskTrackResponse {
   final String nomorPengajuan;
   final String currentProgress;
+  final String jenis;
+  final String divisi;
   final String? updatedBy; //nullable
   final String? catatan; //nullable
   final String updatedAt;
@@ -10,6 +12,8 @@ class TaskTrackResponse {
   TaskTrackResponse({
     required this.nomorPengajuan,
     required this.currentProgress,
+    required this.jenis,
+    required this.divisi,
     this.updatedBy,
     this.catatan,
     required this.updatedAt,
@@ -22,6 +26,8 @@ class TaskTrackResponse {
     return TaskTrackResponse(
       nomorPengajuan: json['nomor_pengajuan'],
       currentProgress: json['current_progress'],
+      jenis: json['jenis'],
+      divisi: json['divisi'],
       updatedBy: json['updated_by'],
       catatan: json['catatan'],
       updatedAt: json['updated_at'],

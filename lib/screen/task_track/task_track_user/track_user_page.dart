@@ -33,8 +33,6 @@ class _TrackUserPage extends State<TrackUserPage> {
 
     int persentase = 0;
     String image = "assets/wawancara.png"; // bawaan UI android
-    String divisi = "NOC"; //menunggu API baru
-    String jenis = "Dompet Duafa"; //menunggu API baru
 
 
     return PopScope(
@@ -224,7 +222,7 @@ class _TrackUserPage extends State<TrackUserPage> {
                                 left: 25,
                                 top: 95,
                                 child: Text(
-                                  divisi,
+                                  task.divisi,
                                   style: GoogleFonts.urbanist(
                                     color: yellowNewAmikom,
                                     fontSize: 20,
@@ -238,7 +236,7 @@ class _TrackUserPage extends State<TrackUserPage> {
                                 left: 25,
                                 top: 115,
                                 child: Text(
-                                  jenis,
+                                  task.jenis,
                                   style: GoogleFonts.urbanist(
                                     color: Colors.white,
                                     fontSize: 32,
