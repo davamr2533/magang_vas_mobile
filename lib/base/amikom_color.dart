@@ -12,3 +12,5 @@ const Color brownNewAmikom = Color(0xFFA87171);
 const Color orangeNewAmikom = Color(0xFFEB7961);
 const Color softestGrayNewAmikom = Color(0x80D9D9D9);
 const Color darkGrayNewAmikom = Color(0x80000000);
+const Color mistyRoseNewAmikom = Color(0xFFFFEAEA);
+const Color magnoliaWhiteNewAmikom = Color(0xFFFEF7FF);

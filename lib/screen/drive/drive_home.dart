@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/folder_page.dart';
 import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
@@ -29,6 +30,7 @@ class _DriveHomeState extends State<DriveHome> {
   bool isLoading = false;
 
   Future<void> fetchDummyData() async {
+    setState(() => isLoading = true);
     final String response = await rootBundle.loadString(
       'assets/dummy_folders.json',
     );
@@ -36,7 +38,10 @@ class _DriveHomeState extends State<DriveHome> {
     final fetchedFolders = jsonData
         .map((e) => FolderModel.fromJson(e))
         .toList();
-    setState(() => folders = fetchedFolders);
+    setState(() {
+      folders = fetchedFolders;
+      isLoading = false;
+    });
   }
 
   @override
@@ -92,6 +97,7 @@ class _DriveHomeState extends State<DriveHome> {
     return DriveGrid(
       items: items.map((f) => f.namaFolder).toList(),
       isList: currentView == ViewOption.list,
+      isStarred: items.map((f) => f.isStarred).toList(),
       onFolderTap: (folderName) {
         final tapped = items.firstWhere((f) => f.namaFolder == folderName);
         _navigateToFolder(tapped);
@@ -104,8 +110,9 @@ class _DriveHomeState extends State<DriveHome> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: magnoliaWhiteNewAmikom,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: magnoliaWhiteNewAmikom,
           foregroundColor: Colors.black,
           elevation: 1,
           leading: IconButton(
@@ -128,7 +135,7 @@ class _DriveHomeState extends State<DriveHome> {
                         color: Colors.grey,
                       ),
                       filled: true,
-                      fillColor: Colors.red[100],
+                      fillColor: pinkNewAmikom,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
                       ),
@@ -136,7 +143,7 @@ class _DriveHomeState extends State<DriveHome> {
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
-                      suffixIcon: const Icon(Icons.search, color: Colors.red),
+                      suffixIcon: const Icon(Icons.search, color: Colors.grey),
                     ),
                   ),
                 ),
@@ -146,11 +153,11 @@ class _DriveHomeState extends State<DriveHome> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.red[100],
+                  color: pinkNewAmikom,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: PopupMenuButton<String>(
-                  icon: const Icon(IconlyBold.filter, color: Colors.orange),
+                  icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       value: 'date',
@@ -179,13 +186,17 @@ class _DriveHomeState extends State<DriveHome> {
             ],
           ),
           bottom: TabBar(
-            labelColor: Colors.red,
+            labelColor: orangeNewAmikom,
+            indicatorColor: orangeNewAmikom,
             unselectedLabelColor: Colors.black,
             labelStyle: GoogleFonts.urbanist(
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
-            unselectedLabelStyle: GoogleFonts.urbanist(fontSize: 14),
+            unselectedLabelStyle: GoogleFonts.urbanist(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
             tabs: const [
               Tab(text: "My Drive"),
               Tab(text: "Shared Drive"),
@@ -226,6 +237,10 @@ class _DriveHomeState extends State<DriveHome> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final allItems = _getAllItemsRecursive(folders);
     allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
@@ -236,18 +251,20 @@ class _DriveHomeState extends State<DriveHome> {
       children: allItems,
       isSpecial: true,
     );
+
     final starredFolder = FolderModel(
       id: -2,
       namaFolder: "Berbintang",
       createdAt: DateTime.now(),
-      children: allItems.take(5).toList(),
+      children: allItems.where((f) => f.isStarred).toList(),
       isSpecial: true,
     );
+
     final trashFolder = FolderModel(
       id: -3,
       namaFolder: "Sampah",
       createdAt: DateTime.now(),
-      children: allItems.skip(5).toList(),
+      children: allItems.where((f) => f.isSpecial).toList(),
       isSpecial: true,
     );
 
@@ -274,7 +291,8 @@ class _DriveHomeState extends State<DriveHome> {
       body: IndexedStack(index: _selectedIndex, children: pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.red,
+        backgroundColor: mistyRoseNewAmikom,
+        selectedItemColor: orangeNewAmikom,
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Colors.black54,
         selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
@@ -287,7 +305,7 @@ class _DriveHomeState extends State<DriveHome> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.access_time),
-            label: "Berkas Terbaru",
+            label: "Terbaru",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_border),

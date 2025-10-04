@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
@@ -11,47 +12,48 @@ import '../../../tools/popup.dart';
 class FolderCard extends StatelessWidget {
   final String title; // nama folder
   final bool isList; // mode tampilan
+  final bool isStarred;
   final void Function(String)? onTap; // callback klik folder
 
   const FolderCard({
     super.key,
     required this.title,
     this.isList = false,
+    this.isStarred = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    // <<====== MODE LIST VIEW ======>>
     if (isList) {
-      // <<====== MODE LIST VIEW ======>>
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          splashColor: Colors.orange.withValues(alpha: 0.5),
-          highlightColor: Colors.orange.withValues(
-            alpha: 0.2,
-          ), // warna saat ditekan
-          splashFactory: InkRipple.splashFactory,
-          onTap: () => onTap?.call(title),
-          child: ListTile(
-            leading: const Icon(Icons.folder, color: Colors.orange),
-            title: Text(
-              title,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.urbanist(
-                fontSize: 16
+      return Container(
+        margin: const EdgeInsets.only(bottom: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.3), // warna outline
+            width: 1.2, // ketebalan outline
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            splashColor: Colors.orange.withValues(alpha: 0.5),
+            highlightColor: Colors.orange.withValues(alpha: 0.2),
+            splashFactory: InkRipple.splashFactory,
+            onTap: () => onTap?.call(title),
+            child: ListTile(
+              leading: const Icon(Icons.folder, color: orangeNewAmikom),
+              title: Text(title, overflow: TextOverflow.ellipsis),
+              subtitle: const Text("Folder"),
+              trailing: IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showOptions(context),
               ),
-            ),
-            subtitle: Text(
-              "Folder",
-              style: GoogleFonts.urbanist(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _showOptions(context),
             ),
           ),
         ),
@@ -71,7 +73,7 @@ class FolderCard extends StatelessWidget {
           onTap: () => onTap?.call(title),
           child: Ink(
             decoration: BoxDecoration(
-              color: Colors.red[100],
+              color: pinkNewAmikom,
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(12),
@@ -82,14 +84,14 @@ class FolderCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Icon(Icons.folder, color: orangeNewAmikom),
+                    Padding(padding: EdgeInsetsGeometry.only(right: 10)),
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 16,
-                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14),
                       ),
                     ),
                     IconButton(
@@ -101,12 +103,18 @@ class FolderCard extends StatelessWidget {
                 ),
 
                 // <<====== ICON FOLDER ======>>
-                const Flexible(
-                  child: Icon(
-                    Icons.folder,
-                    size: 100,
-                    color: Colors.deepOrange,
-                  ),
+                Flexible(
+                  child: isStarred
+                      ? const Icon(
+                          Icons.folder_special,
+                          size: 100,
+                          color: orangeNewAmikom,
+                        )
+                      : const Icon(
+                          Icons.folder,
+                          size: 100,
+                          color: orangeNewAmikom,
+                        ),
                 ),
               ],
             ),
@@ -135,14 +143,12 @@ class FolderCard extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.folder, color: Colors.deepOrange, size: 28),
+                  const Icon(Icons.folder, color: orangeNewAmikom, size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.urbanist(
-                        fontSize: 16,
-                      ),
+                      style: GoogleFonts.urbanist(fontSize: 16),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -155,7 +161,7 @@ class FolderCard extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.drive_file_rename_outline,
-                color: Colors.deepOrange,
+                color: orangeNewAmikom,
               ),
               title: Text("Ganti nama", style: GoogleFonts.urbanist()),
               onTap: () async {
@@ -179,7 +185,7 @@ class FolderCard extends StatelessWidget {
 
             // <<====== OPSI: Tambah ke Berbintang ======>>
             ListTile(
-              leading: const Icon(Icons.star_border, color: Colors.deepOrange),
+              leading: const Icon(Icons.star_border, color: orangeNewAmikom),
               title: Text(
                 "Tambahkan ke Berbintang",
                 style: GoogleFonts.urbanist(),
@@ -199,7 +205,7 @@ class FolderCard extends StatelessWidget {
 
             // <<====== OPSI: Detail Informasi ======>>
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.deepOrange),
+              leading: const Icon(Icons.info_outline, color: orangeNewAmikom),
               title: Text("Detail informasi", style: GoogleFonts.urbanist()),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -221,10 +227,7 @@ class FolderCard extends StatelessWidget {
 
             // <<====== OPSI: Hapus ======>>
             ListTile(
-              leading: const Icon(
-                Icons.delete_outline,
-                color: Colors.deepOrange,
-              ),
+              leading: const Icon(Icons.delete_outline, color: orangeNewAmikom),
               title: Text("Hapus", style: GoogleFonts.urbanist()),
               onTap: () async {
                 Navigator.pop(sheetContext);
