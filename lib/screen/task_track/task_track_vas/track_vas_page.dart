@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_widget/track_vas_card.dart';
+import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart';
 import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
 import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/routing.dart';
@@ -80,7 +81,7 @@ class _TrackVasPage extends State<TrackVasPage> {
             } else if (state is TaskTrackSuccess) {
               final tasks = state.tasks;
 
-              //Filter task berdasarkan search query
+              //Filter task berdasarkan ketikkan di text field
               final filteredTasks = tasks.where((task) {
                 return task.jenis.toLowerCase().contains(_searchQuery.toLowerCase());
               }).toList();
@@ -144,7 +145,9 @@ class _TrackVasPage extends State<TrackVasPage> {
                             size: 28,
                           ),
                           onPressed: () {
-
+                            Navigator.of(context).pushReplacement(
+                              routingPage(const TrackVasHistory()),
+                            );
                           },
                         ),
                       ),
@@ -179,6 +182,7 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                           final task = filteredTasks[index];
 
+                          //Flow Progress
                           final Map<String, String> progressFlow = {
                             "Wawancara": "Konfirmasi Desain",
                             "Konfirmasi Desain": "Perancangan Database",
@@ -188,11 +192,10 @@ class _TrackVasPage extends State<TrackVasPage> {
                             "Testing": "Trial",
                             "Trial": "Production",
                             "Production": "-",
-                            "-": "Wawancara",
+                            "-": "Wawancara", //bahan untuk test
                           };
 
-                          final String nextProgress =
-                              progressFlow[task.currentProgress] ?? "-";
+                          final String nextProgress = progressFlow[task.currentProgress] ?? "-";
 
                           return TrackVasCard(
                             task: task,
