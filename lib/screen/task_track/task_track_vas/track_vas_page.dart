@@ -19,7 +19,8 @@ class TrackVasPage extends StatefulWidget {
 
 class _TrackVasPage extends State<TrackVasPage> {
   final TextEditingController _catatanController = TextEditingController();
-  String _searchQuery = ''; // <-- Tambahan untuk filter pencarian
+
+  String _searchQuery = ''; //Variable untuk filter pencarian
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _TrackVasPage extends State<TrackVasPage> {
     context.read<TaskTrackCubit>().fetchTask();
   }
 
+  //Membersihkan memori dari catatan sebelumnya
   @override
   void dispose() {
     _catatanController.dispose();
@@ -35,7 +37,7 @@ class _TrackVasPage extends State<TrackVasPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
+    return PopScope( //untuk navigasi tombol back android supaya bisa di kustom
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
@@ -43,6 +45,7 @@ class _TrackVasPage extends State<TrackVasPage> {
           routingPage(const HomePage()),
         );
       },
+
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -67,6 +70,7 @@ class _TrackVasPage extends State<TrackVasPage> {
             statusBarIconBrightness: Brightness.dark,
           ),
         ),
+
         body: BlocBuilder<TaskTrackCubit, TaskTrackState>(
           builder: (context, state) {
             if (state is TaskTrackLoading) {
@@ -76,7 +80,7 @@ class _TrackVasPage extends State<TrackVasPage> {
             } else if (state is TaskTrackSuccess) {
               final tasks = state.tasks;
 
-              // 🔍 Filter task berdasarkan search query
+              //Filter task berdasarkan search query
               final filteredTasks = tasks.where((task) {
                 return task.jenis.toLowerCase().contains(_searchQuery.toLowerCase());
               }).toList();
@@ -86,6 +90,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
+
                       // Search Bar
                       Expanded(
                         child: Container(
@@ -138,7 +143,9 @@ class _TrackVasPage extends State<TrackVasPage> {
                             color: Colors.blue,
                             size: 28,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+
+                          },
                         ),
                       ),
                     ],
@@ -146,7 +153,7 @@ class _TrackVasPage extends State<TrackVasPage> {
 
                   const SizedBox(height: 30),
 
-                  // Jika hasil filter kosong, tetap tampilkan search bar & tombol
+                  // Jika hasil filter kosong, tetap tampilkan search bar & tombol tapi halamannya kosong
                   if (filteredTasks.isEmpty)
                     Expanded(
                       child: Center(
@@ -465,106 +472,175 @@ class _TrackVasPage extends State<TrackVasPage> {
                                                             ElevatedButton(
                                                               onPressed:
                                                                   () async {
-                                                                // logika update tetap sama
-                                                                final service =
-                                                                TaskTrackService();
-                                                                final success = await service.updateTaskTracker(
-                                                                  nomorPengajuan:
-                                                                  task.nomorPengajuan,
-                                                                  taskClosed: task
-                                                                      .currentProgress,
-                                                                  taskProgress:
-                                                                  nextProgress,
-                                                                  updatedBy:
-                                                                  await SharedPref.getName() ??
-                                                                      '_',
-                                                                  catatan:
-                                                                  _catatanController
-                                                                      .text,
-                                                                );
-                                                                if (success &&
-                                                                    context
-                                                                        .mounted) {
-                                                                  _catatanController
-                                                                      .clear();
+                                                                // logika update
+                                                                if (task.currentProgress == "Production") {
+
                                                                   showDialog(
-                                                                    context:
-                                                                    context,
-                                                                    barrierDismissible:
-                                                                    false,
-                                                                    builder:
-                                                                        (BuildContext
-                                                                    dialogContext) {
-                                                                      return Dialog(
-                                                                        insetPadding: const EdgeInsets.symmetric(horizontal: 100),
-                                                                        child: Container(
-                                                                          padding: const EdgeInsets.all(15),
-                                                                          decoration: BoxDecoration(
-                                                                            color: Colors.white,
-                                                                            borderRadius: BorderRadius.circular(16),
-                                                                          ),
-                                                                          child: Column(
-                                                                            mainAxisSize: MainAxisSize.min,
-                                                                            children: [
-                                                                              Center(
-                                                                                child: Container(
-                                                                                  width: 80,
-                                                                                  height: 80,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: softestGrayNewAmikom,
-                                                                                    borderRadius: BorderRadiusGeometry.circular(100),
-                                                                                  ),
-                                                                                  child: Center(
-                                                                                    child: Icon(
-                                                                                      Icons.check_circle_rounded,
-                                                                                      color: greenNewAmikom,
-                                                                                      size: 75,
+                                                                      context: context,
+                                                                      barrierDismissible: false,
+                                                                      builder: (BuildContext
+                                                                      dialogContext) {
+                                                                        return Dialog(
+                                                                          insetPadding: const EdgeInsets.symmetric(horizontal: 100),
+                                                                          child: Container(
+                                                                            padding: const EdgeInsets.all(15),
+                                                                            decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(16),
+                                                                            ),
+                                                                            child: Column(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Center(
+                                                                                  child: Container(
+                                                                                    width: 80,
+                                                                                    height: 80,
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: softestGrayNewAmikom,
+                                                                                      borderRadius: BorderRadiusGeometry.circular(100),
+                                                                                    ),
+                                                                                    child: Center(
+                                                                                      child: Icon(
+                                                                                        Icons.cancel_rounded,
+                                                                                        color: Colors.red,
+                                                                                        size: 75,
+                                                                                      ),
                                                                                     ),
                                                                                   ),
                                                                                 ),
-                                                                              ),
-                                                                              const SizedBox(height: 8),
-                                                                              Center(
-                                                                                child: Text(
-                                                                                  "Success!",
-                                                                                  style: GoogleFonts.urbanist(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: 20,
+                                                                                const SizedBox(height: 8),
+                                                                                Center(
+                                                                                  child: Text(
+                                                                                    "Progress selesai!",
+                                                                                    style: GoogleFonts.urbanist(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontSize: 20,
+                                                                                    ),
                                                                                   ),
                                                                                 ),
-                                                                              ),
-                                                                              Center(
-                                                                                child: Text(
-                                                                                  "Progress berhasil diupdate!",
-                                                                                  textAlign: TextAlign.center,
-                                                                                  style: GoogleFonts.urbanist(
-                                                                                    fontSize: 14,
-                                                                                    color: darkGrayNewAmikom,
+                                                                                Center(
+                                                                                  child: Text(
+                                                                                    "Silahkan lakukan pengujian",
+                                                                                    textAlign: TextAlign.center,
+                                                                                    style: GoogleFonts.urbanist(
+                                                                                      fontSize: 14,
+                                                                                      color: darkGrayNewAmikom,
+                                                                                    ),
                                                                                   ),
                                                                                 ),
-                                                                              ),
-                                                                            ],
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                  );
+
+                                                                  Future.delayed(const Duration(seconds: 2), () {
+                                                                    if (context.mounted) {
+                                                                      Navigator.of(context).pushReplacement(
+                                                                        routingPage(
+                                                                          BlocProvider(
+                                                                            create: (context) => TaskTrackCubit(TaskTrackService()),
+                                                                            child:
+                                                                            const TrackVasPage(),
                                                                           ),
                                                                         ),
                                                                       );
-                                                                    },
+                                                                    }
+                                                                  });
+                                                                  return;
+
+
+
+                                                                } else {
+                                                                  final service = TaskTrackService();
+                                                                  final success = await service.updateTaskTracker(
+                                                                    nomorPengajuan: task.nomorPengajuan,
+                                                                    taskClosed: task.currentProgress,
+                                                                    taskProgress: nextProgress,
+                                                                    updatedBy: await SharedPref.getName() ?? '_',
+                                                                    catatan: _catatanController.text,
                                                                   );
-                                                                  Future.delayed(const Duration(seconds: 2),
-                                                                          () {
-                                                                        if (context
-                                                                            .mounted) {
-                                                                          Navigator.of(context).pushReplacement(
-                                                                            routingPage(
-                                                                              BlocProvider(
-                                                                                create: (context) => TaskTrackCubit(TaskTrackService()),
-                                                                                child:
-                                                                                const TrackVasPage(),
-                                                                              ),
+                                                                  if (success && context.mounted ) {
+
+                                                                    // _catatanController.clear();
+
+                                                                    showDialog(
+                                                                      context: context,
+                                                                      barrierDismissible: false,
+                                                                      builder: (BuildContext
+                                                                      dialogContext) {
+                                                                        return Dialog(
+                                                                          insetPadding: const EdgeInsets.symmetric(horizontal: 100),
+                                                                          child: Container(
+                                                                            padding: const EdgeInsets.all(15),
+                                                                            decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(16),
                                                                             ),
-                                                                          );
-                                                                        }
-                                                                      });
+                                                                            child: Column(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Center(
+                                                                                  child: Container(
+                                                                                    width: 80,
+                                                                                    height: 80,
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: softestGrayNewAmikom,
+                                                                                      borderRadius: BorderRadiusGeometry.circular(100),
+                                                                                    ),
+                                                                                    child: Center(
+                                                                                      child: Icon(
+                                                                                        Icons.check_circle_rounded,
+                                                                                        color: greenNewAmikom,
+                                                                                        size: 75,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 8),
+                                                                                Center(
+                                                                                  child: Text(
+                                                                                    "Success!",
+                                                                                    style: GoogleFonts.urbanist(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontSize: 20,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Center(
+                                                                                  child: Text(
+                                                                                    "Progress berhasil diupdate!",
+                                                                                    textAlign: TextAlign.center,
+                                                                                    style: GoogleFonts.urbanist(
+                                                                                      fontSize: 14,
+                                                                                      color: darkGrayNewAmikom,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                    Future.delayed(const Duration(seconds: 2), () {
+                                                                      if (context.mounted) {
+                                                                        Navigator.of(context).pushReplacement(
+                                                                          routingPage(
+                                                                            BlocProvider(
+                                                                              create: (context) => TaskTrackCubit(TaskTrackService()),
+                                                                              child:
+                                                                              const TrackVasPage(),
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      }
+                                                                    });
+                                                                  }
                                                                 }
+
+
                                                               },
                                                               style: ElevatedButton
                                                                   .styleFrom(
