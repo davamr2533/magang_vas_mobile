@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="search bar logic">
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_card.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_pop_up.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
     </list>
