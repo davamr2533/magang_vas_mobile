@@ -19,6 +19,36 @@ void main() {
     cubit.close();
   });
 
+  // ✅ Test 1: Loading -> Success (API return berhasil)
+  blocTest<TaskTrackCubit, TaskTrackState>(
+    'emits [Loading, Success] when fetchTask() returns success response',
+    build: () {
+      when(() => mockService.getTaskTracker()).thenAnswer(
+            (_) async => {
+          'status': 'success',
+          'data': [
+            {
+              'id': 1,
+              'nama_task': 'Testing Task',
+              'status': 'ongoing',
+            },
+          ],
+        },
+      );
+      return cubit;
+    },
+    act: (cubit) => cubit.fetchTask(),
+    expect: () => [
+      isA<TaskTrackLoading>(),
+      isA<TaskTrackSuccess>(),
+    ],
+    verify: (_) {
+      verify(() => mockService.getTaskTracker()).called(1);
+    },
+  );
+
+
+
 
   // ❌ Test 2: Loading -> Failure (API return gagal)
   blocTest<TaskTrackCubit, TaskTrackState>(

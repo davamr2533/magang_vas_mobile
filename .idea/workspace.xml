@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
-      <change afterPath="$PROJECT_DIR$/test/task_track_cubit_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/login_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/login_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/task_track_cubit_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/task_track_cubit_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
