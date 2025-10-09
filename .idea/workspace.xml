@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/get_drive_cubit.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/get_drive_state.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/get_data_drive_body.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/response/get_data_drive_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/repository/get_all_drive_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/service/base_paths.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/service/drive_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/model/response/get_data_vas_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/response/get_data_vas_response.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/home/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home/home_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utllis/app_services.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utllis/app_services.dart" afterDir="false" />
-    </list>
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="integrasi vas drive part 1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -202,7 +188,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759748477105</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="integrasi vas drive part 1">
+      <option name="closed" value="true" />
+      <created>1759997535455</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1759997535455</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -228,6 +222,7 @@
     <MESSAGE value="search bar logic" />
     <MESSAGE value="fragment" />
     <MESSAGE value="history layout done" />
-    <option name="LAST_COMMIT_MESSAGE" value="history layout done" />
+    <MESSAGE value="integrasi vas drive part 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="integrasi vas drive part 1" />
   </component>
 </project>
