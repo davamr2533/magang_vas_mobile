@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="fragment">
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
+      <change afterPath="$PROJECT_DIR$/test/task_track_cubit_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +185,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759736903115</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="history layout done">
+      <option name="closed" value="true" />
+      <created>1759748477105</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1759748477105</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -209,6 +218,7 @@
     <MESSAGE value="search bar &amp; history UI" />
     <MESSAGE value="search bar logic" />
     <MESSAGE value="fragment" />
-    <option name="LAST_COMMIT_MESSAGE" value="fragment" />
+    <MESSAGE value="history layout done" />
+    <option name="LAST_COMMIT_MESSAGE" value="history layout done" />
   </component>
 </project>
