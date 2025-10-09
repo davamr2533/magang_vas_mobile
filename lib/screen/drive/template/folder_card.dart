@@ -77,7 +77,7 @@ class FolderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(12),
-            child: Column(
+            child: Column (
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // <<====== HEADER (Judul + Tombol Opsi) ======>>
@@ -104,17 +104,26 @@ class FolderCard extends StatelessWidget {
 
                 // <<====== ICON FOLDER ======>>
                 Flexible(
-                  child: isStarred
-                      ? const Icon(
-                          Icons.folder_special,
-                          size: 100,
-                          color: orangeNewAmikom,
-                        )
-                      : const Icon(
-                          Icons.folder,
-                          size: 100,
-                          color: orangeNewAmikom,
-                        ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(
+                        Icons.folder,
+                        size: 100,
+                        color: orangeNewAmikom,
+                    ),
+                    if (isStarred)
+                      const Positioned(
+                        right: 15, // posisi bintang di kanan
+                        bottom: 22, // bisa disesuaikan
+                        child: Icon(
+                          Icons.star,
+                          size: 15, // <<< ubah ukuran bintang di sini
+                          color: Colors.white, // warna bintang),
+                          ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
