@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/tools/popup.dart';
 
@@ -76,13 +77,14 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
         FloatingActionButton(
           heroTag: "mainFab",
           onPressed: _toggleMenu,
+          backgroundColor: pinkNewAmikom,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: isOpen ? 0.125 : 0), // 0.125 = 45°
             duration: const Duration(milliseconds: 250),
             builder: (context, angle, child) {
               return Transform.rotate(
                 angle: angle * 3.1416 * 2, // radian
-                child: const Icon(Icons.add),
+                child: const Icon(Icons.add, color: orangeNewAmikom,),
               );
             },
           ),
@@ -153,6 +155,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
         ),
         FloatingActionButton(
           heroTag: label,
+          backgroundColor: pinkNewAmikom,
           mini: true,
           onPressed: onTap,
           child: Icon(icon),

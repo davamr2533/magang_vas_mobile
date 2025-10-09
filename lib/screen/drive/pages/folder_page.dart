@@ -218,7 +218,7 @@ class FolderPageState extends State<FolderPage>
           SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
-            style: GoogleFonts.urbanist(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
@@ -240,6 +240,7 @@ class FolderPageState extends State<FolderPage>
               : DriveGrid(
             items: items.map((f) => f.namaFolder).toList(),
             isList: currentView == ViewOption.list,
+            isStarred: items.map((f) => f.isStarred).toList(),
             onFolderTap: (folderName) {
               final tapped = items.firstWhere(
                     (f) => f.namaFolder == folderName,
