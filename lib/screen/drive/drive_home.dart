@@ -11,6 +11,7 @@ import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart'
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/tab_page_wrapper.dart';
 
+import '../../tools/loading.dart';
 import 'folder_model.dart';
 
 class DriveHome extends StatefulWidget {
@@ -238,7 +239,10 @@ class _DriveHomeState extends State<DriveHome> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(
+        backgroundColor: magnoliaWhiteNewAmikom,
+        body: AppWidget().LoadingWidget(), // panggil loading custom kamu
+      );
     }
 
     final allItems = _getAllItemsRecursive(folders);

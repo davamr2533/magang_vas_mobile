@@ -28,6 +28,7 @@ class DriveGrid extends StatelessWidget {
         itemBuilder: (context, index) => FolderCard(
           title: items[index],
           isList: true,
+          isStarred: isStarred[index],
           onTap: onFolderTap,
           // isStarred: isStarred[index],
         ),

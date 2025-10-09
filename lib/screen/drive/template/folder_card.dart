@@ -28,13 +28,13 @@ class FolderCard extends StatelessWidget {
     // <<====== MODE LIST VIEW ======>>
     if (isList) {
       return Container(
-        margin: const EdgeInsets.only(bottom: 5),
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.grey.withOpacity(0.3), // warna outline
-            width: 1.2, // ketebalan outline
+            color: Colors.grey.withOpacity(0.3),
+            width: 1.2,
           ),
         ),
         child: Material(
@@ -46,13 +46,66 @@ class FolderCard extends StatelessWidget {
             highlightColor: Colors.orange.withValues(alpha: 0.2),
             splashFactory: InkRipple.splashFactory,
             onTap: () => onTap?.call(title),
-            child: ListTile(
-              leading: const Icon(Icons.folder, color: orangeNewAmikom),
-              title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: const Text("Folder"),
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showOptions(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // === ICON FOLDER ===
+                  const Icon(
+                    Icons.folder,
+                    color: orangeNewAmikom,
+                    size: 40,
+                  ),
+                  const SizedBox(width: 12),
+
+                  // === TEKS BAGIAN TENGAH ===
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Nama folder
+                        Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        // bintang + Tanggal + ukuran
+                        Row(
+                          children: [
+                            if (isStarred)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 2),
+                                child: Icon(
+                                  Icons.star,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            Text(
+                              "15 Sep 2025 | 2.4 GB", // harusnya diisi "$date | $size",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // === TITIK TIGA ===
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 22),
+                    onPressed: () => _showOptions(context),
+                  ),
+                ],
               ),
             ),
           ),

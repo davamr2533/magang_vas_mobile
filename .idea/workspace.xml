@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
-      <change afterPath="$PROJECT_DIR$/test/task_track_cubit_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/folder_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/folder_card.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +39,9 @@
         &quot;accountId&quot;: &quot;ba575121-673a-4bd1-a981-f556aec9e82f&quot;
         }
         }</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -51,23 +53,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-        &quot;keyToString&quot;: {
-        &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-        &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-        &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-        &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-        &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-        &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-        &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-        &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-        &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-        &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-        &quot;last_opened_file_path&quot;: &quot;C:/Users/ThinkPad T470/Documents/Dava Magang/VASS/vas-mobile&quot;,
-        &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-        &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
-        }
-        }</component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "io.flutter.reload.alreadyRun": "true",
+    "last_opened_file_path": "C:/Users/ThinkPad T470/Documents/Dava Magang/VASS/vas-mobile",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "show.migrate.to.gradle.popup": "false"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\vas-mobile\lib\screen\task_track\task_track_vas\track_vas_widget" />
