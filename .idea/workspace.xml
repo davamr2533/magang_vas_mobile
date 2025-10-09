@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="Integrasi API task tracker done">
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
+      <change afterPath="$PROJECT_DIR$/test/task_track_cubit_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +70,7 @@
         }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\vas-mobile\lib\screen\task_track\task_track_vas\track_vas_widget" />
       <recent name="D:\vas-mobile\lib\screen\UjicobaApiBaru\cubit" />
     </key>
   </component>
@@ -150,7 +153,47 @@
       <option name="project" value="LOCAL" />
       <updated>1759386088147</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="berhenti di production">
+      <option name="closed" value="true" />
+      <created>1759415910733</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1759415910733</updated>
+    </task>
+    <task id="LOCAL-00010" summary="search bar &amp; history UI">
+      <option name="closed" value="true" />
+      <created>1759720428958</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1759720428958</updated>
+    </task>
+    <task id="LOCAL-00011" summary="search bar logic">
+      <option name="closed" value="true" />
+      <created>1759728123944</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1759728123944</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fragment">
+      <option name="closed" value="true" />
+      <created>1759736903115</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1759736903115</updated>
+    </task>
+    <task id="LOCAL-00013" summary="history layout done">
+      <option name="closed" value="true" />
+      <created>1759748477105</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1759748477105</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -171,6 +214,11 @@
     <MESSAGE value="Integrasi API task track user" />
     <MESSAGE value="Integrasi API update task" />
     <MESSAGE value="Integrasi API task tracker done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Integrasi API task tracker done" />
+    <MESSAGE value="berhenti di production" />
+    <MESSAGE value="search bar &amp; history UI" />
+    <MESSAGE value="search bar logic" />
+    <MESSAGE value="fragment" />
+    <MESSAGE value="history layout done" />
+    <option name="LAST_COMMIT_MESSAGE" value="history layout done" />
   </component>
 </project>
