@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
-import 'package:vas_reporting/screen/login_page.dart';
 import 'package:vas_reporting/screen/splash_page.dart';
 import 'package:vas_reporting/utllis/app_cubit.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
