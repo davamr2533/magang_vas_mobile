@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
@@ -11,7 +10,10 @@ import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart'
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/tab_page_wrapper.dart';
 
-import 'folder_model.dart';
+import '../../utllis/app_shared_prefs.dart';
+import 'data/cubit/get_drive_cubit.dart';
+import 'data/model/response/get_data_drive_response.dart';
+import 'folder_model.dart'; // Model UI-mu tetap digunakan
 
 class DriveHome extends StatefulWidget {
   const DriveHome({super.key});
@@ -26,32 +28,25 @@ class _DriveHomeState extends State<DriveHome> {
   ViewOption currentView = ViewOption.grid;
   String query = "";
   int _selectedIndex = 0;
-  List<FolderModel> folders = [];
-  bool isLoading = false;
+  String? token;
 
-  Future<void> fetchDummyData() async {
-    setState(() => isLoading = true);
-    final String response = await rootBundle.loadString(
-      'assets/dummy_folders.json',
-    );
-    final List<dynamic> jsonData = jsonDecode(response);
-    final fetchedFolders = jsonData
-        .map((e) => FolderModel.fromJson(e))
-        .toList();
-    setState(() {
-      folders = fetchedFolders;
-      isLoading = false;
-    });
-  }
+  late DriveCubit getDriveData;
 
   @override
   void initState() {
     super.initState();
-    fetchDummyData();
+    getDriveData = context.read<DriveCubit>();
+    fetchData();
   }
 
-  List<FolderModel> getFilteredAndSortedFolders() {
-    List<FolderModel> filtered = folders
+  void fetchData() async {
+    token = await SharedPref.getToken();
+    await getDriveData.getDriveData(token: 'Bearer $token');
+  }
+
+  // Fungsi diubah untuk menerima parameter, bukan dari state
+  List<FolderModel> getFilteredAndSortedFolders(List<FolderModel> sourceFolders) {
+    List<FolderModel> filtered = sourceFolders
         .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
     switch (currentSort) {
@@ -105,8 +100,11 @@ class _DriveHomeState extends State<DriveHome> {
     );
   }
 
-  Widget _buildDriveHomePage() {
-    final items = getFilteredAndSortedFolders();
+  // Fungsi ini juga diubah untuk menerima parameter
+  Widget _buildDriveHomePage(List<FolderModel> myDriveFolders, List<FolderModel> sharedDriveFolders) {
+    // Filter & sort hanya untuk tab "My Drive"
+    final myDriveItems = getFilteredAndSortedFolders(myDriveFolders);
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -218,13 +216,9 @@ class _DriveHomeState extends State<DriveHome> {
             Expanded(
               child: TabBarView(
                 children: [
-                  buildDriveGrid(items),
-                  Center(
-                    child: Text(
-                      "Shared Drive Content",
-                      style: GoogleFonts.urbanist(),
-                    ),
-                  ),
+                  buildDriveGrid(myDriveItems),
+                  // Shared drive items bisa ditambahkan logika filter & sort juga jika perlu
+                  buildDriveGrid(sharedDriveFolders),
                 ],
               ),
             ),
@@ -235,88 +229,143 @@ class _DriveHomeState extends State<DriveHome> {
     );
   }
 
+  // Fungsi untuk mengubah data dari API (FolderItem) menjadi model UI (FolderModel)
+  // Ini penting agar sisa kodemu tidak perlu banyak diubah
+  List<FolderModel> _mapApiDataToUiModel(List<FolderItem> apiItems) {
+    return apiItems.map((item) {
+      return FolderModel(
+        // Sesuaikan nama field di sini jika berbeda
+        id: item.id ?? 0,
+        namaFolder: item.name ?? 'Folder Tanpa Nama',
+        createdAt: item.createdAt != null ? DateTime.parse(item.createdAt!) : DateTime.now(),
+        isStarred: item.isStarred == 'TRUE',
+        // Lakukan mapping rekursif untuk children
+        children: item.children != null ? _mapApiDataToUiModel(item.children!) : [],
+        isSpecial: false, // Asumsi default
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return BlocBuilder<DriveCubit, DriveState>(
+      builder: (context, state) {
+        // STATE: LOADING & INITIAL
+        if (state is DriveInitial || state is DriveLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    final allItems = _getAllItemsRecursive(folders);
-    allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        // STATE: FAILURE
+        if (state is DriveDataFailure) {
+          return Scaffold(
+            body: Center(
+              child: Text(
+                'Gagal memuat data: ${state.message}',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
 
-    final recentFolder = FolderModel(
-      id: -1,
-      namaFolder: "Berkas Terbaru",
-      createdAt: DateTime.now(),
-      children: allItems,
-      isSpecial: true,
-    );
+        // STATE: SUCCESS
+        if (state is DriveDataSuccess) {
+          // Data dari API sudah tersedia di `state.driveData`
+          final apiData = state.driveData.data ?? [];
 
-    final starredFolder = FolderModel(
-      id: -2,
-      namaFolder: "Berbintang",
-      createdAt: DateTime.now(),
-      children: allItems.where((f) => f.isStarred).toList(),
-      isSpecial: true,
-    );
+          // 1. Pisahkan data API
+          final myDriveApiItems = apiData.firstWhere((i) => i.name == 'My Drive', orElse: () => FolderItem()).children ?? [];
+          final sharedDriveApiItems = apiData.firstWhere((i) => i.name == 'Shared Drive', orElse: () => FolderItem()).children ?? [];
 
-    final trashFolder = FolderModel(
-      id: -3,
-      namaFolder: "Sampah",
-      createdAt: DateTime.now(),
-      children: allItems.where((f) => f.isSpecial).toList(),
-      isSpecial: true,
-    );
+          // 2. Ubah data API menjadi model UI (FolderModel)
+          final myDriveFolders = _mapApiDataToUiModel(myDriveApiItems);
+          final sharedDriveFolders = _mapApiDataToUiModel(sharedDriveApiItems);
+          final allFolders = [...myDriveFolders, ...sharedDriveFolders];
 
-    final pages = [
-      _buildDriveHomePage(),
-      TabPageWrapper(
-        rootFolder: recentFolder,
-        initialView: currentView,
-        onRootPop: () => setState(() => _selectedIndex = 0),
-      ),
-      TabPageWrapper(
-        rootFolder: starredFolder,
-        initialView: currentView,
-        onRootPop: () => setState(() => _selectedIndex = 0),
-      ),
-      TabPageWrapper(
-        rootFolder: trashFolder,
-        initialView: currentView,
-        onRootPop: () => setState(() => _selectedIndex = 0),
-      ),
-    ];
+          // 3. Gunakan sisa logika dari kode hardcode-mu
+          final allItems = _getAllItemsRecursive(allFolders);
+          allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: pages),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        backgroundColor: mistyRoseNewAmikom,
-        selectedItemColor: orangeNewAmikom,
-        type: BottomNavigationBarType.fixed,
-        unselectedItemColor: Colors.black54,
-        selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: GoogleFonts.urbanist(),
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: "Drive Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.access_time),
-            label: "Terbaru",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: "Berbintang",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.delete_outline),
-            label: "Sampah",
-          ),
-        ],
-      ),
+          final recentFolder = FolderModel(
+            id: -1,
+            namaFolder: "Berkas Terbaru",
+            createdAt: DateTime.now(),
+            children: allItems,
+            isSpecial: true,
+          );
+
+          final starredFolder = FolderModel(
+            id: -2,
+            namaFolder: "Berbintang",
+            createdAt: DateTime.now(),
+            children: allItems.where((f) => f.isStarred).toList(),
+            isSpecial: true,
+          );
+
+          final trashFolder = FolderModel(
+            id: -3,
+            namaFolder: "Sampah",
+            createdAt: DateTime.now(),
+            children: allItems.where((f) => f.isSpecial).toList(), // Sepertinya ini bug di kodemu, saya biarkan
+            isSpecial: true,
+          );
+
+          final pages = [
+            _buildDriveHomePage(myDriveFolders, sharedDriveFolders),
+            TabPageWrapper(
+              rootFolder: recentFolder,
+              initialView: currentView,
+              onRootPop: () => setState(() => _selectedIndex = 0),
+            ),
+            TabPageWrapper(
+              rootFolder: starredFolder,
+              initialView: currentView,
+              onRootPop: () => setState(() => _selectedIndex = 0),
+            ),
+            TabPageWrapper(
+              rootFolder: trashFolder,
+              initialView: currentView,
+              onRootPop: () => setState(() => _selectedIndex = 0),
+            ),
+          ];
+
+          return Scaffold(
+            body: IndexedStack(index: _selectedIndex, children: pages),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              backgroundColor: mistyRoseNewAmikom,
+              selectedItemColor: orangeNewAmikom,
+              type: BottomNavigationBarType.fixed,
+              unselectedItemColor: Colors.black54,
+              selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.urbanist(),
+              onTap: (index) => setState(() => _selectedIndex = index),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_outlined),
+                  label: "Drive Home",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.access_time),
+                  label: "Terbaru",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.star_border),
+                  label: "Berbintang",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.delete_outline),
+                  label: "Sampah",
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Fallback jika state tidak dikenali
+        return const Scaffold(body: Center(child: Text("State tidak valid")));
+      },
     );
   }
 }

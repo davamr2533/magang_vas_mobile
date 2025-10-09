@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/data/cubit/form/form_cubit.dart';
 import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
 import 'package:vas_reporting/data/cubit/login/login_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/get_drive_cubit.dart';
 
 class AppCubit {
   Widget initCubit(Widget widget) {
@@ -15,6 +16,9 @@ class AppCubit {
       ),
       BlocProvider< GetDataCubit>(
         create: (BuildContext context) => GetDataCubit(),
+      ),
+      BlocProvider<DriveCubit>(
+        create: (BuildContext context) => DriveCubit(),
       ),
     ], child: widget);
   }

@@ -121,28 +121,28 @@ class TimelineStep {
 
 
 
-extension TimelineExtension on Data {
-  List<TimelineStep> get timelineSteps {
-    String formatDate(String? date) {
-      if (date == null || date.isEmpty) return '-';
-      try {
-        final dt = DateTime.parse(date);
-        return DateFormat('dd MMM yyyy').format(dt);
-      } catch (_) {
-        return date; // fallback ke string asli
-      }
-    }
-
-    return [
-      TimelineStep(title: 'Wawancara', date: formatDate(wawancara), isDone: (wawancara?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Konfirmasi Desain', date: formatDate(konfirmasiDesain), isDone: (konfirmasiDesain?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Perancangan Database', date: formatDate(perancanganDatabase), isDone: (perancanganDatabase?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Pengembangan Software', date: formatDate(pengembanganSoftware), isDone: (pengembanganSoftware?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Debugging', date: formatDate(debugging), isDone: (debugging?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Testing', date: formatDate(testing), isDone: (testing?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Trial', date: formatDate(trial), isDone: (trial?.isNotEmpty ?? false)),
-      TimelineStep(title: 'Production', date: formatDate(production), isDone: (production?.isNotEmpty ?? false)),
-    ];
-  }
-}
+// extension TimelineExtension on Data {
+//   List<TimelineStep> get timelineSteps {
+//     String formatDate(String? date) {
+//       if (date == null || date.isEmpty) return '-';
+//       try {
+//         final dt = DateTime.parse(date);
+//         return DateFormat('dd MMM yyyy').format(dt);
+//       } catch (_) {
+//         return date; // fallback ke string asli
+//       }
+//     }
+//
+//     return [
+//       TimelineStep(title: 'Wawancara', date: formatDate(wawancara), isDone: (wawancara?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Konfirmasi Desain', date: formatDate(konfirmasiDesain), isDone: (konfirmasiDesain?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Perancangan Database', date: formatDate(perancanganDatabase), isDone: (perancanganDatabase?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Pengembangan Software', date: formatDate(pengembanganSoftware), isDone: (pengembanganSoftware?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Debugging', date: formatDate(debugging), isDone: (debugging?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Testing', date: formatDate(testing), isDone: (testing?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Trial', date: formatDate(trial), isDone: (trial?.isNotEmpty ?? false)),
+//       TimelineStep(title: 'Production', date: formatDate(production), isDone: (production?.isNotEmpty ?? false)),
+//     ];
+//   }
+//}
 

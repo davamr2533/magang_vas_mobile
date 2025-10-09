@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:vas_reporting/data/service/form_service.dart';
 import 'package:vas_reporting/data/service/get_data_service.dart';
 import 'package:vas_reporting/data/service/login_service.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/get_drive_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/service/drive_service.dart';
 
 class AppServices {
   final Dio dio;
@@ -36,6 +38,12 @@ class AppServices {
     } else {
       get.unregister<GetDataService>();
       get.registerFactory(() => GetDataService(dio, baseUrl: url));
+    }
+    if (!get.isRegistered<DriveService>()) {
+      get.registerFactory(() => DriveService(dio, baseUrl: url));
+    } else {
+      get.unregister<DriveService>();
+      get.registerFactory(() => DriveService(dio, baseUrl: url));
     }
   }
 }
