@@ -6,7 +6,6 @@ import 'package:vas_reporting/data/cubit/login/login_cubit.dart';
 import 'package:vas_reporting/data/model/body/login_body.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
 import 'package:vas_reporting/base/base_colors.dart' as baseColors;
-import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/popup.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
@@ -22,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isPasswordVisible = false; //tambahan untuk view password
 
   late LoginCubit _loginCubit;
   late PopUpWidget popUpWidget;
@@ -143,9 +143,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible, //toggle view password
                   style: GoogleFonts.urbanist(
                     color: Colors.black,
                     fontSize: 14,
@@ -166,9 +167,22 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide.none,
                     ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? IconlyLight.show : IconlyLight.hide,
+                        color: baseColors.primaryColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 30),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
