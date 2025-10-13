@@ -64,6 +64,31 @@ class TaskTrackTimeline {
   }
 }
 
+class TaskHistoryResponse {
+  final String historyNomorPengajuan;
+  final String historyJenis;
+  final String historyDivisi;
+  final String historyFinishedAt;
+
+  TaskHistoryResponse({
+    required this.historyNomorPengajuan,
+    required this.historyJenis,
+    required this.historyDivisi,
+    required this.historyFinishedAt
+  });
+
+
+  factory TaskHistoryResponse.fromJson(Map<String, dynamic> json) {
+    return TaskHistoryResponse(
+      historyNomorPengajuan: json['nomor_pengajuan'],
+      historyJenis: json['jenis'],
+      historyDivisi: json['divisi'],
+      historyFinishedAt: json['finished_at'],
+    );
+  }
+
+}
+
 
 
 

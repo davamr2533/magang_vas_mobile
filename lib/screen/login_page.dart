@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           popUpWidget.showAlert(
             'Login Failed',
-            state.message ?? "",
+            state.message,
             true,
             'OK',
             LoginPage(),

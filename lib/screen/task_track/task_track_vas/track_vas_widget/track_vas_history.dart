@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
+import 'package:vas_reporting/screen/task_track/track_cubit/task_history_cubit.dart';
 import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
+import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/routing.dart';
 
 class TrackVasHistory extends StatefulWidget {
@@ -15,6 +17,15 @@ class TrackVasHistory extends StatefulWidget {
 }
 
 class _TrackVasHistoryState extends State<TrackVasHistory> {
+
+  // panggil API saat halaman pertama kali muncul
+  @override
+  void initState() {
+    super.initState();
+    context.read<TaskHistoryCubit>().fetchHistory();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -56,128 +67,172 @@ class _TrackVasHistoryState extends State<TrackVasHistory> {
         ),
         backgroundColor: const Color(0xFFFDF8FF),
 
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Container(
-            width: double.infinity,
-            height: 90,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // ICON RIWAYAT
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.history_rounded,
-                          color: Colors.green.shade400,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
+        body: BlocBuilder<TaskHistoryCubit, TaskHistoryState>(
 
-                      // TEKS UTAMA
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
+          builder: (context, state) {
+            if (state is TaskHistoryLoading) {
+              return Center(child: AppWidget().LoadingWidget());
+            }else if (state is TaskHistoryFailure) {
+              return Center(child: Text(state.message));
+            } else if (state is TaskHistorySuccess) {
+
+              final histories = state.histories;
+
+              //Handle jika tidak ada history
+              if (histories.isEmpty) {
+                return Center(
+                  child: Text(
+                    "Tidak ada Riwayat dalam 1 bulan terakhir",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<TaskHistoryCubit>().fetchHistory();
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: histories.length,
+                  itemBuilder: (context, index) {
+                    final task = histories[index];
+
+
+                    return  Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        width: double.infinity,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
                           children: [
-                            // Baris atas: ID & kategori
-                            Row(
-                              children: [
-                                Text(
-                                  "SIMS-VAS-35026",
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    color: Colors.grey[700],
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // ICON RIWAYAT
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade50,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.history_rounded,
+                                      color: Colors.green.shade400,
+                                      size: 28,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "|",
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                  const SizedBox(width: 12),
+
+                                  // TEKS UTAMA
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        // Baris atas: ID & kategori
+                                        Row(
+                                          children: [
+                                            Text(
+                                              task.historyNomorPengajuan,
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 13,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              "|",
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              task.historyDivisi,
+                                              style: GoogleFonts.urbanist(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        const SizedBox(height: 8),
+
+                                        // Judul besar
+                                        Text(
+                                          task.historyJenis,
+                                          style: GoogleFonts.urbanist(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 22,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "Sales",
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
 
-                            const SizedBox(height: 8),
-
-                            // Judul besar
-                            Text(
-                              "Stock Toko",
-                              style: GoogleFonts.urbanist(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 22,
-                                color: Colors.black,
+                            // TANGGAL (pojok kanan atas)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFE6C5),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(16),
+                                    bottomLeft: Radius.circular(12),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: Text(
+                                  task.historyFinishedAt.split(' ')[0],
+                                  style: GoogleFonts.urbanist(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  }
                 ),
-
-                // TANGGAL (pojok kanan atas)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFE6C5),
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(16),
-                        bottomLeft: Radius.circular(12),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    child: Text(
-                      "12 Sep 2025",
-                      style: GoogleFonts.urbanist(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+              );
+            }
+            return SizedBox();
+          }
+        )
       ),
     );
   }
