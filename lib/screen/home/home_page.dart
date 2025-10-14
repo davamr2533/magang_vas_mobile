@@ -364,8 +364,23 @@ class _HomePageState extends State<HomePage> {
           }
         }
         if (state is GetDataSuccess) {
+
+          // Parsing aman
+          final List<GetDataResponse.Data> dataList = state.response.data ?? [];
+          // debug log untuk verifikasi
+          print("GetDataSuccess: total items from API = ${dataList.length}");
+
+          // safe sort
+          dataList.sort((a, b) {
+            final dateA = tryParseDate(a.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final dateB = tryParseDate(b.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+            return dateB.compareTo(dateA);
+          });
+
           setState(() {
             isLoading = false;
+            getData = dataList;
+            print("getData updated: length = ${getData.length}");
           });
           getData = state.response.data!
             ..sort((a, b) {

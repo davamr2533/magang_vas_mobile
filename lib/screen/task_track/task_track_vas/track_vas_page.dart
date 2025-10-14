@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
+import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_widget/track_vas_card.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart';
+import 'package:vas_reporting/screen/task_track/track_cubit/task_history_cubit.dart';
 import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
 import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/routing.dart';
@@ -146,7 +148,12 @@ class _TrackVasPage extends State<TrackVasPage> {
                           ),
                           onPressed: () {
                             Navigator.of(context).pushReplacement(
-                              routingPage(const TrackVasHistory()),
+                                routingPage(
+                                  BlocProvider(
+                                    create: (context) => TaskHistoryCubit(TaskTrackService()),
+                                    child: TrackVasHistory(),
+                                  ),
+                                )
                             );
                           },
                         ),

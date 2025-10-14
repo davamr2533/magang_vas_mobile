@@ -10,6 +10,7 @@ import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart'
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/tab_page_wrapper.dart';
 
+import '../../tools/loading.dart';
 import '../../utllis/app_shared_prefs.dart';
 import 'data/cubit/get_drive_cubit.dart';
 import 'data/model/response/get_data_drive_response.dart';
@@ -44,8 +45,9 @@ class _DriveHomeState extends State<DriveHome> {
     await getDriveData.getDriveData(token: 'Bearer $token');
   }
 
-  // Fungsi diubah untuk menerima parameter, bukan dari state
-  List<FolderModel> getFilteredAndSortedFolders(List<FolderModel> sourceFolders) {
+  List<FolderModel> getFilteredAndSortedFolders(
+    List<FolderModel> sourceFolders,
+  ) {
     List<FolderModel> filtered = sourceFolders
         .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -100,9 +102,10 @@ class _DriveHomeState extends State<DriveHome> {
     );
   }
 
-  // Fungsi ini juga diubah untuk menerima parameter
-  Widget _buildDriveHomePage(List<FolderModel> myDriveFolders, List<FolderModel> sharedDriveFolders) {
-    // Filter & sort hanya untuk tab "My Drive"
+  Widget _buildDriveHomePage(
+    List<FolderModel> myDriveFolders,
+    List<FolderModel> sharedDriveFolders,
+  ) {
     final myDriveItems = getFilteredAndSortedFolders(myDriveFolders);
 
     return DefaultTabController(
@@ -237,10 +240,14 @@ class _DriveHomeState extends State<DriveHome> {
         // Sesuaikan nama field di sini jika berbeda
         id: item.id ?? 0,
         namaFolder: item.name ?? 'Folder Tanpa Nama',
-        createdAt: item.createdAt != null ? DateTime.parse(item.createdAt!) : DateTime.now(),
+        createdAt: item.createdAt != null
+            ? DateTime.parse(item.createdAt!)
+            : DateTime.now(),
         isStarred: item.isStarred == 'TRUE',
         // Lakukan mapping rekursif untuk children
-        children: item.children != null ? _mapApiDataToUiModel(item.children!) : [],
+        children: item.children != null
+            ? _mapApiDataToUiModel(item.children!)
+            : [],
         isSpecial: false, // Asumsi default
       );
     }).toList();
@@ -252,19 +259,15 @@ class _DriveHomeState extends State<DriveHome> {
       builder: (context, state) {
         // STATE: LOADING & INITIAL
         if (state is DriveInitial || state is DriveLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Center(child: AppWidget().LoadingWidget());
         }
 
         // STATE: FAILURE
         if (state is DriveDataFailure) {
-          return Scaffold(
-            body: Center(
-              child: Text(
-                'Gagal memuat data: ${state.message}',
-                textAlign: TextAlign.center,
-              ),
+          return Center(
+            child: Text(
+              'Gagal memuat data: ${state.message}',
+              textAlign: TextAlign.center,
             ),
           );
         }
@@ -275,8 +278,22 @@ class _DriveHomeState extends State<DriveHome> {
           final apiData = state.driveData.data ?? [];
 
           // 1. Pisahkan data API
-          final myDriveApiItems = apiData.firstWhere((i) => i.name == 'My Drive', orElse: () => FolderItem()).children ?? [];
-          final sharedDriveApiItems = apiData.firstWhere((i) => i.name == 'Shared Drive', orElse: () => FolderItem()).children ?? [];
+          final myDriveApiItems =
+              apiData
+                  .firstWhere(
+                    (i) => i.name == 'My Drive',
+                    orElse: () => FolderItem(),
+                  )
+                  .children ??
+              [];
+          final sharedDriveApiItems =
+              apiData
+                  .firstWhere(
+                    (i) => i.name == 'Shared Drive',
+                    orElse: () => FolderItem(),
+                  )
+                  .children ??
+              [];
 
           // 2. Ubah data API menjadi model UI (FolderModel)
           final myDriveFolders = _mapApiDataToUiModel(myDriveApiItems);
@@ -307,7 +324,9 @@ class _DriveHomeState extends State<DriveHome> {
             id: -3,
             namaFolder: "Sampah",
             createdAt: DateTime.now(),
-            children: allItems.where((f) => f.isSpecial).toList(), // Sepertinya ini bug di kodemu, saya biarkan
+            children: allItems
+                .where((f) => f.isSpecial)
+                .toList(), // Sepertinya ini bug di kodemu, saya biarkan
             isSpecial: true,
           );
 
@@ -338,7 +357,9 @@ class _DriveHomeState extends State<DriveHome> {
               selectedItemColor: orangeNewAmikom,
               type: BottomNavigationBarType.fixed,
               unselectedItemColor: Colors.black54,
-              selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
+              selectedLabelStyle: GoogleFonts.urbanist(
+                fontWeight: FontWeight.bold,
+              ),
               unselectedLabelStyle: GoogleFonts.urbanist(),
               onTap: (index) => setState(() => _selectedIndex = index),
               items: const [
