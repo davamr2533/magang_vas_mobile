@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
-import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
-import 'package:vas_reporting/tools/popup.dart';
+import '../../../utllis/app_shared_prefs.dart';
+import '../data/cubit/get_drive_cubit.dart';
+import '../tools/create_folder.dart';
 
 class AnimatedFabMenu extends StatefulWidget {
-  const AnimatedFabMenu({super.key});
+  final int parentId;
+  final VoidCallback? onFolderCreated; // ✅ callback untuk refresh di DriveHome
+
+  const AnimatedFabMenu({
+    super.key,
+    required this.parentId,
+    this.onFolderCreated,
+  });
 
   @override
   State<AnimatedFabMenu> createState() => _AnimatedFabMenuState();
@@ -15,12 +24,25 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     with SingleTickerProviderStateMixin {
   bool isOpen = false;
   late AnimationController _controller;
+  String? token;
+  String? userId;
+  late int parentId;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    parentId = widget.parentId;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    fetchData();
+  }
+
+  void fetchData() async {
+    token = await SharedPref.getToken();
+    userId = await SharedPref.getUsername();
+    if (!mounted) return;
   }
 
   @override
@@ -45,7 +67,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        // Upload File
+        // Tombol Upload File
         _buildAnimatedFab(
           offsetY: 140,
           icon: Icons.upload_file,
@@ -53,43 +75,56 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
           onTap: _pickFile,
         ),
 
-        // Buat Folder
+        // Tombol Buat Folder
         _buildAnimatedFab(
           offsetY: 70,
           icon: Icons.create_new_folder,
           label: "Folder",
           onTap: () async {
-            final popup = PopUpWidget(context);
-            final newName = await popup.showTextInputDialog(
-              title: "Folder baru",
-              hintText: "Folder tanpa nama",
-              confirmText: "Buat",
+            if (!mounted || token == null || userId == null) return;
+
+            final success = await createNewFolder(
+              context,
+              'Bearer $token',
+              parentId,
+              userId!,
             );
-            if (newName != null && newName.isNotEmpty) {
+
+            if (mounted) {
+              // ✅ Refresh Cubit agar data Drive diperbarui
+              final driveCubit = context.read<DriveCubit>();
+              await driveCubit.getDriveData(token: 'Bearer $token');
+
+              // ✅ Panggil callback agar DriveHome bisa ikut refresh
+              widget.onFolderCreated?.call();
+
+              // ✅ Feedback visual ke user
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Folder \"$newName\" berhasil dibuat")),
+                const SnackBar(content: Text('Folder berhasil dibuat')),
               );
             }
           },
         ),
 
-        // Main FAB
+        // Tombol Utama (+)
         FloatingActionButton(
           heroTag: "mainFab",
           onPressed: _toggleMenu,
           backgroundColor: pinkNewAmikom,
           child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0, end: isOpen ? 0.125 : 0), // 0.125 = 45°
+            tween: Tween<double>(
+              begin: 0,
+              end: isOpen ? 0.125 : 0, // 0.125 = 45°
+            ),
             duration: const Duration(milliseconds: 250),
             builder: (context, angle, child) {
               return Transform.rotate(
-                angle: angle * 3.1416 * 2, // radian
-                child: const Icon(Icons.add, color: orangeNewAmikom,),
+                angle: angle * 3.1416 * 2,
+                child: const Icon(Icons.add, color: orangeNewAmikom),
               );
             },
           ),
         ),
-
       ],
     );
   }
@@ -104,12 +139,11 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
       animation: _controller,
       builder: (context, child) {
         final slide = Tween<Offset>(
-          begin: Offset(0, offsetY / 60), // posisi awal agak ke bawah
+          begin: Offset(0, offsetY / 60),
           end: const Offset(0, 0),
-        ).animate(CurvedAnimation(
-          parent: _controller,
-          curve: Curves.easeOut,
-        ));
+        ).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+        );
 
         return Transform.translate(
           offset: Offset(0, slide.value.dy * offsetY),
@@ -169,6 +203,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
 
     if (result != null && result.files.isNotEmpty) {
       final file = result.files.single;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("File dipilih: ${file.name}")),
       );

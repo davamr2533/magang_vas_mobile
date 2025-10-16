@@ -14,7 +14,7 @@ import '../../tools/loading.dart';
 import '../../utllis/app_shared_prefs.dart';
 import 'data/cubit/get_drive_cubit.dart';
 import 'data/model/response/get_data_drive_response.dart';
-import 'folder_model.dart'; // Model UI-mu tetap digunakan
+import 'folder_model.dart';
 
 class DriveHome extends StatefulWidget {
   const DriveHome({super.key});
@@ -23,7 +23,8 @@ class DriveHome extends StatefulWidget {
   State<DriveHome> createState() => _DriveHomeState();
 }
 
-class _DriveHomeState extends State<DriveHome> {
+class _DriveHomeState extends State<DriveHome>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   SortOption currentSort = SortOption.nameAsc;
   ViewOption currentView = ViewOption.grid;
@@ -31,23 +32,44 @@ class _DriveHomeState extends State<DriveHome> {
   int _selectedIndex = 0;
   String? token;
 
+  late TabController _tabController;
+  int parentId = 1; // Default ke My Drive
+
   late DriveCubit getDriveData;
 
   @override
   void initState() {
     super.initState();
     getDriveData = context.read<DriveCubit>();
+
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!mounted) return;
+      setState(() {
+        parentId = _tabController.index == 0 ? 1 : 2;
+      });
+    });
+
     fetchData();
   }
 
-  void fetchData() async {
+  Future<void> fetchData() async {
     token = await SharedPref.getToken();
+    if (!mounted) return;
     await getDriveData.getDriveData(token: 'Bearer $token');
+    if (!mounted) return;
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   List<FolderModel> getFilteredAndSortedFolders(
-    List<FolderModel> sourceFolders,
-  ) {
+      List<FolderModel> sourceFolders,
+      ) {
     List<FolderModel> filtered = sourceFolders
         .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -66,12 +88,14 @@ class _DriveHomeState extends State<DriveHome> {
   }
 
   void _navigateToFolder(FolderModel folder) async {
+    if (!mounted) return;
     final result = await Navigator.of(context).push<ViewOption>(
       DriveRouting(
         page: FolderPage(initialFolder: folder, initialView: currentView),
       ),
     );
 
+    if (!mounted) return;
     if (result != null && result != currentView) {
       setState(() {
         currentView = result;
@@ -103,152 +127,159 @@ class _DriveHomeState extends State<DriveHome> {
   }
 
   Widget _buildDriveHomePage(
-    List<FolderModel> myDriveFolders,
-    List<FolderModel> sharedDriveFolders,
-  ) {
+      List<FolderModel> myDriveFolders,
+      List<FolderModel> sharedDriveFolders,
+      ) {
     final myDriveItems = getFilteredAndSortedFolders(myDriveFolders);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: magnoliaWhiteNewAmikom,
+      appBar: AppBar(
         backgroundColor: magnoliaWhiteNewAmikom,
-        appBar: AppBar(
-          backgroundColor: magnoliaWhiteNewAmikom,
-          foregroundColor: Colors.black,
-          elevation: 1,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (val) => setState(() => query = val),
-                    style: GoogleFonts.urbanist(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: "Search Document",
-                      hintStyle: GoogleFonts.urbanist(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                      filled: true,
-                      fillColor: pinkNewAmikom,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: const Icon(Icons.search, color: Colors.grey),
+        foregroundColor: Colors.black,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            if (mounted) Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (val) {
+                    if (mounted) setState(() => query = val);
+                  },
+                  style: GoogleFonts.urbanist(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: "Search Document",
+                    hintStyle: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      color: Colors.grey,
                     ),
+                    filled: true,
+                    fillColor: pinkNewAmikom,
+                    contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon:
+                    const Icon(Icons.search, color: Colors.grey),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: pinkNewAmikom,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: PopupMenuButton<String>(
-                  icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'date',
-                      child: Text(
-                        "Sort by Date",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'name',
-                      child: Text(
-                        "Sort by Name",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'type',
-                      child: Text(
-                        "Sort by Type",
-                        style: GoogleFonts.urbanist(fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: pinkNewAmikom,
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
-          ),
-          bottom: TabBar(
-            labelColor: orangeNewAmikom,
-            indicatorColor: orangeNewAmikom,
-            unselectedLabelColor: Colors.black,
-            labelStyle: GoogleFonts.urbanist(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelStyle: GoogleFonts.urbanist(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            tabs: const [
-              Tab(text: "My Drive"),
-              Tab(text: "Shared Drive"),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            SortAndViewOption(
-              currentSort: currentSort,
-              currentView: currentView,
-              style: GoogleFonts.urbanist(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              onSortChanged: (sort) => setState(() => currentSort = sort),
-              onViewChanged: (view) => setState(() => currentView = view),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  buildDriveGrid(myDriveItems),
-                  // Shared drive items bisa ditambahkan logika filter & sort juga jika perlu
-                  buildDriveGrid(sharedDriveFolders),
+              child: PopupMenuButton<String>(
+                icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'date',
+                    child: Text(
+                      "Sort by Date",
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'name',
+                    child: Text(
+                      "Sort by Name",
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'type',
+                    child: Text(
+                      "Sort by Type",
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
         ),
-        floatingActionButton: AnimatedFabMenu(),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: orangeNewAmikom,
+          indicatorColor: orangeNewAmikom,
+          unselectedLabelColor: Colors.black,
+          labelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          unselectedLabelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          tabs: const [
+            Tab(text: "My Drive"),
+            Tab(text: "Shared Drive"),
+          ],
+        ),
       ),
+      body: Column(
+        children: [
+          SortAndViewOption(
+            currentSort: currentSort,
+            currentView: currentView,
+            style: GoogleFonts.urbanist(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            onSortChanged: (sort) {
+              if (mounted) setState(() => currentSort = sort);
+            },
+            onViewChanged: (view) {
+              if (mounted) setState(() => currentView = view);
+            },
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                buildDriveGrid(myDriveItems),
+                buildDriveGrid(sharedDriveFolders),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: AnimatedFabMenu(
+        parentId: parentId,
+        onFolderCreated: () async {
+          await fetchData(); // auto refresh folder list
+        },
+      ),
+
     );
   }
 
-  // Fungsi untuk mengubah data dari API (FolderItem) menjadi model UI (FolderModel)
-  // Ini penting agar sisa kodemu tidak perlu banyak diubah
   List<FolderModel> _mapApiDataToUiModel(List<FolderItem> apiItems) {
     return apiItems.map((item) {
       return FolderModel(
-        // Sesuaikan nama field di sini jika berbeda
         id: item.id ?? 0,
         namaFolder: item.name ?? 'Folder Tanpa Nama',
         createdAt: item.createdAt != null
             ? DateTime.parse(item.createdAt!)
             : DateTime.now(),
         isStarred: item.isStarred == 'TRUE',
-        // Lakukan mapping rekursif untuk children
-        children: item.children != null
-            ? _mapApiDataToUiModel(item.children!)
-            : [],
-        isSpecial: false, // Asumsi default
+        children:
+        item.children != null ? _mapApiDataToUiModel(item.children!) : [],
+        isSpecial: false,
       );
     }).toList();
   }
@@ -257,12 +288,10 @@ class _DriveHomeState extends State<DriveHome> {
   Widget build(BuildContext context) {
     return BlocBuilder<DriveCubit, DriveState>(
       builder: (context, state) {
-        // STATE: LOADING & INITIAL
         if (state is DriveInitial || state is DriveLoading) {
           return Center(child: AppWidget().LoadingWidget());
         }
 
-        // STATE: FAILURE
         if (state is DriveDataFailure) {
           return Center(
             child: Text(
@@ -272,35 +301,28 @@ class _DriveHomeState extends State<DriveHome> {
           );
         }
 
-        // STATE: SUCCESS
         if (state is DriveDataSuccess) {
-          // Data dari API sudah tersedia di `state.driveData`
           final apiData = state.driveData.data ?? [];
 
-          // 1. Pisahkan data API
-          final myDriveApiItems =
-              apiData
-                  .firstWhere(
-                    (i) => i.name == 'My Drive',
-                    orElse: () => FolderItem(),
-                  )
-                  .children ??
+          final myDriveApiItems = apiData
+              .firstWhere(
+                (i) => i.name == 'My Drive',
+            orElse: () => FolderItem(),
+          )
+              .children ??
               [];
-          final sharedDriveApiItems =
-              apiData
-                  .firstWhere(
-                    (i) => i.name == 'Shared Drive',
-                    orElse: () => FolderItem(),
-                  )
-                  .children ??
+          final sharedDriveApiItems = apiData
+              .firstWhere(
+                (i) => i.name == 'Shared Drive',
+            orElse: () => FolderItem(),
+          )
+              .children ??
               [];
 
-          // 2. Ubah data API menjadi model UI (FolderModel)
           final myDriveFolders = _mapApiDataToUiModel(myDriveApiItems);
           final sharedDriveFolders = _mapApiDataToUiModel(sharedDriveApiItems);
           final allFolders = [...myDriveFolders, ...sharedDriveFolders];
 
-          // 3. Gunakan sisa logika dari kode hardcode-mu
           final allItems = _getAllItemsRecursive(allFolders);
           allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
@@ -324,9 +346,7 @@ class _DriveHomeState extends State<DriveHome> {
             id: -3,
             namaFolder: "Sampah",
             createdAt: DateTime.now(),
-            children: allItems
-                .where((f) => f.isSpecial)
-                .toList(), // Sepertinya ini bug di kodemu, saya biarkan
+            children: allItems.where((f) => f.isSpecial).toList(),
             isSpecial: true,
           );
 
@@ -335,17 +355,23 @@ class _DriveHomeState extends State<DriveHome> {
             TabPageWrapper(
               rootFolder: recentFolder,
               initialView: currentView,
-              onRootPop: () => setState(() => _selectedIndex = 0),
+              onRootPop: () {
+                if (mounted) setState(() => _selectedIndex = 0);
+              },
             ),
             TabPageWrapper(
               rootFolder: starredFolder,
               initialView: currentView,
-              onRootPop: () => setState(() => _selectedIndex = 0),
+              onRootPop: () {
+                if (mounted) setState(() => _selectedIndex = 0);
+              },
             ),
             TabPageWrapper(
               rootFolder: trashFolder,
               initialView: currentView,
-              onRootPop: () => setState(() => _selectedIndex = 0),
+              onRootPop: () {
+                if (mounted) setState(() => _selectedIndex = 0);
+              },
             ),
           ];
 
@@ -361,7 +387,9 @@ class _DriveHomeState extends State<DriveHome> {
                 fontWeight: FontWeight.bold,
               ),
               unselectedLabelStyle: GoogleFonts.urbanist(),
-              onTap: (index) => setState(() => _selectedIndex = index),
+              onTap: (index) {
+                if (mounted) setState(() => _selectedIndex = index);
+              },
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home_outlined),
@@ -384,8 +412,9 @@ class _DriveHomeState extends State<DriveHome> {
           );
         }
 
-        // Fallback jika state tidak dikenali
-        return const Scaffold(body: Center(child: Text("State tidak valid")));
+        return const Scaffold(
+          body: Center(child: Text("State tidak valid")),
+        );
       },
     );
   }
