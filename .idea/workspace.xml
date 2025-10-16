@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="revisi login">
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_history_cubit.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/task_track/track_cubit/task_history_state.dart" afterDir="false" />
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="history layout done">
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/drive_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/login_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/login_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_response.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_history.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,17 +27,20 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;davamr2533&quot;
-  }
-}</component>
+        &quot;lastFilter&quot;: {
+        &quot;state&quot;: &quot;OPEN&quot;,
+        &quot;assignee&quot;: &quot;davamr2533&quot;
+        }
+        }</component>
   <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Magang-VAS/vas-mobile.git&quot;,
-    &quot;accountId&quot;: &quot;ba575121-673a-4bd1-a981-f556aec9e82f&quot;
-  }
-}</component>
+        &quot;selectedUrlAndAccountId&quot;: {
+        &quot;url&quot;: &quot;https://github.com/Magang-VAS/vas-mobile.git&quot;,
+        &quot;accountId&quot;: &quot;ba575121-673a-4bd1-a981-f556aec9e82f&quot;
+        }
+        }</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -68,7 +65,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/ThinkPad T470/Documents/Dava Magang/VASS/vas-mobile&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;flutter.settings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
@@ -197,31 +194,7 @@
       <option name="project" value="LOCAL" />
       <updated>1759748477105</updated>
     </task>
-    <task id="LOCAL-00014" summary="integrasi vas drive part 1">
-      <option name="closed" value="true" />
-      <created>1759997535455</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1759997535455</updated>
-    </task>
-    <task id="LOCAL-00015" summary="revisi summary">
-      <option name="closed" value="true" />
-      <created>1760316258155</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1760316258156</updated>
-    </task>
-    <task id="LOCAL-00016" summary="revisi login">
-      <option name="closed" value="true" />
-      <created>1760316780795</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1760316780795</updated>
-    </task>
-    <option name="localTasksCounter" value="17" />
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -247,9 +220,6 @@
     <MESSAGE value="search bar logic" />
     <MESSAGE value="fragment" />
     <MESSAGE value="history layout done" />
-    <MESSAGE value="integrasi vas drive part 1" />
-    <MESSAGE value="revisi summary" />
-    <MESSAGE value="revisi login" />
-    <option name="LAST_COMMIT_MESSAGE" value="revisi login" />
+    <option name="LAST_COMMIT_MESSAGE" value="history layout done" />
   </component>
 </project>
