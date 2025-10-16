@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../model/response/get_data_drive_response.dart';
-import '../repository/get_all_drive_repository.dart';
+import '../repository/drive_repository.dart';
 
 part 'get_drive_state.dart';
 

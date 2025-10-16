@@ -6,7 +6,7 @@ const String url = basePaths.url;
 const String urlGetAllDrive = "${url}api/v1/vas/get-drive";
 
 //add folder
-const String urAddFolder = "${url}api/v1/vas/insert-folder-drive";
+const String urlAddFolder = "${url}api/v1/vas/insert-folder-drive";
 
 //upload file
 const String urlUploadFile = "${url}api/v1/vas/upload-drive";

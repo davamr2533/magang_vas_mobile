@@ -1,6 +1,9 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../utllis/app_shared_prefs.dart';
+import '../data/cubit/get_drive_cubit.dart';
 import '../folder_model.dart';
 import '../template/drive_layout.dart';
 import '../template/sort_and_layout_option.dart';
@@ -54,7 +57,9 @@ class FolderPageState extends State<FolderPage>
       begin: const Offset(1, 0),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
   }
+
 
   @override
   void dispose() {
@@ -184,7 +189,13 @@ class FolderPageState extends State<FolderPage>
           ],
         ),
         floatingActionButton: !widget.initialFolder.isSpecial
-            ? AnimatedFabMenu()
+            ? AnimatedFabMenu(
+                parentId: currentFolder.id,
+                onFolderCreated: () async {
+                  setState(() {});
+
+                },
+              )
             : null,
       ),
     );
@@ -200,9 +211,9 @@ class FolderPageState extends State<FolderPage>
       automaticallyImplyLeading: false,
       leading: (!isRoot || !isSpecial)
           ? IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-        onPressed: popFolder,
-      )
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+              onPressed: popFolder,
+            )
           : null,
       title: Text(currentFolder.namaFolder),
       centerTitle: true,
@@ -218,36 +229,33 @@ class FolderPageState extends State<FolderPage>
           SortAndViewOption(
             currentSort: currentSort,
             currentView: currentView,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             onSortChanged: (sort) => setState(() => currentSort = sort),
             onViewChanged: (view) => setState(() => currentView = view),
           ),
         Expanded(
           child: items.isEmpty
               ? Center(
-            child: Text(
-              "Folder Kosong",
-              style: GoogleFonts.urbanist(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey,
-              ),
-            ),
-          )
+                  child: Text(
+                    "Folder Kosong",
+                    style: GoogleFonts.urbanist(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                )
               : DriveGrid(
-            items: items.map((f) => f.namaFolder).toList(),
-            isList: currentView == ViewOption.list,
-            isStarred: items.map((f) => f.isStarred).toList(),
-            onFolderTap: (folderName) {
-              final tapped = items.firstWhere(
-                    (f) => f.namaFolder == folderName,
-              );
-              pushFolder(tapped);
-            },
-          ),
+                  items: items.map((f) => f.namaFolder).toList(),
+                  isList: currentView == ViewOption.list,
+                  isStarred: items.map((f) => f.isStarred).toList(),
+                  onFolderTap: (folderName) {
+                    final tapped = items.firstWhere(
+                      (f) => f.namaFolder == folderName,
+                    );
+                    pushFolder(tapped);
+                  },
+                ),
         ),
       ],
     );
