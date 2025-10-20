@@ -1,50 +1,64 @@
-import 'package:flutter/material.dart';
-import 'folder_card.dart';
+// Di file drive_layout.dart
 
-// <<====== WIDGET DRIVE GRID / LIST VIEW ======>>
+import 'package:flutter/material.dart';
+// Impor model UI Anda dan Card baru Anda
+import '../drive_home.dart';
+import '../drive_item_model.dart';
+import 'drive_item_card.dart';
+
 class DriveGrid extends StatelessWidget {
-  final List<String> items;              // daftar nama folder/file
-  final bool isList;                     // mode tampilan: true = list, false = grid
-  final List<bool> isStarred;            // <── ubah dari bool ke List<bool>
-  final void Function(String)? onFolderTap; // callback saat folder diklik
+  final List<DriveItemModel> items;
+  final bool isList;
+  final void Function(DriveItemModel)? onItemTap;
+  final VoidCallback? onUpdateChanged;
 
   const DriveGrid({
     super.key,
     required this.items,
     this.isList = false,
-    required this.isStarred,
-    this.onFolderTap,
+    this.onItemTap,
+    this.onUpdateChanged
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-
-      // <<====== MODE LIST ======>>
       child: isList
           ? ListView.builder(
         itemCount: items.length,
-        itemBuilder: (context, index) => FolderCard(
-          title: items[index],
-          isList: true,
-          onTap: onFolderTap,
-          // isStarred: isStarred[index],
-        ),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          // ✅ Gunakan DriveItemCard
+          return DriveItemCard(
+            title: item.nama,
+            isList: true,
+            isStarred: item.isStarred,
+            type: item.type, // <-- Kirim tipenya
+            onTap: (_) => onItemTap?.call(item),
+            parentName: item.parentName!,
+            item: item,
+            onUpdateChanged: onUpdateChanged,
+          );
+        },
       )
-
-      // <<====== MODE GRID ======>>
           : GridView.count(
         crossAxisCount: 2,
         childAspectRatio: 1.1,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         children: List.generate(items.length, (index) {
-          return FolderCard(
-            title: items[index],
+          final item = items[index];
+          // ✅ Gunakan DriveItemCard
+          return DriveItemCard(
+            title: item.nama,
             isList: false,
-            isStarred: isStarred[index],
-            onTap: onFolderTap,
+            isStarred: item.isStarred,
+            type: item.type, // <-- Kirim tipenya
+            onTap: (_) => onItemTap?.call(item),
+            parentName: item.parentName!,
+            item: item,
+            onUpdateChanged: onUpdateChanged,
           );
         }),
       ),

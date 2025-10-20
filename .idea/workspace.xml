@@ -4,7 +4,52 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update tambah berbintang" />
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update tambah berbintang">
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/add_to_trash_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/add_to_trash_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/delete_drive_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/delete_drive_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/recovery_drive_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/recovery_drive_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/upload_file_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/upload_file_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/add_to_trash_body.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.g.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/recovery_drive_body.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/template/custom_search_bar.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/tools/delete_item.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/tools/recovery_item.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/tools/upload_file.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/body/approval_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/body/approval_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/body/form_uji_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/body/form_uji_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/body/form_vas_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/body/form_vas_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/body/get_data_vas_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/body/get_data_vas_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/body/login_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/body/login_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/model/response/form_response.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/model/response/form_response.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/service/form_service.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/service/form_service.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/service/get_data_service.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/service/get_data_service.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/service/login_service.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/service/login_service.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/cubit/add_folder_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/add_folder_cubit.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/response/add_folder_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/response/drive_response.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/response/get_data_drive_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/response/get_data_drive_response.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/service/drive_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/service/drive_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/folder_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_item_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/detail_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/detail_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/folder_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_item_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/sort_and_layout_option.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/sort_and_layout_option.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,24 +94,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/ThinkPad T470/Documents/Dava Magang/VASS/vas-mobile&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "io.flutter.reload.alreadyRun": "true",
+    "last_opened_file_path": "/home/febryand/AndroidStudio/vas-mobile/lib/screen/drive/data/cubit",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/screen/drive/data/cubit" />
+      <recent name="$PROJECT_DIR$/lib/screen/drive/data/model/body" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\vas-mobile\lib\screen\task_track\task_track_vas\track_vas_widget" />
       <recent name="D:\vas-mobile\lib\screen\UjicobaApiBaru\cubit" />

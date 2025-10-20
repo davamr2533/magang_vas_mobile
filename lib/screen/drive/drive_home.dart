@@ -4,6 +4,7 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/folder_page.dart';
+import 'package:vas_reporting/screen/drive/template/custom_search_bar.dart';
 import 'package:vas_reporting/screen/drive/template/drive_layout.dart';
 import 'package:vas_reporting/screen/drive/template/animated_fab.dart';
 import 'package:vas_reporting/screen/drive/template/sort_and_layout_option.dart';
@@ -14,7 +15,7 @@ import '../../tools/loading.dart';
 import '../../utllis/app_shared_prefs.dart';
 import 'data/cubit/get_drive_cubit.dart';
 import 'data/model/response/get_data_drive_response.dart';
-import 'folder_model.dart';
+import 'drive_item_model.dart';
 
 class DriveHome extends StatefulWidget {
   const DriveHome({super.key});
@@ -26,14 +27,18 @@ class DriveHome extends StatefulWidget {
 class _DriveHomeState extends State<DriveHome>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
-  SortOption currentSort = SortOption.nameAsc;
+  SortBy currentSortBy = SortBy.name;
+  SortOrder currentSortOrder = SortOrder.asc;
+
   ViewOption currentView = ViewOption.grid;
   String query = "";
   int _selectedIndex = 0;
   String? token;
-
+  String? username;
   late TabController _tabController;
-  int parentId = 1; // Default ke My Drive
+  int? parentId;
+  int myDriveRootId = 1; // Default
+  int sharedDriveRootId = 2; // Default
 
   late DriveCubit getDriveData;
 
@@ -44,10 +49,17 @@ class _DriveHomeState extends State<DriveHome>
 
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      if (!mounted) return;
-      setState(() {
-        parentId = _tabController.index == 0 ? 1 : 2;
-      });
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          parentId = _tabController.index == 0
+              ? myDriveRootId
+              : sharedDriveRootId;
+
+          print(
+            "Tab changed to index: ${_tabController.index}, parentId: $parentId",
+          );
+        });
+      }
     });
 
     fetchData();
@@ -55,6 +67,7 @@ class _DriveHomeState extends State<DriveHome>
 
   Future<void> fetchData() async {
     token = await SharedPref.getToken();
+    username = await SharedPref.getUsername();
     if (!mounted) return;
     await getDriveData.getDriveData(token: 'Bearer $token');
     if (!mounted) return;
@@ -67,31 +80,15 @@ class _DriveHomeState extends State<DriveHome>
     super.dispose();
   }
 
-  List<FolderModel> getFilteredAndSortedFolders(
-      List<FolderModel> sourceFolders,
-      ) {
-    List<FolderModel> filtered = sourceFolders
-        .where((f) => f.namaFolder.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-    switch (currentSort) {
-      case SortOption.nameAsc:
-        filtered.sort((a, b) => a.namaFolder.compareTo(b.namaFolder));
-        break;
-      case SortOption.nameDesc:
-        filtered.sort((a, b) => b.namaFolder.compareTo(a.namaFolder));
-        break;
-      case SortOption.date:
-        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        break;
-    }
-    return filtered;
-  }
-
-  void _navigateToFolder(FolderModel folder) async {
+  void _navigateToFolder(DriveItemModel folder) async {
     if (!mounted) return;
     final result = await Navigator.of(context).push<ViewOption>(
       DriveRouting(
-        page: FolderPage(initialFolder: folder, initialView: currentView),
+        page: FolderPage(
+          initialFolder: folder,
+          initialView: currentView,
+          onUpdateChanged: fetchData,
+        ),
       ),
     );
 
@@ -103,8 +100,8 @@ class _DriveHomeState extends State<DriveHome>
     }
   }
 
-  List<FolderModel> _getAllItemsRecursive(List<FolderModel> folders) {
-    List<FolderModel> allItems = [];
+  List<DriveItemModel> _getAllItemsRecursive(List<DriveItemModel> folders) {
+    List<DriveItemModel> allItems = [];
     for (var folder in folders) {
       allItems.add(folder);
       if (folder.children.isNotEmpty) {
@@ -114,22 +111,21 @@ class _DriveHomeState extends State<DriveHome>
     return allItems;
   }
 
-  Widget buildDriveGrid(List<FolderModel> items) {
+  Widget buildDriveGrid(List<DriveItemModel> items) {
     return DriveGrid(
-      items: items.map((f) => f.namaFolder).toList(),
+      items: items,
       isList: currentView == ViewOption.list,
-      isStarred: items.map((f) => f.isStarred).toList(),
-      onFolderTap: (folderName) {
-        final tapped = items.firstWhere((f) => f.namaFolder == folderName);
+      onItemTap: (tapped) {
         _navigateToFolder(tapped);
       },
+      onUpdateChanged: fetchData,
     );
   }
 
   Widget _buildDriveHomePage(
-      List<FolderModel> myDriveFolders,
-      List<FolderModel> sharedDriveFolders,
-      ) {
+    List<DriveItemModel> myDriveFolders,
+    List<DriveItemModel> sharedDriveFolders,
+  ) {
     final myDriveItems = getFilteredAndSortedFolders(myDriveFolders);
 
     return Scaffold(
@@ -144,74 +140,7 @@ class _DriveHomeState extends State<DriveHome>
             if (mounted) Navigator.pop(context);
           },
         ),
-        title: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 40,
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (val) {
-                    if (mounted) setState(() => query = val);
-                  },
-                  style: GoogleFonts.urbanist(fontSize: 14),
-                  decoration: InputDecoration(
-                    hintText: "Search Document",
-                    hintStyle: GoogleFonts.urbanist(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                    filled: true,
-                    fillColor: pinkNewAmikom,
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    suffixIcon:
-                    const Icon(Icons.search, color: Colors.grey),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: pinkNewAmikom,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: PopupMenuButton<String>(
-                icon: const Icon(IconlyBold.filter, color: orangeNewAmikom),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'date',
-                    child: Text(
-                      "Sort by Date",
-                      style: GoogleFonts.urbanist(fontSize: 14),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'name',
-                    child: Text(
-                      "Sort by Name",
-                      style: GoogleFonts.urbanist(fontSize: 14),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'type',
-                    child: Text(
-                      "Sort by Type",
-                      style: GoogleFonts.urbanist(fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        title: const CustomSearchBar(),
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -234,19 +163,15 @@ class _DriveHomeState extends State<DriveHome>
       body: Column(
         children: [
           SortAndViewOption(
-            currentSort: currentSort,
-            currentView: currentView,
-            style: GoogleFonts.urbanist(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            onSortChanged: (sort) {
-              if (mounted) setState(() => currentSort = sort);
-            },
-            onViewChanged: (view) {
-              if (mounted) setState(() => currentView = view);
-            },
+            selectedSortBy: currentSortBy,
+            selectedSortOrder: currentSortOrder,
+            selectedView: currentView,
+            onSortByChanged: (sortBy) => setState(() => currentSortBy = sortBy),
+            onSortOrderChanged: (order) =>
+                setState(() => currentSortOrder = order),
+            onViewChanged: (view) => setState(() => currentView = view),
           ),
+
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -259,30 +184,14 @@ class _DriveHomeState extends State<DriveHome>
         ],
       ),
       floatingActionButton: AnimatedFabMenu(
-        parentId: parentId,
+        parentId: parentId!,
         onFolderCreated: () async {
           await fetchData(); // auto refresh folder list
         },
       ),
-
     );
   }
 
-  List<FolderModel> _mapApiDataToUiModel(List<FolderItem> apiItems) {
-    return apiItems.map((item) {
-      return FolderModel(
-        id: item.id ?? 0,
-        namaFolder: item.name ?? 'Folder Tanpa Nama',
-        createdAt: item.createdAt != null
-            ? DateTime.parse(item.createdAt!)
-            : DateTime.now(),
-        isStarred: item.isStarred == 'TRUE',
-        children:
-        item.children != null ? _mapApiDataToUiModel(item.children!) : [],
-        isSpecial: false,
-      );
-    }).toList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -304,54 +213,171 @@ class _DriveHomeState extends State<DriveHome>
         if (state is DriveDataSuccess) {
           final apiData = state.driveData.data ?? [];
 
-          final myDriveApiItems = apiData
-              .firstWhere(
-                (i) => i.name == 'My Drive',
+          // Ambil root "My Drive" dan "Shared Drive"
+          final driveRoot = apiData.firstWhere(
+            (i) => i.name == 'My Drive',
             orElse: () => FolderItem(),
-          )
-              .children ??
-              [];
-          final sharedDriveApiItems = apiData
-              .firstWhere(
-                (i) => i.name == 'Shared Drive',
+          );
+
+          final sharedDriveRoot = apiData.firstWhere(
+            (i) => i.name == 'Shared Drive',
             orElse: () => FolderItem(),
-          )
-              .children ??
-              [];
+          );
 
-          final myDriveFolders = _mapApiDataToUiModel(myDriveApiItems);
-          final sharedDriveFolders = _mapApiDataToUiModel(sharedDriveApiItems);
-          final allFolders = [...myDriveFolders, ...sharedDriveFolders];
+          // Ambil semua folder My Drive milik user login
+          final userDriveFolders = (driveRoot.children ?? [])
+              .where(
+                (child) =>
+                    child.userId == username && child.isTrashed == 'FALSE',
+              )
+              .toList();
 
+          // Ambil semua file My Drive milik user login (bisa di root)
+          final userDriveFiles = (driveRoot.files ?? [])
+              .where(
+                (file) => file.userId == username && file.isTrashed == 'FALSE',
+              )
+              .toList();
+
+          // Kalau userDriveFolders kosong, berarti user belum punya folder khusus
+          // Maka tetap ambil file yang sesuai user
+          final allMyDriveItems = [...userDriveFolders, ...userDriveFiles];
+          print('DEBUG username = "$username"');
+          for (var c in (driveRoot.children ?? [])) {
+            print('child ${c.name} -> userId: "${c.userId}"');
+          }
+
+          // Set ID root
+          myDriveRootId = driveRoot.id ?? 1;
+          sharedDriveRootId = sharedDriveRoot.id ?? 2;
+          parentId ??= myDriveRootId;
+
+          // --- Shared Drive tetap ambil semua---
+          final sharedFolders = (sharedDriveRoot.children ?? [])
+              .where((child) => child.isTrashed == 'FALSE')
+              .toList();
+          final sharedFiles = (sharedDriveRoot.files ?? [])
+              .where((file) => file.isTrashed == 'FALSE')
+              .toList();
+
+          final allSharedDriveItems = [...sharedFolders, ...sharedFiles];
+
+          // --- Mapping ke model UI ---
+          final myDriveItems = _mapApiItemsToUiModel(allMyDriveItems);
+          final sharedDriveItems = _mapApiItemsToUiModel(allSharedDriveItems);
+
+          //-----------------------------------------DEBUG---------------------------------------------
+          final files = myDriveItems.where(
+            (item) => item.type == DriveItemType.file,
+          );
+          final folders = myDriveItems.where(
+            (item) => item.type == DriveItemType.folder,
+          );
+
+          print(
+            "======================DEBUG-FILE-MY-DRIVE======================================",
+          );
+          for (var file in files) {
+            // Warna menggunakan ANSI escape code
+            const red = '\x1B[31m';
+            const green = '\x1B[32m';
+            const yellow = '\x1B[33m';
+            const blue = '\x1B[34m';
+            const magenta = '\x1B[35m';
+            const cyan = '\x1B[36m';
+            const reset = '\x1B[0m'; // reset warna ke default
+
+            print(
+              '${green}FILE${reset} parent: ${file.parentId}, '
+              '${cyan}Nama:${reset} ${file.nama} (${file.id}), '
+              '${yellow}Ukuran:${reset} ${file.size}, '
+              '${yellow}Waktu:${reset} ${file.updateAt}, '
+              '${magenta}Tipe:${reset} ${file.mimeType}',
+            );
+          }
+
+          print(
+            "======================END-DEBUG-FILE-MY-DRIVE======================================",
+          );
+          print(
+            "======================DEBUG-FOLDER======================================",
+          );
+          for (var folder in folders) {
+            print(
+              'FOLDER parent : ${folder.parentId}, Folder: ${folder.nama} (${folder.id}) , waktu: ${folder.createdAt}, username: ${folder.userId}',
+            );
+          }
+          print(
+            "======================END-DEBUG-FOLDER======================================",
+          );
+          //--------------------------------------END-DEBUG-------------------------------------
+
+          final myFolders = driveRoot.children ?? [];
+          final myFiles = driveRoot.files ?? [];
+
+          final allSharedFolders = sharedDriveRoot.children ?? [];
+          final allSharedFiles = sharedDriveRoot.files ?? [];
+
+          final myItems = [...myFolders, ...myFiles];
+          final sharedItems = [...allSharedFolders, ...allSharedFiles];
+
+          final allMyDriveItem = _mapApiItemsToUiModel(myItems);
+          final allSharedItem = _mapApiItemsToUiModel(sharedItems);
+
+          // --- Gabungkan semua drive ---
+          final allFolders = [...allMyDriveItem, ...allSharedItem];
+
+          // --- Dapatkan semua item rekursif ---
           final allItems = _getAllItemsRecursive(allFolders);
+
+          // --- Urutkan berdasarkan tanggal terbaru ---
           allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-          final recentFolder = FolderModel(
+          final recentFolder = DriveItemModel(
             id: -1,
-            namaFolder: "Berkas Terbaru",
+            nama: "Berkas Terbaru",
             createdAt: DateTime.now(),
-            children: allItems,
+            updateAt: DateTime.now(),
+            children: allItems
+                .where(
+                  (f) => f.isTrashed == false && f.type == DriveItemType.file,
+                )
+                .toList(),
+            type: DriveItemType.folder,
             isSpecial: true,
           );
 
-          final starredFolder = FolderModel(
+          final starredFolder = DriveItemModel(
             id: -2,
-            namaFolder: "Berbintang",
+            nama: "Berbintang",
             createdAt: DateTime.now(),
-            children: allItems.where((f) => f.isStarred).toList(),
+            updateAt: DateTime.now(),
+            children: allItems
+                .where(
+                  (f) =>
+                      f.isStarred &&
+                      f.userId == username &&
+                      f.isTrashed == false,
+                )
+                .toList(),
+            type: DriveItemType.folder,
             isSpecial: true,
           );
 
-          final trashFolder = FolderModel(
+          final trashFolder = DriveItemModel(
             id: -3,
-            namaFolder: "Sampah",
+            nama: "Sampah",
             createdAt: DateTime.now(),
-            children: allItems.where((f) => f.isSpecial).toList(),
+            updateAt: DateTime.now(),
+            children: allItems
+                .where((f) => f.isTrashed && f.userId == username)
+                .toList(),
+            type: DriveItemType.folder,
             isSpecial: true,
           );
 
           final pages = [
-            _buildDriveHomePage(myDriveFolders, sharedDriveFolders),
+            _buildDriveHomePage(myDriveItems, sharedDriveItems),
             TabPageWrapper(
               rootFolder: recentFolder,
               initialView: currentView,
@@ -412,10 +438,177 @@ class _DriveHomeState extends State<DriveHome>
           );
         }
 
-        return const Scaffold(
-          body: Center(child: Text("State tidak valid")),
-        );
+        return const Scaffold(body: Center(child: Text("State tidak valid")));
       },
     );
+  }
+
+  List<DriveItemModel> _mapApiItemsToUiModel(dynamic apiInput) {
+    final List<DriveItemModel> combinedList = [];
+
+    if (apiInput == null) return combinedList;
+
+    // 1) Kalau input adalah sebuah FolderItem tunggal
+    if (apiInput is FolderItem) {
+      final FolderItem apiFolder = apiInput;
+
+      // proses sub-folder (children)
+      if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
+        for (var subFolder in apiFolder.children!) {
+          combinedList.add(
+            DriveItemModel(
+              id: subFolder.id ?? 0,
+              parentId: subFolder.parentId,
+              parentName: apiFolder.name,
+              userId: subFolder.userId,
+              type: DriveItemType.folder,
+              nama: subFolder.name ?? 'Folder Tanpa Nama',
+              createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
+              isStarred: subFolder.isStarred == 'TRUE',
+              isTrashed: subFolder.isTrashed == 'TRUE',
+              // rekursif: subFolder bisa punya children/files
+              children: _mapApiItemsToUiModel(subFolder),
+              updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // proses file di dalam folder ini
+      if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
+        for (var file in apiFolder.files!) {
+          combinedList.add(
+            DriveItemModel(
+              id: file.id ?? 0,
+              parentId: file.parentId,
+              parentName: apiFolder.name,
+              userId: file.userId,
+              type: DriveItemType.file,
+              nama: file.name ?? 'File Tanpa Nama',
+              createdAt: file.createdAtAsDate ?? DateTime.now(),
+              isStarred: file.isStarred == 'TRUE',
+              isTrashed: file.isTrashed == 'TRUE',
+              mimeType: file.mimeType,
+              size: file.size,
+              url: file.urlFile,
+              updateAt: file.updatedAtAsDate ?? DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      return combinedList;
+    }
+
+    // 2) Kalau input adalah List (campuran FolderItem & FileItem)
+    if (apiInput is List) {
+      for (var item in apiInput) {
+        if (item == null) continue;
+
+        if (item is FolderItem) {
+          // ⬇️ Tambahkan folder level ini dulu
+          combinedList.add(
+            DriveItemModel(
+              id: item.id ?? 0,
+              parentId: item.parentId,
+              userId: item.userId,
+              parentName: item.parentId == 1 ? 'My Drive' : 'Shared Drive',
+              type: DriveItemType.folder,
+              nama: item.name ?? 'Folder Tanpa Nama',
+              createdAt: item.createdAtAsDate ?? DateTime.now(),
+              isStarred: item.isStarred == 'TRUE',
+              isTrashed: item.isTrashed == 'TRUE',
+              updateAt: item.updatedAtAsDate ?? DateTime.now(),
+              // rekursif untuk isi folder
+              children: _mapApiItemsToUiModel(item),
+            ),
+          );
+        } else if (item is FileItem) {
+          // file tetap sama
+          combinedList.add(
+            DriveItemModel(
+              id: item.id ?? 0,
+              parentId: item.parentId,
+              parentName: item.parentId == 1 ? 'My Drive' : 'Shared Drive',
+              userId: item.userId,
+              type: DriveItemType.file,
+              nama: item.name ?? 'File Tanpa Nama',
+              createdAt: item.createdAtAsDate ?? DateTime.now(),
+              isStarred: item.isStarred == 'TRUE',
+              isTrashed: item.isTrashed == 'TRUE',
+              mimeType: item.mimeType,
+              size: item.size,
+              url: item.urlFile,
+              updateAt: item.updatedAtAsDate ?? DateTime.now(),
+            ),
+          );
+        }
+      }
+      return combinedList;
+    }
+
+    // 3) Kalau input adalah FileItem tunggal
+    if (apiInput is FileItem) {
+      combinedList.add(
+        DriveItemModel(
+          id: apiInput.id ?? 0,
+          parentId: apiInput.parentId,
+          userId: apiInput.userId,
+          parentName: 'cek: drive_home line 613',
+          type: DriveItemType.file,
+          nama: apiInput.name ?? 'File Tanpa Nama',
+          createdAt: apiInput.createdAtAsDate ?? DateTime.now(),
+          isStarred: apiInput.isStarred == 'TRUE',
+          isTrashed: apiInput.isTrashed == 'TRUE',
+          mimeType: apiInput.mimeType,
+          size: apiInput.size,
+          url: apiInput.urlFile,
+          updateAt: apiInput.updatedAtAsDate ?? DateTime.now(),
+        ),
+      );
+      return combinedList;
+    }
+
+    // default: kembalikan list kosong kalau tidak dikenali
+    return combinedList;
+  }
+
+  List<DriveItemModel> getFilteredAndSortedFolders(
+    List<DriveItemModel> sourceFolders,
+  ) {
+    // 🔍 Filter berdasarkan pencarian
+    final filtered = sourceFolders
+        .where((f) => f.nama.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    // 🔢 Urutkan berdasarkan currentSortBy & currentSortOrder
+    int compare<T extends Comparable>(T a, T b) {
+      // Fungsi bantu agar bisa balik urutan jika desc
+      return currentSortOrder == SortOrder.desc
+          ? b.compareTo(a)
+          : a.compareTo(b);
+    }
+
+    switch (currentSortBy) {
+      case SortBy.name:
+        filtered.sort(
+          (a, b) => compare(a.nama.toLowerCase(), b.nama.toLowerCase()),
+        );
+        break;
+
+      case SortBy.modifiedDate:
+        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        break;
+
+      case SortBy.modifiedByMe:
+        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        break;
+
+      case SortBy.openedByMe:
+        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        break;
+    }
+
+    return filtered;
   }
 }
