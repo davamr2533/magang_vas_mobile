@@ -105,7 +105,7 @@ class _TrackVasHistoryState extends State<TrackVasHistory> {
 
 
                     return  Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Container(
                         width: double.infinity,
                         height: 90,

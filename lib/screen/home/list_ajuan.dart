@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
 import 'package:vas_reporting/data/model/response/get_data_response.dart' as GetDataResponse;
 import 'package:vas_reporting/base/base_colors.dart' as baseColors;
+import 'package:vas_reporting/screen/home/home_page.dart';
+import 'package:vas_reporting/tools/routing.dart';
 
 class MyTaskPage extends StatefulWidget {
   const MyTaskPage({super.key});
@@ -70,6 +72,17 @@ Widget build(BuildContext context) {
     },
     child: Scaffold(
       appBar: AppBar(
+
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              routingPage(const HomePage()),
+            ); //Navigasi kembali ke halaman home
+          },
+
+          icon: Icon(Icons.arrow_back_ios_new), color: Colors.black,
+        ),
+
         title: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Text("Task"),
