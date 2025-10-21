@@ -73,7 +73,7 @@ class DetailPage extends StatelessWidget {
             _buildDetailItem("Dibuat", formatDate(item.createdAt)),
             _buildDetailItem(
               "Diubah",
-              "${formatDate(item.updateAt)}${item.userId != null ? ' oleh $item.userId' : ''}",
+              "${formatDate(item.updateAt)}${item.userId != null ? ' oleh ${item.userId}' : ''}",
             ),
             if (item.userId != null) _buildDetailItem("Pemilik", item.userId!),
           ],

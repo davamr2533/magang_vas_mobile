@@ -302,7 +302,7 @@ class DriveItemCard extends StatelessWidget {
                     );
 
                     final directory = await getExternalStorageDirectory(); // Android
-                    final filePath = "${directory!.path}/${item.nama}.${item.mimeType}";
+                    final filePath = "${directory!.path}/${item.nama}";
                     final file = await File(filePath).writeAsBytes(response.bodyBytes);
 
                     ScaffoldMessenger.of(rootContext).showSnackBar(
