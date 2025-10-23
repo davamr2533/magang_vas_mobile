@@ -7,6 +7,7 @@ import 'package:vas_reporting/screen/drive/data/cubit/add_folder_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/add_to_trash_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/delete_drive_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/get_drive_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/starred_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/upload_file_cubit.dart';
 import '../screen/drive/data/cubit/recovery_drive_cubit.dart';
 
@@ -27,6 +28,9 @@ class AppCubit {
       ),
       BlocProvider<AddFolderCubit>(
         create: (BuildContext context) => AddFolderCubit(),
+      ),
+      BlocProvider<StarredCubit>(
+        create: (BuildContext context) => StarredCubit(),
       ),
       BlocProvider<UploadFileCubit>(
         create: (BuildContext context) => UploadFileCubit(),

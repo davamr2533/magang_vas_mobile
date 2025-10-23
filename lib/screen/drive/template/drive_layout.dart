@@ -15,6 +15,10 @@ class DriveGrid extends StatelessWidget {
   const DriveGrid({
     super.key,
     required this.items,
+    required this.userId,
+    required this.token,
+    required this.name,
+    required this.itemId,
     this.isList = false,
     this.onItemTap,
     this.onUpdateChanged
