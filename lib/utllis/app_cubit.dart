@@ -10,6 +10,7 @@ import 'package:vas_reporting/screen/drive/data/cubit/get_drive_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/starred_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/upload_file_cubit.dart';
 import '../screen/drive/data/cubit/recovery_drive_cubit.dart';
+import '../screen/drive/data/cubit/rename_drive_cubit.dart';
 
 class AppCubit {
   Widget initCubit(Widget widget) {
@@ -43,6 +44,9 @@ class AppCubit {
       ),
       BlocProvider<DeleteDriveCubit>(
         create: (BuildContext context) => DeleteDriveCubit(),
+      ),
+      BlocProvider<RenameDriveCubit>(
+        create: (BuildContext context) => RenameDriveCubit(),
       ),
     ], child: widget);
   }

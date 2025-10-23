@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:vas_reporting/screen/drive/data/model/body/rename_drive_body.dart';
 import 'package:vas_reporting/screen/drive/data/model/body/starred_body.dart';
 import 'package:vas_reporting/screen/drive/data/model/body/add_to_trash_body.dart';
 import 'package:vas_reporting/screen/drive/data/model/body/delete_drive_body.dart';
@@ -35,11 +36,10 @@ abstract class DriveService {
       @Part(name: "user_id") String userId,
       );
 
-  // 🆕 Ubah nama file atau folder
-  @POST(basePaths.urlRenameDrive)
+  @PATCH(basePaths.urlRenameDrive)
   Future<HttpResponse> renameItem(
       @Header("Authorization") String token,
-      @Body() Map<String, dynamic> body,
+      @Body() RenameDriveBody body,
       );
 
   // 🆕 Tandai file/folder sebagai berbintang
@@ -53,7 +53,9 @@ abstract class DriveService {
   @POST(basePaths.urlUnstarred)
   Future<HttpResponse> unstarItem(
       @Header("Authorization") String token,
-      @Body() Map<String, dynamic> body,
+      @Body() StarredBody body,
+      );
+
   @POST(basePaths.urlTrashed)
   Future<DriveResponse> addToTrash(
       @Header("Authorization") String token,

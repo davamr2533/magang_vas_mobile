@@ -15,14 +15,12 @@ class DriveGrid extends StatelessWidget {
   const DriveGrid({
     super.key,
     required this.items,
-    required this.userId,
-    required this.token,
-    required this.name,
-    required this.itemId,
     this.isList = false,
     this.onItemTap,
     this.onUpdateChanged
   });
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +31,9 @@ class DriveGrid extends StatelessWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
-          // ✅ Gunakan DriveItemCard
+          final bool isFolder = item.type==DriveItemType.folder;
           return DriveItemCard(
-            title: item.nama,
+            title: isFolder ? item.nama : "${item.nama}.${item.mimeType}",
             isList: true,
             isStarred: item.isStarred,
             type: item.type, // <-- Kirim tipenya
@@ -53,9 +51,9 @@ class DriveGrid extends StatelessWidget {
         crossAxisSpacing: 12,
         children: List.generate(items.length, (index) {
           final item = items[index];
-          // ✅ Gunakan DriveItemCard
+          final bool isFolder = item.type==DriveItemType.folder;
           return DriveItemCard(
-            title: item.nama,
+            title: isFolder ? item.nama : "${item.nama}.${item.mimeType}",
             isList: false,
             isStarred: item.isStarred,
             type: item.type, // <-- Kirim tipenya

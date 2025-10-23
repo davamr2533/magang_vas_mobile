@@ -17,6 +17,7 @@ import 'package:vas_reporting/screen/drive/tools/recovery_item.dart';
 import '../../../tools/popup.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../drive_item_model.dart';
+import '../tools/drive_controller.dart';
 
 // =============================================================
 // ============= WIDGET: DRIVE ITEM CARD =======================
@@ -228,156 +229,183 @@ class DriveItemCard extends StatelessWidget {
       ),
       builder: (sheetContext) {
         final popup = PopUpWidget(rootContext);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ============= Header BottomSheet =============
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(headerIcon, color: orangeNewAmikom, size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: GoogleFonts.urbanist(fontSize: 16),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
+        return FutureBuilder<String?>(
+          future: SharedPref.getToken(), // Get the token future here
+          builder: (tokenContext, tokenSnapshot) {
+            if (!tokenSnapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            // ============= Opsi: Ganti Nama (jika belum dihapus) ============
-            if (!item.isTrashed)
-              ListTile(
-                leading: const Icon(
-                  Icons.drive_file_rename_outline,
-                  color: orangeNewAmikom,
-                ),
-                title: Text("Ganti nama", style: GoogleFonts.urbanist()),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-                  final newName = await popup.showTextInputDialog(
-                    title: "Ganti nama",
-                    initialValue: title,
-                  );
-                  if (newName != null && newName.isNotEmpty) {
-                    ScaffoldMessenger.of(rootContext).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "$itemTypeText \"$title\" diganti menjadi \"$newName\"",
-                          style: GoogleFonts.urbanist(),
+            final token = tokenSnapshot.data!;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ============= Header BottomSheet =============
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(headerIcon, color: orangeNewAmikom, size: 28),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.urbanist(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    );
-                  }
-                },
-              ),
-
-            // ============= Opsi: Download (khusus file) ============
-            if (!isFolder)
-              ListTile(
-                leading: const Icon(
-                  Icons.download_outlined,
-                  color: orangeNewAmikom,
-                ),
-                title: Text("Download", style: GoogleFonts.urbanist()),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-
-                  if (item.url == null || item.url!.isEmpty) {
-                    ScaffoldMessenger.of(rootContext).showSnackBar(
-                      const SnackBar(content: Text("File tidak ditemukan")),
-                    );
-                    return;
-                  }
-
-                  try {
-
-                    final response = await http.get(
-                      Uri.parse("$url${item.url!}"),
-                    );
-
-                    final directory = await getExternalStorageDirectory(); // Android
-                    final filePath = "${directory!.path}/${item.nama}";
-                    final file = await File(filePath).writeAsBytes(response.bodyBytes);
-
-                    ScaffoldMessenger.of(rootContext).showSnackBar(
-                      SnackBar(
-                        content: Text("File berhasil disimpan di ${file.path}"),
-                      ),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(rootContext).showSnackBar(
-                      SnackBar(content: Text("Gagal mengunduh file: $e")),
-                    );
-                    print("Gagal mengunduh file: $e");
-                  }
-                },
-              ),
-
-            // ============= Opsi: Tambah ke Berbintang ============
-            if (!item.isTrashed)
-              ListTile(
-                leading: const Icon(Icons.star_border, color: orangeNewAmikom),
-                title: Text(
-                  "Tambahkan ke Berbintang",
-                  style: GoogleFonts.urbanist(),
-                ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  ScaffoldMessenger.of(rootContext).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "$itemTypeText \"$title\" ditambahkan ke Berbintang",
-                        style: GoogleFonts.urbanist(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-            // ============= Opsi: Lihat Detail Informasi ============
-            ListTile(
-              leading: const Icon(Icons.info_outline, color: orangeNewAmikom),
-              title: Text("Detail informasi", style: GoogleFonts.urbanist()),
-              onTap: () {
-                // Debug log informasi item
-                print({
-                  'title': item.nama,
-                  'jenis': itemTypeText,
-                  'ukuran': item.size,
-                  'mimeType': item.mimeType,
-                  'lokasi': parentName,
-                  'dibuat': item.createdAt,
-                  'diubah': item.updateAt,
-                });
-
-                Navigator.pop(sheetContext);
-                Navigator.of(rootContext).push(
-                  DriveRouting(
-                    page: DetailPage(
-                      title: item.nama,
-                      item: item,
-                      lokasi: parentName,
-                      icon: isFolder
-                          ? Icons.folder_rounded
-                          : Icons.description_rounded,
-                    ),
-                    transitionType: RoutingTransitionType.slide,
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+                const Divider(height: 1),
 
-            // ============= Opsi: Hapus / Pulihkan ============
-            _deleteButton(sheetContext, rootContext, item),
+                // ============= Opsi: Ganti Nama (jika belum dihapus) ============
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.drive_file_rename_outline,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text("Ganti nama", style: GoogleFonts.urbanist()),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await renameAction(
+                        rootContext,
+                        token,
+                        item.id,
+                        item.type == DriveItemType.folder ? 'folder' : 'file',
+                        item.nama,
+                      );
+                      onUpdateChanged?.call();
+                    },
+                  ),
 
-            const SizedBox(height: 8),
-          ],
+                // ============= Opsi: Download (khusus file) ============
+                if (!isFolder)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.download_outlined,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text("Download", style: GoogleFonts.urbanist()),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+
+                      if (item.url == null || item.url!.isEmpty) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(content: Text("File tidak ditemukan")),
+                        );
+                        return;
+                      }
+
+                      try {
+                        final response = await http.get(
+                          Uri.parse("$url${item.url!}"),
+                        );
+
+                        final directory =
+                            await getExternalStorageDirectory(); // Android
+                        final filePath = "${directory!.path}/${item.nama}";
+                        final file = await File(
+                          filePath,
+                        ).writeAsBytes(response.bodyBytes);
+
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "File berhasil disimpan di ${file.path}",
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          SnackBar(content: Text("Gagal mengunduh file: $e")),
+                        );
+                        print("Gagal mengunduh file: $e");
+                      }
+                    },
+                  ),
+
+                // ============= Opsi: Tambah ke Berbintang ============
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.star_border,
+                      color: orangeNewAmikom,
+                    ),
+                    title: item.isStarred
+                        ? Text(
+                            "Hapus dari Berbintang",
+                            style: GoogleFonts.urbanist(),
+                          )
+                        : Text(
+                            "Tambahkan ke Berbintang",
+                            style: GoogleFonts.urbanist(),
+                          ),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await toggleStarAction(
+                        rootContext,
+                        token,
+                        item.id,
+                        item.userId!,
+                        item.nama,
+                        !item.isStarred,
+                        item.type == DriveItemType.folder ? 'folder' : 'file',
+                      );
+                      onUpdateChanged?.call();
+                    },
+                  ),
+
+                // ============= Opsi: Lihat Detail Informasi ============
+                ListTile(
+                  leading: const Icon(
+                    Icons.info_outline,
+                    color: orangeNewAmikom,
+                  ),
+                  title: Text(
+                    "Detail informasi",
+                    style: GoogleFonts.urbanist(),
+                  ),
+                  onTap: () {
+                    // Debug log informasi item
+                    print({
+                      'title': item.nama,
+                      'jenis': itemTypeText,
+                      'ukuran': item.size,
+                      'mimeType': item.mimeType,
+                      'lokasi': parentName,
+                      'dibuat': item.createdAt,
+                      'diubah': item.updateAt,
+                    });
+
+                    Navigator.pop(sheetContext);
+                    Navigator.of(rootContext).push(
+                      DriveRouting(
+                        page: DetailPage(
+                          title: isFolder
+                              ? item.nama
+                              : "${item.nama}.${item.mimeType}",
+                          item: item,
+                          lokasi: parentName,
+                          icon: isFolder
+                              ? Icons.folder_rounded
+                              : Icons.description_rounded,
+                        ),
+                        transitionType: RoutingTransitionType.slide,
+                      ),
+                    );
+                  },
+                ),
+
+                // ============= Opsi: Hapus / Pulihkan ============
+                _deleteButton(sheetContext, rootContext, item, token),
+
+                const SizedBox(height: 8),
+              ],
+            );
+          },
         );
       },
     );
@@ -392,78 +420,69 @@ class DriveItemCard extends StatelessWidget {
     BuildContext sheetContext,
     BuildContext rootContext,
     DriveItemModel item,
+    String token, // Add token parameter here
   ) {
-    return FutureBuilder<String?>(
-      future: SharedPref.getToken(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox();
-        final token = snapshot.data!;
-
-        if (!item.isTrashed) {
-          // ============= Tombol: Hapus (pindah ke Trash) ============
-          return ListTile(
-            leading: const Icon(Icons.delete_outline, color: orangeNewAmikom),
-            title: Text("Hapus", style: GoogleFonts.urbanist()),
+    // Remove the FutureBuilder from here since we're now passing the token directly
+    if (!item.isTrashed) {
+      // ============= Tombol: Hapus (pindah ke Trash) ============
+      return ListTile(
+        leading: const Icon(Icons.delete_outline, color: orangeNewAmikom),
+        title: Text("Hapus", style: GoogleFonts.urbanist()),
+        onTap: () async {
+          Navigator.pop(sheetContext);
+          await addToTrash(
+            rootContext,
+            token,
+            item.id,
+            item.nama,
+            item.userId!,
+            item.type,
+          );
+          onUpdateChanged?.call();
+        },
+      );
+    } else {
+      // ============= Tombol: Pulihkan dan Hapus Permanen ============
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Pulihkan item dari Trash
+          ListTile(
+            leading: const Icon(Icons.restore_outlined, color: orangeNewAmikom),
+            title: Text("Pulihkan", style: GoogleFonts.urbanist()),
             onTap: () async {
               Navigator.pop(sheetContext);
-              await addToTrash(
+              await recoveryDrive(
                 rootContext,
                 token,
                 item.id,
                 item.nama,
-                item.userId!,
                 item.type,
               );
               onUpdateChanged?.call();
             },
-          );
-        } else {
-          // ============= Tombol: Pulihkan dan Hapus Permanen ============
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Pulihkan item dari Trash
-              ListTile(
-                leading: const Icon(
-                  Icons.restore_outlined,
-                  color: orangeNewAmikom,
-                ),
-                title: Text("Pulihkan", style: GoogleFonts.urbanist()),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-                  await recoveryDrive(
-                    rootContext,
-                    token,
-                    item.id,
-                    item.nama,
-                    item.type,
-                  );
-                  onUpdateChanged?.call();
-                },
-              ),
-              // Hapus permanen
-              ListTile(
-                leading: const Icon(
-                  Icons.delete_forever_outlined,
-                  color: orangeNewAmikom,
-                ),
-                title: Text("Hapus Permanen", style: GoogleFonts.urbanist()),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-                  await deleteDrive(
-                    rootContext,
-                    token,
-                    item.id,
-                    item.nama,
-                    item.type,
-                  );
-                  onUpdateChanged?.call();
-                },
-              ),
-            ],
-          );
-        }
-      },
-    );
+          ),
+          // Hapus permanen
+          ListTile(
+            leading: const Icon(
+              Icons.delete_forever_outlined,
+              color: orangeNewAmikom,
+            ),
+            title: Text("Hapus Permanen", style: GoogleFonts.urbanist()),
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await deleteDrive(
+                rootContext,
+                token,
+                item.id,
+                item.nama,
+                item.type,
+              );
+              onUpdateChanged?.call();
+            },
+          ),
+        ],
+      );
+    }
   }
 }

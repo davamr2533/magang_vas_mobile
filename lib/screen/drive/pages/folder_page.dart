@@ -137,12 +137,7 @@ class FolderPageState extends State<FolderPage>
   // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
-    if (token == null || userId == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+
 
     // Kalau sudah siap, lanjut render konten
     final items = getFilteredAndSortedFolders(currentItems);
@@ -245,7 +240,7 @@ class FolderPageState extends State<FolderPage>
             onItemTap: (tapped) {
               pushFolder(tapped);
             },
-            onUpdateChanged: widget.onUpdateChanged,
+
           ),
         ),
       ],
