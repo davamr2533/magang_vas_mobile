@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update tambah berbintang" />
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update tambah berbintang">
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/rename_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/rename_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/starred_cubit.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/starred_state.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/rename_body.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/starred_body.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/service/drive_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/service/drive_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/drive_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_layout.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/folder_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/folder_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utllis/app_cubit.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -68,6 +84,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/screen/drive/tools" />
       <recent name="D:\vas-mobile\lib\screen\task_track\task_track_vas\track_vas_widget" />
       <recent name="D:\vas-mobile\lib\screen\UjicobaApiBaru\cubit" />
     </key>
@@ -207,7 +224,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760583221143</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="update tambah berbintang">
+      <option name="closed" value="true" />
+      <created>1760583661303</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1760583661303</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

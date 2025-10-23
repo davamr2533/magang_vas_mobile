@@ -31,6 +31,7 @@ class _DriveHomeState extends State<DriveHome>
   String query = "";
   int _selectedIndex = 0;
   String? token;
+  String? userId;
 
   late TabController _tabController;
   int parentId = 1; // Default ke My Drive
@@ -55,6 +56,7 @@ class _DriveHomeState extends State<DriveHome>
 
   Future<void> fetchData() async {
     token = await SharedPref.getToken();
+    userId = await SharedPref.getUsername();
     if (!mounted) return;
     await getDriveData.getDriveData(token: 'Bearer $token');
     if (!mounted) return;
@@ -117,12 +119,15 @@ class _DriveHomeState extends State<DriveHome>
   Widget buildDriveGrid(List<FolderModel> items) {
     return DriveGrid(
       items: items.map((f) => f.namaFolder).toList(),
+      token: token!,
+      userId: userId!,
+      itemId: items.map((f) => f.id).toList(),
       isList: currentView == ViewOption.list,
       isStarred: items.map((f) => f.isStarred).toList(),
       onFolderTap: (folderName) {
         final tapped = items.firstWhere((f) => f.namaFolder == folderName);
         _navigateToFolder(tapped);
-      },
+      }, name: ,
     );
   }
 

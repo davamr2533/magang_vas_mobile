@@ -41,6 +41,10 @@ class FolderPageState extends State<FolderPage>
   late final AnimationController _controller;
   late final Animation<Offset> _slideAnimation;
 
+  String? token;
+  String? userId;
+  bool? name;
+
   // ----------------- Lifecycle -----------------
   @override
   void initState() {
@@ -57,9 +61,14 @@ class FolderPageState extends State<FolderPage>
       begin: const Offset(1, 0),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-
+    fetchData();
   }
 
+  Future<void> fetchData() async {
+    token = await SharedPref.getToken();
+    userId = await SharedPref.getUsername();
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
@@ -142,6 +151,14 @@ class FolderPageState extends State<FolderPage>
   // ----------------- UI -----------------
   @override
   Widget build(BuildContext context) {
+    if (token == null || userId == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Kalau sudah siap, lanjut render konten
     final items = getFilteredAndSortedFolders(currentItems);
 
     return PopScope(
@@ -193,7 +210,6 @@ class FolderPageState extends State<FolderPage>
                 parentId: currentFolder.id,
                 onFolderCreated: () async {
                   setState(() {});
-
                 },
               )
             : null,
@@ -247,6 +263,9 @@ class FolderPageState extends State<FolderPage>
                 )
               : DriveGrid(
                   items: items.map((f) => f.namaFolder).toList(),
+                  token: token!,
+                  userId: userId!,
+                  itemId: items.map((f) => f.id).toList(),
                   isList: currentView == ViewOption.list,
                   isStarred: items.map((f) => f.isStarred).toList(),
                   onFolderTap: (folderName) {

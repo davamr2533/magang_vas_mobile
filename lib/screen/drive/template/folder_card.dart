@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
+import 'package:vas_reporting/screen/drive/tools/drive_controller.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 
@@ -11,13 +12,21 @@ import '../../../tools/popup.dart';
 // Menampilkan folder dalam bentuk card (ListView atau GridView)
 class FolderCard extends StatelessWidget {
   final String title; // nama folder
+  final int itemId;
+  final String token;
+  final String userId;
   final bool isList; // mode tampilan
+  final bool itemName;
   final bool isStarred;
   final void Function(String)? onTap; // callback klik folder
 
   const FolderCard({
     super.key,
     required this.title,
+    required this.itemId,
+    required this.userId,
+    required this.token,
+    required this.itemName,
     this.isList = false,
     this.isStarred = false,
     this.onTap,
@@ -46,13 +55,66 @@ class FolderCard extends StatelessWidget {
             highlightColor: Colors.orange.withValues(alpha: 0.2),
             splashFactory: InkRipple.splashFactory,
             onTap: () => onTap?.call(title),
-            child: ListTile(
-              leading: const Icon(Icons.folder, color: orangeNewAmikom),
-              title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: const Text("Folder"),
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showOptions(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // === ICON FOLDER ===
+                  const Icon(
+                    Icons.folder,
+                    color: orangeNewAmikom,
+                    size: 40,
+                  ),
+                  const SizedBox(width: 12),
+
+                  // === TEKS BAGIAN TENGAH ===
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Nama folder
+                        Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        // bintang + Tanggal + ukuran
+                        Row(
+                          children: [
+                            if (isStarred)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 2),
+                                child: Icon(
+                                  Icons.star,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            Text(
+                              "15 Sep 2025 | 2.4 GB", // harusnya diisi "$date | $size",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // === TITIK TIGA ===
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 22),
+                    onPressed: () => _showOptions(context),
+                  ),
+                ],
               ),
             ),
           ),
@@ -104,17 +166,26 @@ class FolderCard extends StatelessWidget {
 
                 // <<====== ICON FOLDER ======>>
                 Flexible(
-                  child: isStarred
-                      ? const Icon(
-                          Icons.folder_special,
-                          size: 100,
-                          color: orangeNewAmikom,
-                        )
-                      : const Icon(
-                          Icons.folder,
-                          size: 100,
-                          color: orangeNewAmikom,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(
+                        Icons.folder,
+                        size: 100,
+                        color: orangeNewAmikom,
+                      ),
+                      if (isStarred)
+                        const Positioned(
+                          right: 15, // posisi bintang di kanan
+                          bottom: 22, // bisa disesuaikan
+                          child: Icon(
+                            Icons.star,
+                            size: 15, // <<< ubah ukuran bintang di sini
+                            color: Colors.white, // warna bintang),
+                          ),
                         ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -185,23 +256,20 @@ class FolderCard extends StatelessWidget {
 
             // <<====== OPSI: Tambah ke Berbintang ======>>
             ListTile(
-              leading: const Icon(Icons.star_border, color: orangeNewAmikom),
+              leading: Icon(
+                isStarred ? Icons.star : Icons.star_border,
+                color: isStarred ? Colors.amber : orangeNewAmikom,
+              ),
               title: Text(
-                "Tambahkan ke Berbintang",
+                isStarred ? "Hapus dari Berbintang" : "Tambahkan ke Berbintang",
                 style: GoogleFonts.urbanist(),
               ),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                ScaffoldMessenger.of(rootContext).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Folder \"$title\" ditambahkan ke Berbintang",
-                      style: GoogleFonts.urbanist(),
-                    ),
-                  ),
-                );
+              onTap: () async {
+                await toggleStarAction(context, token, itemId, userId, isStarred as String, itemName);
+                Navigator.pop(context); // tutup popup
               },
             ),
+
 
             // <<====== OPSI: Detail Informasi ======>>
             ListTile(
