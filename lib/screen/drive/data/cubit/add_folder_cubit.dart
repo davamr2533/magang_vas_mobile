@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/screen/drive/data/model/body/add_folder_body.dart';
-import '../model/response/add_folder_response.dart';
+import '../model/response/drive_response.dart';
 import '../repository/drive_repository.dart';
 
 part 'add_folder_state.dart';

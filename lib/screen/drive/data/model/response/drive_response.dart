@@ -1,15 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'add_folder_response.g.dart';
+part 'drive_response.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-class AddFolderResponse {
+class DriveResponse {
   String? status;
   String? message;
 
-  AddFolderResponse({this.status, this.message});
+  DriveResponse({this.status, this.message});
 
-  AddFolderResponse.fromJson(Map<String, dynamic> json) {
+  DriveResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
   }

@@ -39,10 +39,10 @@ dependencies:
   google_fonts: ^4.0.4                      # Untuk google fonts
   path_provider: ^2.1.1                     # untuk koneksi ke internet
   dio: ^5.3.4                               # untuk menangani permintaan HTTP
-  retrofit_generator: ^8.0.4                # untuk mengubah API HTTP menjadi antarmuka Dart
-  json_annotation: ^4.8.1                   # untuk meningkatkan kinerja penanganan data JSON dalam aplikasi
-  json_serializable: ^6.7.1                 # untuk menyederhanakan proses serialisasi dan deserialisasi data JSON
-  build_runner: ^2.1.4                      # untuk membuat generate kode 
+  retrofit_generator: ^10.0.6               # untuk mengubah API HTTP menjadi antarmuka Dart
+  json_annotation: ^4.9.0                   # untuk meningkatkan kinerja penanganan data JSON dalam aplikasi
+  json_serializable: ^6.11.1                # untuk menyederhanakan proses serialisasi dan deserialisasi data JSON
+  build_runner: ^2.7.1                      # untuk membuat generate kode
   get_it: ^7.6.4                            # untuk penentu lokasi layanan
   equatable: ^2.0.5                         # untuk menentukan apakah dua objek atau instance sama
   flutter_iconly: ^1.0.1                    # untuk icon
@@ -52,11 +52,13 @@ dependencies:
   tbib_splash_screen: ^1.0.0                # untuk views splash screen
   flutter_spinkit: ^5.2.0                   # untuk untuk membuat indikator pemuatan animasi
   percent_indicator: ^3.4.0                 # untuk membuat indikator persentase di task tracker
-  file_picker: ^8.0.0                       # untuk upload file
+  file_picker: ^10.3.3                      # untuk upload file
   animations: ^2.0.11                       # untuk SharedAxisTransition
   bloc: ^9.0.0
   mocktail: ^1.0.3
   bloc_test: ^10.0.0
+  open_filex: ^4.0.2
+  file_selector: ^0.9.0
 
 dev_dependencies:
   flutter_test:

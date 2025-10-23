@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
-import '../folder_model.dart';
+import '../drive_home.dart';
+import '../drive_item_model.dart';
 import '../pages/folder_page.dart';
 import '../template/sort_and_layout_option.dart';
 
 class TabPageWrapper extends StatefulWidget {
-  final FolderModel rootFolder;
+  final DriveItemModel rootFolder;
   final ViewOption initialView;
   final VoidCallback onRootPop;
 

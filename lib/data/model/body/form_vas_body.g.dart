@@ -7,21 +7,21 @@ part of 'form_vas_body.dart';
 // **************************************************************************
 
 FormVasBody _$FormVasBodyFromJson(Map<String, dynamic> json) => FormVasBody(
-      status: json['status'] as String?,
-      nomor: json['nomor'] as String?,
-      pengerjaan: json['pengerjaan'] as String?,
-      diterimaOleh: json['diterima_oleh'] as String?,
-      disetujuiOleh: json['disetujui_oleh'] as String?,
-      catatan: json['catatan'] as String?,
-      wawancara: json['wawancara'] as String?,
-      konfirmasiDesain: json['konfirmasi_desain'] as String?,
-      perancanganDatabase: json['perancangan_database'] as String?,
-      pengembanganSoftware: json['pengembangan_software'] as String?,
-      debugging: json['debugging'] as String?,
-      testing: json['testing'] as String?,
-      trial: json['trial'] as String?,
-      production: json['production'] as String?,
-    );
+  status: json['status'] as String?,
+  nomor: json['nomor'] as String?,
+  pengerjaan: json['pengerjaan'] as String?,
+  diterimaOleh: json['diterima_oleh'] as String?,
+  disetujuiOleh: json['disetujui_oleh'] as String?,
+  catatan: json['catatan'] as String?,
+  wawancara: json['wawancara'] as String?,
+  konfirmasiDesain: json['konfirmasi_desain'] as String?,
+  perancanganDatabase: json['perancangan_database'] as String?,
+  pengembanganSoftware: json['pengembangan_software'] as String?,
+  debugging: json['debugging'] as String?,
+  testing: json['testing'] as String?,
+  trial: json['trial'] as String?,
+  production: json['production'] as String?,
+);
 
 Map<String, dynamic> _$FormVasBodyToJson(FormVasBody instance) =>
     <String, dynamic>{

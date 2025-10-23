@@ -1,32 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:vas_reporting/screen/drive/drive_item_model.dart';
 
 class DetailPage extends StatelessWidget {
-  final String title; // Judul file/folder
-  final String jenis; // Jenis file (PDF, Folder, dll)
-  final String lokasi; // Lokasi penyimpanan
-  final String? ukuran; // Ukuran file (opsional)
-  final String dibuat; // Tanggal dibuat
-  final String diubah; // Tanggal terakhir diubah
-  final IconData icon; // Ikon file/folder
+  // =========== Deklarasi properti yang dibutuhkan ===========
+  final String title;
+  final String lokasi;
+  final DriveItemModel item;
+  final IconData icon;
 
   const DetailPage({
     super.key,
-    required this.title,
-    required this.jenis,
     required this.lokasi,
-    this.ukuran,
-    required this.dibuat,
-    required this.diubah,
-    required this.icon,
+    required this.title,
+    required this.item,
+    required this.icon
   });
 
+  // =========== Fungsi untuk memformat tanggal agar lebih mudah dibaca ===========
+  String formatDate(DateTime date) {
+    try {
+      return DateFormat('d MMM yyyy, HH:mm', 'id_ID').format(date);
+    } catch (_) {
+      return DateFormat('d MMM yyyy, HH:mm').format(date);
+    }
+  }
+
+  // =========== Membangun tampilan utama halaman detail ===========
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F3F6), // warna pink muda
+      backgroundColor: const Color(0xFFF9F3F6), // Warna dasar halaman (pink muda)
 
+      // =========== AppBar bagian atas ===========
       appBar: AppBar(
-        title: Text(title),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -37,6 +48,7 @@ class DetailPage extends StatelessWidget {
         ),
       ),
 
+      // =========== Bagian isi konten ===========
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -44,39 +56,70 @@ class DetailPage extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
 
+            // =========== Icon utama file/folder ===========
             Icon(icon, size: 100, color: Colors.redAccent),
 
             const SizedBox(height: 24),
 
+            // =========== Garis pemisah ===========
             Container(height: 2, color: Colors.red.shade100),
 
             const SizedBox(height: 24),
 
-            _buildRow("Jenis", jenis),
-            _buildRow("Lokasi", lokasi),
-            if (ukuran != null) _buildRow("Ukuran", ukuran!),
-            _buildRow("Dibuat", dibuat),
-            _buildRow("Diubah", diubah),
+            // =========== Rincian informasi detail ===========
+            _buildDetailItem("Jenis", item.mimeType ?? 'Folder'),
+            _buildDetailItem("Lokasi", lokasi, icon: Icons.folder_rounded),
+            if (item.size != null) _buildDetailItem("Ukuran", item.size!),
+            _buildDetailItem("Dibuat", formatDate(item.createdAt)),
+            _buildDetailItem(
+              "Diubah",
+              "${formatDate(item.updateAt)}${item.userId != null ? ' oleh $item.userId' : ''}",
+            ),
+            if (item.userId != null) _buildDetailItem("Pemilik", item.userId!),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRow(String title, String value) {
+  // =========== Widget builder untuk menampilkan setiap baris detail ===========
+  Widget _buildDetailItem(String title, String value, {IconData? icon}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+          // Label judul seperti "Jenis", "Ukuran", dll.
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+              color: Colors.black87,
             ),
           ),
-          Expanded(child: Text(value)),
+
+          const SizedBox(height: 4),
+
+          // Nilai atau isi dari label di atas
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 16, color: Colors.black54),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -7,11 +7,7 @@ part of 'get_data_vas_body.dart';
 // **************************************************************************
 
 GetDataVasBody _$GetDataVasBodyFromJson(Map<String, dynamic> json) =>
-    GetDataVasBody(
-      nomorAjuan: json['nomor_ajuan'] as String?,
-    );
+    GetDataVasBody(nomorAjuan: json['nomor_ajuan'] as String?);
 
 Map<String, dynamic> _$GetDataVasBodyToJson(GetDataVasBody instance) =>
-    <String, dynamic>{
-      'nomor_ajuan': instance.nomorAjuan,
-    };
+    <String, dynamic>{'nomor_ajuan': instance.nomorAjuan};

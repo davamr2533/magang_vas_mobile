@@ -4,8 +4,12 @@ import 'package:vas_reporting/data/cubit/form/form_cubit.dart';
 import 'package:vas_reporting/data/cubit/get_data/get_data_cubit.dart';
 import 'package:vas_reporting/data/cubit/login/login_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/add_folder_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/add_to_trash_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/delete_drive_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/get_drive_cubit.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/starred_cubit.dart';
+import 'package:vas_reporting/screen/drive/data/cubit/upload_file_cubit.dart';
+import '../screen/drive/data/cubit/recovery_drive_cubit.dart';
 
 class AppCubit {
   Widget initCubit(Widget widget) {
@@ -27,6 +31,18 @@ class AppCubit {
       ),
       BlocProvider<StarredCubit>(
         create: (BuildContext context) => StarredCubit(),
+      ),
+      BlocProvider<UploadFileCubit>(
+        create: (BuildContext context) => UploadFileCubit(),
+      ),
+      BlocProvider<AddToTrashCubit>(
+        create: (BuildContext context) => AddToTrashCubit(),
+      ),
+      BlocProvider<RecoveryDriveCubit>(
+        create: (BuildContext context) => RecoveryDriveCubit(),
+      ),
+      BlocProvider<DeleteDriveCubit>(
+        create: (BuildContext context) => DeleteDriveCubit(),
       ),
     ], child: widget);
   }

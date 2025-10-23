@@ -7,18 +7,18 @@ part of 'form_uji_body.dart';
 // **************************************************************************
 
 FormUjiBody _$FormUjiBodyFromJson(Map<String, dynamic> json) => FormUjiBody(
-      status: json['status'] as String?,
-      nomor: json['nomor'] as String?,
-      perangkatLunak: json['perangkat_lunak'] as String?,
-      versi: json['versi'] as String?,
-      tujuan: json['tujuan'] as String?,
-      metode: json['metode'] as String?,
-      namaUji: json['nama_uji'] as String?,
-      kasusUji: json['kasus_uji'] as String?,
-      hasilHarapan: json['hasil_harapan'] as String?,
-      hasilUji: json['hasil_uji'] as String?,
-      keterangan: json['keterangan'] as String?,
-    );
+  status: json['status'] as String?,
+  nomor: json['nomor'] as String?,
+  perangkatLunak: json['perangkat_lunak'] as String?,
+  versi: json['versi'] as String?,
+  tujuan: json['tujuan'] as String?,
+  metode: json['metode'] as String?,
+  namaUji: json['nama_uji'] as String?,
+  kasusUji: json['kasus_uji'] as String?,
+  hasilHarapan: json['hasil_harapan'] as String?,
+  hasilUji: json['hasil_uji'] as String?,
+  keterangan: json['keterangan'] as String?,
+);
 
 Map<String, dynamic> _$FormUjiBodyToJson(FormUjiBody instance) =>
     <String, dynamic>{

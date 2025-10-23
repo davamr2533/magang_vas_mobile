@@ -103,6 +103,15 @@ extension FolderItemExtension on FolderItem {
       return null;
     }
   }
+
+  DateTime? get updatedAtAsDate {
+    if (updatedAt == null) return null;
+    try {
+      return DateTime.parse(updatedAt!);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 extension FileItemExtension on FileItem {
@@ -117,6 +126,15 @@ extension FileItemExtension on FileItem {
     if (createdAt == null) return null;
     try {
       return DateTime.parse(createdAt!);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  DateTime? get updatedAtAsDate {
+    if (updatedAt == null) return null;
+    try {
+      return DateTime.parse(updatedAt!);
     } catch (_) {
       return null;
     }

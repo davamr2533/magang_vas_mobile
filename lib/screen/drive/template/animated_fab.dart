@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
+import 'package:vas_reporting/screen/drive/data/service/base_paths.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../data/cubit/get_drive_cubit.dart';
 import '../tools/create_folder.dart';
+import '../tools/upload_file.dart';
 
+// ============= Widget FAB Animasi dengan Menu Upload & Folder ============
 class AnimatedFabMenu extends StatefulWidget {
   final int parentId;
-  final VoidCallback? onFolderCreated; // ✅ callback untuk refresh di DriveHome
+  final VoidCallback? onFolderCreated; // callback agar DriveHome bisa refresh
 
   const AnimatedFabMenu({
     super.key,
@@ -20,10 +23,11 @@ class AnimatedFabMenu extends StatefulWidget {
   State<AnimatedFabMenu> createState() => _AnimatedFabMenuState();
 }
 
+// ============= State Class untuk Animasi dan Aksi FAB ============
 class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     with SingleTickerProviderStateMixin {
-  bool isOpen = false;
-  late AnimationController _controller;
+  bool isOpen = false; // status apakah menu terbuka
+  late AnimationController _controller; // controller animasi FAB
   String? token;
   String? userId;
   late int parentId;
@@ -31,14 +35,17 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
   @override
   void initState() {
     super.initState();
-    parentId = widget.parentId;
+    // ============= Inisialisasi animasi ============
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
+
+    // ============= Ambil data user/token dari SharedPref ============
     fetchData();
   }
 
+  // ============= Ambil token dan userId secara async ============
   void fetchData() async {
     token = await SharedPref.getToken();
     userId = await SharedPref.getUsername();
@@ -51,31 +58,57 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     super.dispose();
   }
 
+  // ============= Fungsi untuk buka/tutup menu FAB ============
   void _toggleMenu() {
     setState(() {
       isOpen = !isOpen;
       if (isOpen) {
-        _controller.forward();
+        _controller.forward(); // buka animasi
       } else {
-        _controller.reverse();
+        _controller.reverse(); // tutup animasi
       }
     });
   }
 
+  // ============= Bangun UI FAB dan Sub-Menu ============
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        // Tombol Upload File
+        // ============= Tombol Upload File ============
         _buildAnimatedFab(
           offsetY: 140,
           icon: Icons.upload_file,
           label: "Upload",
-          onTap: _pickFile,
+          onTap: () async {
+            if (!mounted || token == null || userId == null) return;
+
+            final success = await uploadNewFile(
+              context,
+              'Bearer $token',
+              widget.parentId,
+              userId!,
+            );
+
+            if (mounted) {
+              // refresh data drive setelah upload
+              final driveCubit = context.read<DriveCubit>();
+              await driveCubit.getDriveData(token: 'Bearer $token');
+
+              // panggil callback agar DriveHome ikut refresh
+              widget.onFolderCreated?.call();
+
+              // tampilkan notifikasi ke user
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('File berhasil diupload')),
+              );
+              _toggleMenu();
+            }
+          },
         ),
 
-        // Tombol Buat Folder
+        // ============= Tombol Buat Folder ============
         _buildAnimatedFab(
           offsetY: 70,
           icon: Icons.create_new_folder,
@@ -86,27 +119,28 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
             final success = await createNewFolder(
               context,
               'Bearer $token',
-              parentId,
+              widget.parentId,
               userId!,
             );
 
             if (mounted) {
-              // ✅ Refresh Cubit agar data Drive diperbarui
+              // refresh data drive setelah folder dibuat
               final driveCubit = context.read<DriveCubit>();
               await driveCubit.getDriveData(token: 'Bearer $token');
 
-              // ✅ Panggil callback agar DriveHome bisa ikut refresh
+              // panggil callback agar DriveHome ikut refresh
               widget.onFolderCreated?.call();
 
-              // ✅ Feedback visual ke user
+              // tampilkan notifikasi ke user
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Folder berhasil dibuat')),
               );
+              _toggleMenu();
             }
           },
         ),
 
-        // Tombol Utama (+)
+        // ============= Tombol Utama (ikon +) ============
         FloatingActionButton(
           heroTag: "mainFab",
           onPressed: _toggleMenu,
@@ -114,7 +148,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(
               begin: 0,
-              end: isOpen ? 0.125 : 0, // 0.125 = 45°
+              end: isOpen ? 0.125 : 0, // 0.125 = rotasi 45°
             ),
             duration: const Duration(milliseconds: 250),
             builder: (context, angle, child) {
@@ -129,6 +163,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     );
   }
 
+  // ============= Builder untuk FAB dengan animasi geser dan fade ============
   Widget _buildAnimatedFab({
     required double offsetY,
     required IconData icon,
@@ -163,6 +198,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     );
   }
 
+  // ============= Builder untuk tampilan FAB kecil + label teks ============
   Widget _buildFabWithLabel({
     required IconData icon,
     required String label,
@@ -171,6 +207,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Label teks di samping FAB
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           margin: const EdgeInsets.only(right: 8),
@@ -187,6 +224,8 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
           ),
           child: Text(label, style: const TextStyle(fontSize: 14)),
         ),
+
+        // Tombol aksi kecil
         FloatingActionButton(
           heroTag: label,
           backgroundColor: pinkNewAmikom,
@@ -196,17 +235,5 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
         ),
       ],
     );
-  }
-
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-    if (result != null && result.files.isNotEmpty) {
-      final file = result.files.single;
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("File dipilih: ${file.name}")),
-      );
-    }
   }
 }

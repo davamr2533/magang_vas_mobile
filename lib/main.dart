@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
 import 'package:vas_reporting/screen/login_page.dart';
 import 'package:vas_reporting/screen/splash_page.dart';
@@ -15,7 +16,7 @@ import 'utllis/app_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final appCubit = AppCubit();
   bool isLogin = await SharedPref.getToken() == null ? false : true;
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
