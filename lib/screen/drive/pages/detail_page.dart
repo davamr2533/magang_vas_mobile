@@ -68,8 +68,10 @@ class DetailPage extends StatelessWidget {
 
             // =========== Rincian informasi detail ===========
             _buildDetailItem("Jenis", item.mimeType ?? 'Folder'),
-            _buildDetailItem("Lokasi", lokasi, icon: Icons.folder_rounded),
+            if (item.isTrashed) _buildDetailItem("Hapus dari", lokasi, icon: Icons.folder_rounded),
+            if (!item.isTrashed) _buildDetailItem("Lokasi", lokasi, icon: Icons.folder_rounded),
             if (item.size != null) _buildDetailItem("Ukuran", item.size!),
+            if (item.isTrashed) _buildDetailItem("Lokasi", "Sampah", icon: Icons.delete),
             _buildDetailItem("Dibuat", formatDate(item.createdAt)),
             _buildDetailItem(
               "Diubah",

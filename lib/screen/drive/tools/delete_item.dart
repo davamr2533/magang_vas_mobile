@@ -79,8 +79,8 @@ Future<void> deleteDrive(
   final confirm = await popup.showConfirmDialog(
     title: "Hapus Selamanya?",
     message: "Item \"$title\" akan dihapus selamanya. Tindakan ini tidak dapat diurungkan.",
-    confirmText: "Hapus Permanen",
     cancelText: "Batalkan",
+    confirmText: "Hapus Permanen",
   );
 
   if (confirm != true) return; // batal

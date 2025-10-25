@@ -192,254 +192,381 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DriveCubit, DriveState>(
       builder: (context, state) {
-        if (state is DriveInitial || state is DriveLoading) {
-          return Center(child: AppWidget().LoadingWidget());
-        }
-
-        if (state is DriveDataFailure) {
-          return Center(
-            child: Text(
-              'Gagal memuat data: ${state.message}',
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-
-        if (state is DriveDataSuccess) {
-          final apiData = state.driveData.data ?? [];
-
-          // Ambil root "My Drive" dan "Shared Drive"
-          final driveRoot = apiData.firstWhere(
-            (i) => i.name == 'My Drive',
-            orElse: () => FolderItem(),
-          );
-
-          final sharedDriveRoot = apiData.firstWhere(
-            (i) => i.name == 'Shared Drive',
-            orElse: () => FolderItem(),
-          );
-
-          // Ambil semua folder My Drive milik user login
-          final userDriveFolders = (driveRoot.children ?? [])
-              .where(
-                (child) =>
-                    child.userId == username && child.isTrashed == 'FALSE',
-              )
-              .toList();
-
-          // Ambil semua file My Drive milik user login (bisa di root)
-          final userDriveFiles = (driveRoot.files ?? [])
-              .where(
-                (file) => file.userId == username && file.isTrashed == 'FALSE',
-              )
-              .toList();
-
-          // Kalau userDriveFolders kosong, berarti user belum punya folder khusus
-          // Maka tetap ambil file yang sesuai user
-          final allMyDriveItems = [...userDriveFolders, ...userDriveFiles];
-          print('DEBUG username = "$username"');
-          for (var c in (driveRoot.children ?? [])) {
-            print('child ${c.name} -> userId: "${c.userId}"');
-          }
-
-          // Set ID root
-          myDriveRootId = driveRoot.id ?? 1;
-          sharedDriveRootId = sharedDriveRoot.id ?? 2;
-          parentId ??= myDriveRootId;
-
-          // --- Shared Drive tetap ambil semua---
-          final sharedFolders = (sharedDriveRoot.children ?? [])
-              .where((child) => child.isTrashed == 'FALSE')
-              .toList();
-          final sharedFiles = (sharedDriveRoot.files ?? [])
-              .where((file) => file.isTrashed == 'FALSE')
-              .toList();
-
-          final allSharedDriveItems = [...sharedFolders, ...sharedFiles];
-
-          // --- Mapping ke model UI ---
-          final myDriveItems = _mapApiItemsToUiModel(allMyDriveItems);
-          final sharedDriveItems = _mapApiItemsToUiModel(allSharedDriveItems);
-
-          //-----------------------------------------DEBUG---------------------------------------------
-          final files = myDriveItems.where(
-            (item) => item.type == DriveItemType.file,
-          );
-          final folders = myDriveItems.where(
-            (item) => item.type == DriveItemType.folder,
-          );
-
-          print(
-            "======================DEBUG-FILE-MY-DRIVE======================================",
-          );
-          for (var file in files) {
-            // Warna menggunakan ANSI escape code
-            const red = '\x1B[31m';
-            const green = '\x1B[32m';
-            const yellow = '\x1B[33m';
-            const blue = '\x1B[34m';
-            const magenta = '\x1B[35m';
-            const cyan = '\x1B[36m';
-            const reset = '\x1B[0m'; // reset warna ke default
-
-            print(
-              '${green}FILE${reset} parent: ${file.parentId}, '
-              '${cyan}Nama:${reset} ${file.nama} (${file.id}), '
-              '${yellow}Ukuran:${reset} ${file.size}, '
-              '${yellow}Waktu:${reset} ${file.updateAt}, '
-              '${magenta}Tipe:${reset} ${file.mimeType}',
-            );
-          }
-
-          print(
-            "======================END-DEBUG-FILE-MY-DRIVE======================================",
-          );
-          print(
-            "======================DEBUG-FOLDER======================================",
-          );
-          for (var folder in folders) {
-            print(
-              'FOLDER parent : ${folder.parentId}, Folder: ${folder.nama} (${folder.id}) , waktu: ${folder.createdAt}, username: ${folder.userId}',
-            );
-          }
-          print(
-            "======================END-DEBUG-FOLDER======================================",
-          );
-          //--------------------------------------END-DEBUG-------------------------------------
-
-          final myFolders = driveRoot.children ?? [];
-          final myFiles = driveRoot.files ?? [];
-
-          final allSharedFolders = sharedDriveRoot.children ?? [];
-          final allSharedFiles = sharedDriveRoot.files ?? [];
-
-          final myItems = [...myFolders, ...myFiles];
-          final sharedItems = [...allSharedFolders, ...allSharedFiles];
-
-          final allMyDriveItem = _mapApiItemsToUiModel(myItems);
-          final allSharedItem = _mapApiItemsToUiModel(sharedItems);
-
-          // --- Gabungkan semua drive ---
-          final allFolders = [...allMyDriveItem, ...allSharedItem];
-
-          // --- Dapatkan semua item rekursif ---
-          final allItems = _getAllItemsRecursive(allFolders);
-
-          // --- Urutkan berdasarkan tanggal terbaru ---
-          allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-          final recentFolder = DriveItemModel(
-            id: -1,
-            nama: "Berkas Terbaru",
-            createdAt: DateTime.now(),
-            updateAt: DateTime.now(),
-            children: allItems
-                .where(
-                  (f) => f.isTrashed == false && f.type == DriveItemType.file,
-                )
-                .toList(),
-            type: DriveItemType.folder,
-            isSpecial: true,
-          );
-
-          final starredFolder = DriveItemModel(
-            id: -2,
-            nama: "Berbintang",
-            createdAt: DateTime.now(),
-            updateAt: DateTime.now(),
-            children: allItems
-                .where(
-                  (f) =>
-                      f.isStarred &&
-                      f.userId == username &&
-                      f.isTrashed == false,
-                )
-                .toList(),
-            type: DriveItemType.folder,
-            isSpecial: true,
-          );
-
-          final trashFolder = DriveItemModel(
-            id: -3,
-            nama: "Sampah",
-            createdAt: DateTime.now(),
-            updateAt: DateTime.now(),
-            children: allItems
-                .where((f) => f.isTrashed && f.userId == username)
-                .toList(),
-            type: DriveItemType.folder,
-            isSpecial: true,
-          );
-
-          final pages = [
-            _buildDriveHomePage(myDriveItems, sharedDriveItems),
-            TabPageWrapper(
-              rootFolder: recentFolder,
-              initialView: currentView,
-              onRootPop: () {
-                if (mounted) setState(() => _selectedIndex = 0);
-              },
-            ),
-            TabPageWrapper(
-              rootFolder: starredFolder,
-              initialView: currentView,
-              onRootPop: () {
-                if (mounted) setState(() => _selectedIndex = 0);
-              },
-            ),
-            TabPageWrapper(
-              rootFolder: trashFolder,
-              initialView: currentView,
-              onRootPop: () {
-                if (mounted) setState(() => _selectedIndex = 0);
-              },
-            ),
-          ];
-
-          return Scaffold(
-            body: IndexedStack(index: _selectedIndex, children: pages),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              backgroundColor: mistyRoseNewAmikom,
-              selectedItemColor: orangeNewAmikom,
-              type: BottomNavigationBarType.fixed,
-              unselectedItemColor: Colors.black54,
-              selectedLabelStyle: GoogleFonts.urbanist(
-                fontWeight: FontWeight.bold,
-              ),
-              unselectedLabelStyle: GoogleFonts.urbanist(),
-              onTap: (index) {
-                if (mounted) setState(() => _selectedIndex = index);
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  label: "Drive Home",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.access_time),
-                  label: "Terbaru",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.star_border),
-                  label: "Berbintang",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.delete_outline),
-                  label: "Sampah",
-                ),
-              ],
-            ),
-          );
-        }
-
-        return const Scaffold(body: Center(child: Text("State tidak valid")));
+        // Scaffold utama dengan bottom navigation
+        return Scaffold(
+          body: IndexedStack(
+            index: _selectedIndex,
+            children: [
+              // Halaman Drive Home (index 0)
+              _buildDriveHomeContent(state),
+              // Halaman lainnya
+              _buildRecentPage(state),
+              _buildStarredPage(state),
+              _buildTrashPage(state),
+            ],
+          ),
+          bottomNavigationBar: _buildBottomNavigationBar(),
+        );
       },
+    );
+  }
+
+  // Method untuk Drive Home
+  Widget _buildDriveHomeContent(DriveState state) {
+    if (state is DriveInitial || state is DriveLoading) {
+      return _buildDriveHomeWithLoading();
+    }
+
+    if (state is DriveDataFailure) {
+      return _buildDriveHomeWithError(state.message);
+    }
+
+    if (state is DriveDataSuccess) {
+      final apiData = state.driveData.data ?? [];
+
+      // Ambil root "My Drive" dan "Shared Drive"
+      final driveRoot = apiData.firstWhere(
+        (i) => i.name == 'My Drive',
+        orElse: () => FolderItem(),
+      );
+
+      final sharedDriveRoot = apiData.firstWhere(
+        (i) => i.name == 'Shared Drive',
+        orElse: () => FolderItem(),
+      );
+
+      // Ambil semua folder My Drive milik user login
+      final userDriveFolders = (driveRoot.children ?? [])
+          .where(
+            (child) => child.userId == username && child.isTrashed == 'FALSE',
+          )
+          .toList();
+
+      // Ambil semua file My Drive milik user login (bisa di root)
+      final userDriveFiles = (driveRoot.files ?? [])
+          .where((file) => file.userId == username && file.isTrashed == 'FALSE')
+          .toList();
+
+      final allMyDriveItems = [...userDriveFolders, ...userDriveFiles];
+
+      // Set ID root
+      myDriveRootId = driveRoot.id ?? 1;
+      sharedDriveRootId = sharedDriveRoot.id ?? 2;
+      parentId ??= myDriveRootId;
+
+      // Shared Drive
+      final sharedFolders = (sharedDriveRoot.children ?? [])
+          .where((child) => child.isTrashed == 'FALSE')
+          .toList();
+      final sharedFiles = (sharedDriveRoot.files ?? [])
+          .where((file) => file.isTrashed == 'FALSE')
+          .toList();
+      final allSharedDriveItems = [...sharedFolders, ...sharedFiles];
+
+      // Mapping ke model UI
+      final myDriveItems = _mapApiItemsToUiModel(allMyDriveItems);
+      final sharedDriveItems = _mapApiItemsToUiModel(allSharedDriveItems);
+
+      return _buildDriveHomePage(myDriveItems, sharedDriveItems);
+    }
+
+    return _buildDriveHomeWithError("State tidak valid");
+  }
+
+  // Method untuk halaman Recent
+  Widget _buildRecentPage(DriveState state) {
+    if (state is DriveDataSuccess) {
+      final recentFolder = _createRecentFolder(state);
+      return TabPageWrapper(
+        rootFolder: recentFolder,
+        initialView: currentView,
+        onRootPop: () {
+          if (mounted) setState(() => _selectedIndex = 0);
+        },
+      );
+    }
+    return _buildGenericLoadingPage("Terbaru");
+  }
+
+  // Method untuk halaman Starred
+  Widget _buildStarredPage(DriveState state) {
+    if (state is DriveDataSuccess) {
+      final starredFolder = _createStarredFolder(state);
+      return TabPageWrapper(
+        rootFolder: starredFolder,
+        initialView: currentView,
+        onRootPop: () {
+          if (mounted) setState(() => _selectedIndex = 0);
+        },
+      );
+    }
+    return _buildGenericLoadingPage("Berbintang");
+  }
+
+  // Method untuk halaman Trash
+  Widget _buildTrashPage(DriveState state) {
+    if (state is DriveDataSuccess) {
+      final trashFolder = _createTrashFolder(state);
+      return TabPageWrapper(
+        rootFolder: trashFolder,
+        initialView: currentView,
+        onRootPop: () {
+          if (mounted) setState(() => _selectedIndex = 0);
+        },
+      );
+    }
+    return _buildGenericLoadingPage("Sampah");
+  }
+
+  // Helper methods untuk membuat special folders
+  DriveItemModel _createRecentFolder(DriveDataSuccess state) {
+    final apiData = state.driveData.data ?? [];
+
+    final driveRoot = apiData.firstWhere(
+      (i) => i.name == 'My Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final sharedDriveRoot = apiData.firstWhere(
+      (i) => i.name == 'Shared Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final myFolders = driveRoot.children ?? [];
+    final myFiles = driveRoot.files ?? [];
+    final allSharedFolders = sharedDriveRoot.children ?? [];
+    final allSharedFiles = sharedDriveRoot.files ?? [];
+
+    final myItems = [...myFolders, ...myFiles];
+    final sharedItems = [...allSharedFolders, ...allSharedFiles];
+
+    final allMyDriveItem = _mapApiItemsToUiModel(myItems);
+    final allSharedItem = _mapApiItemsToUiModel(sharedItems);
+
+    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allItems = _getAllItemsRecursive(allFolders);
+
+    // Urutkan berdasarkan tanggal terbaru
+    allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return DriveItemModel(
+      id: -1,
+      nama: "Berkas Terbaru",
+      createdAt: DateTime.now(),
+      updateAt: DateTime.now(),
+      children: allItems
+          .where((f) => f.isTrashed == false && f.type == DriveItemType.file)
+          .toList(),
+      type: DriveItemType.folder,
+      isSpecial: true,
+    );
+  }
+
+  DriveItemModel _createStarredFolder(DriveDataSuccess state) {
+    final apiData = state.driveData.data ?? [];
+
+    final driveRoot = apiData.firstWhere(
+      (i) => i.name == 'My Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final sharedDriveRoot = apiData.firstWhere(
+      (i) => i.name == 'Shared Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final myFolders = driveRoot.children ?? [];
+    final myFiles = driveRoot.files ?? [];
+    final allSharedFolders = sharedDriveRoot.children ?? [];
+    final allSharedFiles = sharedDriveRoot.files ?? [];
+
+    final myItems = [...myFolders, ...myFiles];
+    final sharedItems = [...allSharedFolders, ...allSharedFiles];
+
+    final allMyDriveItem = _mapApiItemsToUiModel(myItems);
+    final allSharedItem = _mapApiItemsToUiModel(sharedItems);
+
+    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allItems = _getAllItemsRecursive(allFolders);
+
+    return DriveItemModel(
+      id: -2,
+      nama: "Berbintang",
+      createdAt: DateTime.now(),
+      updateAt: DateTime.now(),
+      children: allItems
+          .where(
+            (f) => f.isStarred && f.userId == username && f.isTrashed == false,
+          )
+          .toList(),
+      type: DriveItemType.folder,
+      isSpecial: true,
+    );
+  }
+
+  DriveItemModel _createTrashFolder(DriveDataSuccess state) {
+    final apiData = state.driveData.data ?? [];
+
+    final driveRoot = apiData.firstWhere(
+      (i) => i.name == 'My Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final sharedDriveRoot = apiData.firstWhere(
+      (i) => i.name == 'Shared Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final myFolders = driveRoot.children ?? [];
+    final myFiles = driveRoot.files ?? [];
+    final allSharedFolders = sharedDriveRoot.children ?? [];
+    final allSharedFiles = sharedDriveRoot.files ?? [];
+
+    final myItems = [...myFolders, ...myFiles];
+    final sharedItems = [...allSharedFolders, ...allSharedFiles];
+
+    final allMyDriveItem = _mapApiItemsToUiModel(myItems);
+    final allSharedItem = _mapApiItemsToUiModel(sharedItems);
+
+    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allItems = _getAllItemsRecursive(allFolders);
+
+    return DriveItemModel(
+      id: -3,
+      nama: "Sampah",
+      createdAt: DateTime.now(),
+      updateAt: DateTime.now(),
+      children: allItems
+          .where((f) => f.isTrashed && f.userId == username)
+          .toList(),
+      type: DriveItemType.folder,
+      isSpecial: true,
+    );
+  }
+
+  // Method untuk loading page generic
+  Widget _buildGenericLoadingPage(String pageName) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(pageName),
+        backgroundColor: magnoliaWhiteNewAmikom,
+        foregroundColor: Colors.black,
+      ),
+      body: Center(child: AppWidget().LoadingWidget()),
+    );
+  }
+
+  // Method untuk Drive Home dengan loading
+  Widget _buildDriveHomeWithLoading() {
+    return Scaffold(
+      backgroundColor: magnoliaWhiteNewAmikom,
+      appBar: AppBar(
+        backgroundColor: magnoliaWhiteNewAmikom,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            if (mounted) Navigator.pop(context);
+          },
+        ),
+        title: const CustomSearchBar(),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: orangeNewAmikom,
+          indicatorColor: orangeNewAmikom,
+          unselectedLabelColor: Colors.black,
+          labelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          unselectedLabelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          tabs: const [
+            Tab(text: "My Drive"),
+            Tab(text: "Shared Drive"),
+          ],
+        ),
+      ),
+      body: Center(child: AppWidget().LoadingWidget()),
+    );
+  }
+
+  // Method untuk Drive Home dengan error
+  Widget _buildDriveHomeWithError(String message) {
+    return Scaffold(
+      backgroundColor: magnoliaWhiteNewAmikom,
+      appBar: AppBar(
+        backgroundColor: magnoliaWhiteNewAmikom,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            if (mounted) Navigator.pop(context);
+          },
+        ),
+        title: const CustomSearchBar(),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: orangeNewAmikom,
+          indicatorColor: orangeNewAmikom,
+          unselectedLabelColor: Colors.black,
+          labelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          unselectedLabelStyle: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          tabs: const [
+            Tab(text: "My Drive"),
+            Tab(text: "Shared Drive"),
+          ],
+        ),
+      ),
+      body: Center(child: Text(message, textAlign: TextAlign.center)),
+    );
+  }
+
+  // Bottom Navigation Bar (tetap sama)
+  BottomNavigationBar _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      backgroundColor: mistyRoseNewAmikom,
+      selectedItemColor: orangeNewAmikom,
+      type: BottomNavigationBarType.fixed,
+      unselectedItemColor: Colors.black54,
+      selectedLabelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: GoogleFonts.urbanist(),
+      onTap: (index) {
+        if (mounted) setState(() => _selectedIndex = index);
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          label: "Drive Home",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.access_time),
+          label: "Terbaru",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.star_border),
+          label: "Berbintang",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.delete_outline),
+          label: "Sampah",
+        ),
+      ],
     );
   }
 

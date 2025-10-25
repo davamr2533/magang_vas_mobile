@@ -1,16 +1,15 @@
 import 'dart:io';
 
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
 import 'package:vas_reporting/screen/drive/tools/delete_item.dart';
-import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/recovery_item.dart';
 
@@ -53,7 +52,10 @@ class DriveItemCard extends StatelessWidget {
     final IconData mainIcon = isFolder
         ? (isStarred ? Icons.folder_special : Icons.folder)
         : Icons.description_outlined;
-    final String subtitleText = isFolder ? "Folder" : "File";
+
+    final String diubah = DateFormat('d MMM yyyy').format(item.updateAt);
+    final String dibuat = DateFormat('d MMM yyyy').format(item.createdAt);
+    final String subtitleText = item.createdAt==item.updateAt ? "Dibuat pada $dibuat" : "Diubah pada $diubah"  ;
 
     // =============================================================
     // ============= MODE LIST VIEW ===============================
@@ -108,7 +110,7 @@ class DriveItemCard extends StatelessWidget {
             child: ListTile(
               leading: Icon(mainIcon, color: orangeNewAmikom),
               title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: Text(subtitleText),
+              subtitle: Text(subtitleText, style: TextStyle(fontSize: 12),),
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert),
                 onPressed: () => _showOptions(context), // buka menu opsi
