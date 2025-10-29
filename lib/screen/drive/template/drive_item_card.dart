@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
@@ -17,6 +18,7 @@ import '../../../tools/popup.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../drive_item_model.dart';
 import '../tools/drive_controller.dart';
+import '../tools/pdf_thumbnail.dart';
 
 // =============================================================
 // ============= WIDGET: DRIVE ITEM CARD =======================
@@ -45,17 +47,41 @@ class DriveItemCard extends StatelessWidget {
     this.onUpdateChanged,
   });
 
+  // Tentukan ikon sesuai tipe file (tanpa ubah struktur utama)
+  IconData getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
+    if (isFolder) return isStarred ? Icons.folder_special : Icons.folder;
+    if (mimeType == null) return Icons.insert_drive_file;
+
+    final ext = mimeType.toLowerCase();
+
+    if (ext.contains('jpeg') ||
+        ext.contains('jpg') ||
+        ext.contains('png') ||
+        ext.contains('gif') ||
+        ext.contains('svg')) {
+      return Icons.image_rounded;
+    } else if (ext.contains('pdf')) {
+      return Icons.picture_as_pdf_rounded;
+    } else if (ext.contains('doc') || ext.contains('docx')) {
+      return Icons.description_rounded;
+    } else if (ext.contains('xls')) {
+      return Icons.table_chart_rounded;
+    } else {
+      return Icons.insert_drive_file_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // ============= Tentukan ikon & subtitle berdasarkan tipe item ============
     final bool isFolder = type == DriveItemType.folder;
-    final IconData mainIcon = isFolder
-        ? (isStarred ? Icons.folder_special : Icons.folder)
-        : Icons.description_outlined;
+    final IconData mainIcon = getFileIcon(item.mimeType, isFolder, isStarred);
 
     final String diubah = DateFormat('d MMM yyyy').format(item.updateAt);
     final String dibuat = DateFormat('d MMM yyyy').format(item.createdAt);
-    final String subtitleText = item.createdAt==item.updateAt ? "Dibuat pada $dibuat" : "Diubah pada $diubah"  ;
+    final String subtitleText = item.createdAt == item.updateAt
+        ? "Dibuat pada $dibuat"
+        : "Diubah pada $diubah";
 
     // =============================================================
     // ============= MODE LIST VIEW ===============================
@@ -86,8 +112,11 @@ class DriveItemCard extends StatelessWidget {
                   try {
                     // Download file ke temporary directory
                     final tempDir = await getTemporaryDirectory();
-                    final filePath = "${tempDir.path}/${item.nama}";
-                    final response = await http.get(Uri.parse(item.url!));
+                    final filePath =
+                        "${tempDir.path}/${item.nama}.${item.mimeType}";
+                    final response = await http.get(
+                      Uri.parse("$url${item.url!}"),
+                    );
                     final file = await File(
                       filePath,
                     ).writeAsBytes(response.bodyBytes);
@@ -98,6 +127,7 @@ class DriveItemCard extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Gagal membuka file: $e")),
                     );
+                    print("Gagal membuka file: $e");
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -110,7 +140,7 @@ class DriveItemCard extends StatelessWidget {
             child: ListTile(
               leading: Icon(mainIcon, color: orangeNewAmikom),
               title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: Text(subtitleText, style: TextStyle(fontSize: 12),),
+              subtitle: Text(subtitleText, style: TextStyle(fontSize: 12)),
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert),
                 onPressed: () => _showOptions(context), // buka menu opsi
@@ -199,9 +229,37 @@ class DriveItemCard extends StatelessWidget {
                 ),
 
                 // ============= Ikon Utama File / Folder ============
-                Flexible(
-                  child: Icon(mainIcon, size: 100, color: orangeNewAmikom),
-                ),
+                if (!isFolder &&
+                    item.mimeType != null &&
+                    (item.mimeType!.contains('jpeg') ||
+                        item.mimeType!.contains('jpg') ||
+                        item.mimeType!.contains('png') ||
+                        item.mimeType!.contains('gif') ||
+                        item.mimeType!.contains('svg')))
+                  Flexible(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        "$url${item.url!}",
+                        height: 100,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        errorBuilder: (_, __, ___) =>
+                            Icon(mainIcon, size: 100, color: orangeNewAmikom),
+                      ),
+                    ),
+                  )
+                else if (!isFolder && item.mimeType!.contains('pdf'))
+                  SizedBox(
+                    height: 83,
+                    width: double.infinity,
+                    child: PdfThumbnail(url: "$url${item.url!}"),
+                  )
+                else
+                  Flexible(
+                    child: Icon(mainIcon, size: 100, color: orangeNewAmikom),
+                  ),
               ],
             ),
           ),

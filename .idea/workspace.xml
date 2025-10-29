@@ -4,11 +4,20 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="============ BIG UPDATE ==========&#10;-Trashed [done]&#10;-recovery [done]&#10;-permanently delete [done]&#10;-create/upload [done]&#10;-download [done]&#10;-open file [done]&#10;&#10;=====================&#10;filter &amp; search [on progress]">
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update detail page &amp; loading">
+      <change afterPath="$PROJECT_DIR$/lib/screen/drive/tools/pdf_thumbnail.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/detail_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/detail_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/drive_item_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_item_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -224,7 +233,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760957797585</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="update detail page &amp; loading">
+      <option name="closed" value="true" />
+      <created>1761361554686</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1761361554687</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -252,6 +269,7 @@
     <MESSAGE value="history layout done" />
     <MESSAGE value="update tambah berbintang" />
     <MESSAGE value="============ BIG UPDATE ==========&#10;-Trashed [done]&#10;-recovery [done]&#10;-permanently delete [done]&#10;-create/upload [done]&#10;-download [done]&#10;-open file [done]&#10;&#10;=====================&#10;filter &amp; search [on progress]" />
-    <option name="LAST_COMMIT_MESSAGE" value="============ BIG UPDATE ==========&#10;-Trashed [done]&#10;-recovery [done]&#10;-permanently delete [done]&#10;-create/upload [done]&#10;-download [done]&#10;-open file [done]&#10;&#10;=====================&#10;filter &amp; search [on progress]" />
+    <MESSAGE value="update detail page &amp; loading" />
+    <option name="LAST_COMMIT_MESSAGE" value="update detail page &amp; loading" />
   </component>
 </project>

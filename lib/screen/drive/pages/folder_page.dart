@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/drive/drive_home.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../data/cubit/get_drive_cubit.dart';
+import '../data/model/response/get_data_drive_response.dart';
 import '../drive_item_model.dart';
 import '../template/drive_layout.dart';
 import '../template/sort_and_layout_option.dart';
@@ -17,6 +18,7 @@ class FolderPage extends StatefulWidget {
   final ViewOption initialView;
   final VoidCallback? onRootPop;
   final VoidCallback? onUpdateChanged;
+  final Future<void> Function()? onRefresh;
 
   const FolderPage({
     super.key,
@@ -24,6 +26,7 @@ class FolderPage extends StatefulWidget {
     this.initialView = ViewOption.grid,
     this.onRootPop,
     this.onUpdateChanged,
+    this.onRefresh,
   });
 
   @override
@@ -99,6 +102,277 @@ class FolderPageState extends State<FolderPage>
     }
   }
 
+  Future<void> refreshData() async {
+    await _refreshData();
+  }
+
+  // =========== FUNGSI REFRESH  ===========
+  Future<void> _refreshData() async {
+    if (widget.onRefresh != null) {
+      // 1. Fetch data terbaru dari server
+      await widget.onRefresh!();
+
+      // 2. Tunggu sebentar untuk memastikan data sudah ter-update
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // 3. Dapatkan data terbaru dari Cubit/Bloc
+      final driveState = context.read<DriveCubit>().state;
+      if (driveState is DriveDataSuccess) {
+        // 4. Cari folder yang sama dengan ID yang sedang dibuka
+        final currentFolderId = currentFolder.id;
+        final updatedFolder = _findFolderById(driveState.driveData.data ?? [], currentFolderId);
+
+        if (updatedFolder != null) {
+          // 5. Update navigation stack dengan data terbaru
+          setState(() {
+            navigationStack.removeLast();
+            navigationStack.add(updatedFolder);
+          });
+        } else {
+          // Jika folder tidak ditemukan (mungkin dihapus), refresh UI lokal
+          setState(() {});
+        }
+      } else {
+        // Fallback: refresh UI lokal
+        setState(() {});
+      }
+    } else if (widget.onUpdateChanged != null) {
+      widget.onUpdateChanged!();
+      setState(() {});
+    } else {
+      // Final fallback
+      setState(() {});
+    }
+  }
+
+  // =========== Helper function untuk mencari folder by ID ===========
+  DriveItemModel? _findFolderById(List<FolderItem> apiData, int folderId) {
+    // Handle special folders (Recent, Starred, Trash)
+    if (folderId < 0) {
+      return _recreateSpecialFolder(apiData, folderId);
+    }
+
+    for (var folder in apiData) {
+      final found = _searchFolderRecursive(folder, folderId);
+      if (found != null) return found;
+    }
+    return null;
+  }
+
+  DriveItemModel? _searchFolderRecursive(FolderItem folder, int targetId) {
+    // Cek folder saat ini
+    if (folder.id == targetId) {
+      return _mapFolderItemToDriveItemModel(folder);
+    }
+
+    // Cek di children
+    if (folder.children != null) {
+      for (var child in folder.children!) {
+        final found = _searchFolderRecursive(child, targetId);
+        if (found != null) return found;
+      }
+    }
+
+    return null;
+  }
+
+  // =========== Recreate special folders dengan data terbaru ===========
+  DriveItemModel _recreateSpecialFolder(List<FolderItem> apiData, int folderId) {
+    final driveRoot = apiData.firstWhere(
+          (i) => i.name == 'My Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final sharedDriveRoot = apiData.firstWhere(
+          (i) => i.name == 'Shared Drive',
+      orElse: () => FolderItem(),
+    );
+
+    final myFolders = driveRoot.children ?? [];
+    final myFiles = driveRoot.files ?? [];
+    final allSharedFolders = sharedDriveRoot.children ?? [];
+    final allSharedFiles = sharedDriveRoot.files ?? [];
+
+    final myItems = [...myFolders, ...myFiles];
+    final sharedItems = [...allSharedFolders, ...allSharedFiles];
+
+    final allMyDriveItem = _mapApiListToUiModel(myItems);
+    final allSharedItem = _mapApiListToUiModel(sharedItems);
+
+    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allItems = _getAllItemsRecursive(allFolders);
+
+    switch (folderId) {
+      case -1: // Recent
+        return DriveItemModel(
+          id: -1,
+          nama: "Berkas Terbaru",
+          createdAt: DateTime.now(),
+          updateAt: DateTime.now(),
+          children: allItems
+              .where((f) => f.isTrashed == false && f.type == DriveItemType.file)
+              .toList(),
+          type: DriveItemType.folder,
+          isSpecial: true,
+        );
+
+      case -2: // Starred
+        return DriveItemModel(
+          id: -2,
+          nama: "Berbintang",
+          createdAt: DateTime.now(),
+          updateAt: DateTime.now(),
+          children: allItems
+              .where((f) => f.isStarred && f.userId == widget.initialFolder.userId && f.isTrashed == false)
+              .toList(),
+          type: DriveItemType.folder,
+          isSpecial: true,
+        );
+
+      case -3: // Trash
+        return DriveItemModel(
+          id: -3,
+          nama: "Sampah",
+          createdAt: DateTime.now(),
+          updateAt: DateTime.now(),
+          children: allItems
+              .where((f) => f.isTrashed && f.userId == widget.initialFolder.userId)
+              .toList(),
+          type: DriveItemType.folder,
+          isSpecial: true,
+        );
+
+      default:
+        return widget.initialFolder;
+    }
+  }
+
+  // =========== Mapping functions ===========
+  DriveItemModel _mapFolderItemToDriveItemModel(FolderItem folder) {
+    return DriveItemModel(
+      id: folder.id ?? 0,
+      parentId: folder.parentId,
+      userId: folder.userId,
+      parentName: folder.parentId == 1 ? 'My Drive' : 'Shared Drive',
+      type: DriveItemType.folder,
+      nama: folder.name ?? 'Folder Tanpa Nama',
+      createdAt: folder.createdAtAsDate ?? DateTime.now(),
+      isStarred: folder.isStarred == 'TRUE',
+      isTrashed: folder.isTrashed == 'TRUE',
+      updateAt: folder.updatedAtAsDate ?? DateTime.now(),
+      children: _mapApiFolderToUiModel(folder),
+    );
+  }
+
+  // FIXED: Method untuk mapping FolderItem ke List<DriveItemModel>
+  List<DriveItemModel> _mapApiFolderToUiModel(FolderItem apiFolder) {
+    final List<DriveItemModel> combinedList = [];
+
+    // Process sub-folders
+    if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
+      for (var subFolder in apiFolder.children!) {
+        combinedList.add(
+          DriveItemModel(
+            id: subFolder.id ?? 0,
+            parentId: subFolder.parentId,
+            parentName: apiFolder.name,
+            userId: subFolder.userId,
+            type: DriveItemType.folder,
+            nama: subFolder.name ?? 'Folder Tanpa Nama',
+            createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
+            isStarred: subFolder.isStarred == 'TRUE',
+            isTrashed: subFolder.isTrashed == 'TRUE',
+            children: _mapApiFolderToUiModel(subFolder),
+            updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
+          ),
+        );
+      }
+    }
+
+    // Process files
+    if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
+      for (var file in apiFolder.files!) {
+        combinedList.add(
+          DriveItemModel(
+            id: file.id ?? 0,
+            parentId: file.parentId,
+            parentName: apiFolder.name,
+            userId: file.userId,
+            type: DriveItemType.file,
+            nama: file.name!,
+            createdAt: file.createdAtAsDate ?? DateTime.now(),
+            isStarred: file.isStarred == 'TRUE',
+            isTrashed: file.isTrashed == 'TRUE',
+            mimeType: file.mimeType,
+            size: file.size,
+            url: file.urlFile,
+            updateAt: file.updatedAtAsDate ?? DateTime.now(),
+          ),
+        );
+      }
+    }
+
+    return combinedList;
+  }
+
+  // FIXED: Method untuk mapping List<dynamic> ke List<DriveItemModel>
+  List<DriveItemModel> _mapApiListToUiModel(List<dynamic> apiInput) {
+    final List<DriveItemModel> combinedList = [];
+
+    if (apiInput.isEmpty) return combinedList;
+
+    for (var item in apiInput) {
+      if (item is FolderItem) {
+        combinedList.add(
+          DriveItemModel(
+            id: item.id ?? 0,
+            parentId: item.parentId,
+            userId: item.userId,
+            parentName: item.parentId == 1 ? 'My Drive' : 'Shared Drive',
+            type: DriveItemType.folder,
+            nama: item.name ?? 'Folder Tanpa Nama',
+            createdAt: item.createdAtAsDate ?? DateTime.now(),
+            isStarred: item.isStarred == 'TRUE',
+            isTrashed: item.isTrashed == 'TRUE',
+            updateAt: item.updatedAtAsDate ?? DateTime.now(),
+            children: _mapApiFolderToUiModel(item),
+          ),
+        );
+      } else if (item is FileItem) {
+        combinedList.add(
+          DriveItemModel(
+            id: item.id ?? 0,
+            parentId: item.parentId,
+            parentName: item.parentId == 1 ? 'My Drive' : 'Shared Drive',
+            userId: item.userId,
+            type: DriveItemType.file,
+            nama: item.name!,
+            createdAt: item.createdAtAsDate ?? DateTime.now(),
+            isStarred: item.isStarred == 'TRUE',
+            isTrashed: item.isTrashed == 'TRUE',
+            mimeType: item.mimeType,
+            size: item.size,
+            url: item.urlFile,
+            updateAt: item.updatedAtAsDate ?? DateTime.now(),
+          ),
+        );
+      }
+    }
+
+    return combinedList;
+  }
+
+  List<DriveItemModel> _getAllItemsRecursive(List<DriveItemModel> folders) {
+    List<DriveItemModel> allItems = [];
+    for (var folder in folders) {
+      allItems.add(folder);
+      if (folder.children.isNotEmpty) {
+        allItems.addAll(_getAllItemsRecursive(folder.children));
+      }
+    }
+    return allItems;
+  }
+
   // =========== Fungsi untuk membuka dan menutup detail folder ===========
   void openDetail(DriveItemModel folder) {
     setState(() {
@@ -137,16 +411,12 @@ class FolderPageState extends State<FolderPage>
   // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
-
-
-    // Kalau sudah siap, lanjut render konten
     final items = getFilteredAndSortedFolders(currentItems);
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          // Jika tombol back ditekan, navigasi kembali ke folder sebelumnya
           popFolder();
         }
       },
@@ -154,21 +424,24 @@ class FolderPageState extends State<FolderPage>
         backgroundColor: Colors.white,
         appBar: _buildAppBar(),
 
-        // =========== Bagian body dengan transisi animasi ===========
+        // =========== Body dengan RefreshIndicator ===========
         body: Stack(
           children: [
-            PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 400),
-              transitionBuilder: (child, animation, secondaryAnimation) {
-                return SharedAxisTransition(
-                  animation: animation,
-                  secondaryAnimation: secondaryAnimation,
-                  transitionType: SharedAxisTransitionType.scaled,
-                  fillColor: Colors.white,
-                  child: child,
-                );
-              },
-              child: _buildBody(items),
+            RefreshIndicator(
+              onRefresh: _refreshData,
+              child: PageTransitionSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (child, animation, secondaryAnimation) {
+                  return SharedAxisTransition(
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.scaled,
+                    fillColor: Colors.white,
+                    child: child,
+                  );
+                },
+                child: _buildBody(items),
+              ),
             ),
           ],
         ),
@@ -178,7 +451,7 @@ class FolderPageState extends State<FolderPage>
             ? AnimatedFabMenu(
           parentId: currentFolder.id,
           onFolderCreated: () async {
-            setState(() {});
+            await _refreshData();
           },
         )
             : null,
@@ -240,7 +513,7 @@ class FolderPageState extends State<FolderPage>
             onItemTap: (tapped) {
               pushFolder(tapped);
             },
-
+            onUpdateChanged: _refreshData,
           ),
         ),
       ],

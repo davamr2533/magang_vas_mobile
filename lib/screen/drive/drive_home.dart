@@ -82,12 +82,15 @@ class _DriveHomeState extends State<DriveHome>
 
   void _navigateToFolder(DriveItemModel folder) async {
     if (!mounted) return;
+
     final result = await Navigator.of(context).push<ViewOption>(
       DriveRouting(
         page: FolderPage(
+          key: ValueKey(folder.id),
           initialFolder: folder,
           initialView: currentView,
           onUpdateChanged: fetchData,
+          onRefresh: fetchData,
         ),
       ),
     );
@@ -176,8 +179,18 @@ class _DriveHomeState extends State<DriveHome>
             child: TabBarView(
               controller: _tabController,
               children: [
-                buildDriveGrid(myDriveItems),
-                buildDriveGrid(sharedDriveFolders),
+                RefreshIndicator(
+                  onRefresh: () async {
+                    await fetchData();
+                  },
+                  child: buildDriveGrid(myDriveItems),
+                ),
+                RefreshIndicator(
+                  onRefresh: () async {
+                    await fetchData();
+                  },
+                  child: buildDriveGrid(sharedDriveFolders),
+                ),
               ],
             ),
           ),
@@ -277,7 +290,7 @@ class _DriveHomeState extends State<DriveHome>
     return _buildDriveHomeWithError("State tidak valid");
   }
 
-  // Method untuk halaman Recent
+// Method untuk halaman Recent
   Widget _buildRecentPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final recentFolder = _createRecentFolder(state);
@@ -287,12 +300,13 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
+        onRefresh: fetchData, // TAMBAHKAN INI
       );
     }
     return _buildGenericLoadingPage("Terbaru");
   }
 
-  // Method untuk halaman Starred
+// Method untuk halaman Starred
   Widget _buildStarredPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final starredFolder = _createStarredFolder(state);
@@ -302,12 +316,13 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
+        onRefresh: fetchData, // TAMBAHKAN INI
       );
     }
     return _buildGenericLoadingPage("Berbintang");
   }
 
-  // Method untuk halaman Trash
+// Method untuk halaman Trash
   Widget _buildTrashPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final trashFolder = _createTrashFolder(state);
@@ -317,6 +332,7 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
+        onRefresh: fetchData, // TAMBAHKAN INI
       );
     }
     return _buildGenericLoadingPage("Sampah");
@@ -455,6 +471,9 @@ class _DriveHomeState extends State<DriveHome>
         title: Text(pageName),
         backgroundColor: magnoliaWhiteNewAmikom,
         foregroundColor: Colors.black,
+        leading: null,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
       ),
       body: Center(child: AppWidget().LoadingWidget()),
     );
@@ -536,7 +555,7 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Bottom Navigation Bar (tetap sama)
+  // Bottom Navigation Bar
   BottomNavigationBar _buildBottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
