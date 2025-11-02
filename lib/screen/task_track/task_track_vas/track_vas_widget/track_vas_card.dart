@@ -377,7 +377,7 @@ class TrackVasCard extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       title: Text(
-        "Update Progress",
+        "Update History",
         style: GoogleFonts.urbanist(
           fontWeight: FontWeight.bold,
           fontSize: 18,
