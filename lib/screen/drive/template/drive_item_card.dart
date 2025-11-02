@@ -334,12 +334,14 @@ class DriveItemCard extends StatelessWidget {
                     title: Text("Ganti nama", style: GoogleFonts.urbanist()),
                     onTap: () async {
                       Navigator.pop(sheetContext);
+                      print((item.userId != username));
                       if (item.userId != username) {
                          ScaffoldMessenger.of(rootContext).showSnackBar(
                           const SnackBar(
                             content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
                           ),
                         );
+                         return;
                       }
                       await renameAction(
                         rootContext,
@@ -508,6 +510,7 @@ class DriveItemCard extends StatelessWidget {
                 content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
               ),
             );
+            return;
           }
           await addToTrash(
             rootContext,
