@@ -23,145 +23,163 @@ class TrackVasCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 150,
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Text(
-                  task.nomorPengajuan,
-                  style: GoogleFonts.urbanist(
-                    fontSize: 12,
-                    color: blackNewAmikom,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  "|",
-                  style: GoogleFonts.urbanist(
-                    fontSize: 12,
-                    color: blackNewAmikom,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  task.divisi,
-                  style: GoogleFonts.urbanist(
-                    fontSize: 14,
-                    color: blackNewAmikom,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+    return InkWell(
+      onTap: () {
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return _buildUpdateHistory(context);
+          },
+        );
+
+
+      },
+      borderRadius: BorderRadius.circular(12),
+      splashColor: blueNewAmikom.withValues(alpha: 0.2),
+      child: Container(
+        width: double.infinity,
+        height: 150,
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 3),
             ),
-          ),
-          Positioned(
-            right: 0,
-            child: Container(
-              width: 120,
-              height: 35,
-              decoration: BoxDecoration(
-                color: yellowNewAmikom,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  topRight: Radius.circular(12),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  task.updatedAt.split(" ")[0],
-                  style: GoogleFonts.urbanist(
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 10,
-            top: 45,
-            child: Text(
-              task.jenis,
-              style: GoogleFonts.urbanist(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 10,
-            bottom: 10,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 35,
-                    margin: const EdgeInsets.only(left: 10),
-                    decoration: BoxDecoration(
-                      color: blueNewAmikom,
-                      borderRadius: BorderRadius.circular(20),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Text(
+                    task.nomorPengajuan,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 12,
+                      color: blackNewAmikom,
                     ),
-                    child: Center(
-                      child: Text(
-                        task.currentProgress,
-                        style: GoogleFonts.urbanist(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "|",
+                    style: GoogleFonts.urbanist(
+                      fontSize: 12,
+                      color: blackNewAmikom,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    task.divisi,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      color: blackNewAmikom,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: Container(
+                width: 120,
+                height: 35,
+                decoration: BoxDecoration(
+                  color: yellowNewAmikom,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topRight: Radius.circular(12),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    task.updatedAt.split(" ")[0],
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 10,
+              top: 45,
+              child: Text(
+                task.jenis,
+                style: GoogleFonts.urbanist(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 10,
+              bottom: 10,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 35,
+                      margin: const EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        color: blueNewAmikom,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          task.currentProgress,
+                          style: GoogleFonts.urbanist(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 15),
-                ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return _buildUpdateDialog(context);
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: greenNewAmikom,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  const SizedBox(width: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return _buildUpdateDialog(context);
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: greenNewAmikom,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                      fixedSize: const Size(70, 35),
                     ),
-                    elevation: 0,
-                    fixedSize: const Size(70, 35),
+                    child: Icon(
+                      Icons.edit_calendar_sharp,
+                      color: brownNewAmikom,
+                      size: 25,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.edit_calendar_sharp,
-                    color: brownNewAmikom,
-                    size: 25,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+
+
   }
 
   Widget _buildUpdateDialog(BuildContext context) {
@@ -336,6 +354,122 @@ class TrackVasCard extends StatelessWidget {
                     ),
                     child: Text(
                       "Update",
+                      style: GoogleFonts.urbanist(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateHistory(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      backgroundColor: Colors.white,
+      title: Text(
+        "Update Progress",
+        style: GoogleFonts.urbanist(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
+      contentPadding:
+      const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            Divider(height: 1, color: grayNewAmikom),
+            const SizedBox(height: 8),
+            _labelForm("ID Pengajuan"),
+            _isiForm(task.nomorPengajuan),
+            const SizedBox(height: 12),
+            _labelForm("Nama Sistem"),
+            _isiForm(task.jenis),
+            const SizedBox(height: 12),
+            _labelForm("Current Progress"),
+            _isiForm(task.currentProgress),
+            const SizedBox(height: 12),
+            _labelForm("Terakhir Update"),
+            _isiForm(task.updatedAt.split(" ")[0]),
+            const SizedBox(height: 12),
+            _labelForm("Diupdate oleh"),
+            _isiForm(task.updatedBy),
+            const SizedBox(height: 12),
+            _labelForm("Catatan"),
+
+
+
+
+            if (task.catatan != null)
+              Container(
+                width: double.infinity,
+                height: 100,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  color: yellowNewAmikom,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  task.catatan,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                  ),
+                ),
+              )
+            else
+              Container(
+                width: double.infinity,
+                height: 100,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  color: yellowNewAmikom,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "Tidak ada catatan",
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                  ),
+
+                ),
+              ),
+
+
+
+            const SizedBox(height: 20),
+
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      catatanController.clear();
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: greenNewAmikom,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      "Back",
                       style: GoogleFonts.urbanist(
                         color: Colors.white,
                         fontSize: 16,
