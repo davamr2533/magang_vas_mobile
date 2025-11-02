@@ -35,7 +35,7 @@ Future<void> addToTrash(
   print("Body JSON: ${AddToTrashBody(
     id: id,
     userId: userId,
-    itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
+    itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
   ).toJson()}");
 
   final cubit = context.read<AddToTrashCubit>();
@@ -44,7 +44,7 @@ Future<void> addToTrash(
     body: AddToTrashBody(
       id: id,
       userId: userId,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
+      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
     ),
   );
 
@@ -90,7 +90,7 @@ Future<void> deleteDrive(
   print("Body JSON: ${DeleteDriveBody(
     id: id,
     name: title,
-    itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
+    itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
   ).toJson()}");
 
   final cubit = context.read<DeleteDriveCubit>();
@@ -99,7 +99,7 @@ Future<void> deleteDrive(
     body: DeleteDriveBody(
       id: id,
       name: title,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
+      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
     ),
   );
 

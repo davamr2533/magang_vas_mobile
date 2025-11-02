@@ -21,20 +21,13 @@ Future<void> recoveryDrive(
   final popup = PopUpWidget(context);
 
 
-  print("==========DEBUG-RECOVERY============");
-  print("Body JSON: ${RecoveryDriveBody(
-    id: id,
-    name: title,
-    itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
-  ).toJson()}");
-
   final cubit = context.read<RecoveryDriveCubit>();
   await cubit.recoveryDrive(
     token: "Bearer $token",
     body: RecoveryDriveBody(
       id: id,
       name: title,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'files',
+      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
     ),
   );
 

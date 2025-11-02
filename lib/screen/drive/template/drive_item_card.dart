@@ -289,14 +289,18 @@ class DriveItemCard extends StatelessWidget {
       ),
       builder: (sheetContext) {
         final popup = PopUpWidget(rootContext);
-        return FutureBuilder<String?>(
-          future: SharedPref.getToken(), // Get the token future here
+        return FutureBuilder<List<dynamic>>(
+          future: Future.wait([
+            SharedPref.getToken(),
+            SharedPref.getUsername(),
+          ]),
           builder: (tokenContext, tokenSnapshot) {
             if (!tokenSnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final token = tokenSnapshot.data!;
+            final token = tokenSnapshot.data![0] as String?;
+            final username = tokenSnapshot.data![1] as String?;
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -330,9 +334,16 @@ class DriveItemCard extends StatelessWidget {
                     title: Text("Ganti nama", style: GoogleFonts.urbanist()),
                     onTap: () async {
                       Navigator.pop(sheetContext);
+                      if (item.userId != username) {
+                         ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(
+                            content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
+                          ),
+                        );
+                      }
                       await renameAction(
                         rootContext,
-                        token,
+                        token!,
                         item.id,
                         item.type == DriveItemType.folder ? 'folder' : 'file',
                         item.nama,
@@ -407,7 +418,7 @@ class DriveItemCard extends StatelessWidget {
                       Navigator.pop(sheetContext);
                       await toggleStarAction(
                         rootContext,
-                        token,
+                        token!,
                         item.id,
                         item.userId!,
                         item.nama,
@@ -460,7 +471,7 @@ class DriveItemCard extends StatelessWidget {
                 ),
 
                 // ============= Opsi: Hapus / Pulihkan ============
-                _deleteButton(sheetContext, rootContext, item, token),
+                _deleteButton(sheetContext, rootContext, item, token!, username!),
 
                 const SizedBox(height: 8),
               ],
@@ -480,7 +491,8 @@ class DriveItemCard extends StatelessWidget {
     BuildContext sheetContext,
     BuildContext rootContext,
     DriveItemModel item,
-    String token, // Add token parameter here
+    String token,
+      String username
   ) {
     // Remove the FutureBuilder from here since we're now passing the token directly
     if (!item.isTrashed) {
@@ -490,6 +502,13 @@ class DriveItemCard extends StatelessWidget {
         title: Text("Hapus", style: GoogleFonts.urbanist()),
         onTap: () async {
           Navigator.pop(sheetContext);
+          if (item.userId != username) {
+            ScaffoldMessenger.of(rootContext).showSnackBar(
+              const SnackBar(
+                content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
+              ),
+            );
+          }
           await addToTrash(
             rootContext,
             token,
