@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomSearchBar extends StatefulWidget {
-  const CustomSearchBar({Key? key}) : super(key: key);
+  final Function(String) onQueryChanged;
+  final Function(String?) onFilterChanged;
+
+  const CustomSearchBar({
+    super.key,
+    required this.onQueryChanged,
+    required this.onFilterChanged,
+  });
 
   @override
   State<CustomSearchBar> createState() => _CustomSearchBarState();
@@ -11,7 +19,7 @@ class CustomSearchBar extends StatefulWidget {
 
 class _CustomSearchBarState extends State<CustomSearchBar> {
   final TextEditingController _searchController = TextEditingController();
-  String query = '';
+  String? selectedFilter;
 
   final Color pinkNewAmikom = const Color(0xFFFFD1CC);
   final Color orangeNewAmikom = const Color(0xFFFF6F3C);
@@ -27,7 +35,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             child: TextField(
               controller: _searchController,
               onChanged: (val) {
-                setState(() => query = val);
+                widget.onQueryChanged(val);
               },
               style: GoogleFonts.urbanist(fontSize: 14),
               decoration: InputDecoration(
@@ -50,7 +58,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
         ),
         const SizedBox(width: 8),
 
-        // Custom filter menu
+        // Filter button
         Container(
           width: 40,
           height: 40,
@@ -64,21 +72,43 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            icon: Icon(IconlyBold.filter, color: orangeNewAmikom),
+            icon: selectedFilter != null
+                ? Icon(IconlyBold.closeSquare, color: orangeNewAmikom)
+                : Icon(IconlyBold.filter, color: orangeNewAmikom),
             itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: "CLEAR_FILTER",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.close, color: Colors.black54, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Clear Filter",
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
               _buildMenuItem(Icons.folder, "Folders"),
-              _buildMenuItem(Icons.description, "Word"),
-              _buildMenuItem(Icons.grid_on, "Excel"),
-              _buildMenuItem(Icons.slideshow, "Presentation"),
-              _buildMenuItem(Icons.list_alt, "Forms"),
+              _buildMenuItem(FontAwesomeIcons.fileWord, "Word"),
+              _buildMenuItem(FontAwesomeIcons.fileExcel, "Excel"),
+              _buildMenuItem(Icons.picture_as_pdf, "PDF"),
               _buildMenuItem(Icons.image, "Photos & Image"),
-              _buildMenuItem(Icons.video_library, "Videos"),
-              _buildMenuItem(Icons.music_note, "Audio"),
-              _buildMenuItem(Icons.archive, "ZIP"),
             ],
             onSelected: (value) {
-              // handle selection
-              print("Selected: $value");
+              if (value == "CLEAR_FILTER") {
+                setState(() => selectedFilter = null);
+                widget.onFilterChanged(null);
+              } else {
+                setState(() => selectedFilter = value);
+                widget.onFilterChanged(value);
+              }
             },
           ),
         ),
@@ -87,16 +117,29 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   }
 
   PopupMenuItem<String> _buildMenuItem(IconData icon, String title) {
+    final bool isSelected = selectedFilter == title;
+
     return PopupMenuItem<String>(
       value: title,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: Colors.redAccent),
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: GoogleFonts.urbanist(fontSize: 14, color: Colors.black87),
+          Row(
+            children: [
+              Icon(icon, color: Colors.redAccent),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: GoogleFonts.urbanist(
+                  fontSize: 14,
+                  color: isSelected ? Colors.deepOrange : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
           ),
+          if (isSelected)
+            const Icon(Icons.check, color: Colors.deepOrange, size: 18),
         ],
       ),
     );

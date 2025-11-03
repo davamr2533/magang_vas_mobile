@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/pages/folder_page.dart';
@@ -32,6 +31,7 @@ class _DriveHomeState extends State<DriveHome>
 
   ViewOption currentView = ViewOption.grid;
   String query = "";
+  String? selectedFileType;
   int _selectedIndex = 0;
   String? token;
   String? username;
@@ -54,10 +54,6 @@ class _DriveHomeState extends State<DriveHome>
           parentId = _tabController.index == 0
               ? myDriveRootId
               : sharedDriveRootId;
-
-          print(
-            "Tab changed to index: ${_tabController.index}, parentId: $parentId",
-          );
         });
       }
     });
@@ -129,7 +125,7 @@ class _DriveHomeState extends State<DriveHome>
     List<DriveItemModel> myDriveFolders,
     List<DriveItemModel> sharedDriveFolders,
   ) {
-    final myDriveItems = getFilteredAndSortedFolders(myDriveFolders);
+    final myDriveItems = _getFilteredAndSortedFolders(myDriveFolders);
 
     return Scaffold(
       backgroundColor: magnoliaWhiteNewAmikom,
@@ -143,7 +139,16 @@ class _DriveHomeState extends State<DriveHome>
             if (mounted) Navigator.pop(context);
           },
         ),
-        title: const CustomSearchBar(),
+        title: CustomSearchBar(
+          onQueryChanged: (val) {
+            setState(() => query = val);
+          },
+          onFilterChanged: (filter) {
+            setState(() {
+              selectedFileType = filter;
+            });
+          },
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -290,7 +295,7 @@ class _DriveHomeState extends State<DriveHome>
     return _buildDriveHomeWithError("State tidak valid");
   }
 
-// Method untuk halaman Recent
+  // Method untuk halaman Recent
   Widget _buildRecentPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final recentFolder = _createRecentFolder(state);
@@ -306,7 +311,7 @@ class _DriveHomeState extends State<DriveHome>
     return _buildGenericLoadingPage("Terbaru");
   }
 
-// Method untuk halaman Starred
+  // Method untuk halaman Starred
   Widget _buildStarredPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final starredFolder = _createStarredFolder(state);
@@ -322,7 +327,7 @@ class _DriveHomeState extends State<DriveHome>
     return _buildGenericLoadingPage("Berbintang");
   }
 
-// Method untuk halaman Trash
+  // Method untuk halaman Trash
   Widget _buildTrashPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final trashFolder = _createTrashFolder(state);
@@ -493,7 +498,16 @@ class _DriveHomeState extends State<DriveHome>
             if (mounted) Navigator.pop(context);
           },
         ),
-        title: const CustomSearchBar(),
+        title: CustomSearchBar(
+          onQueryChanged: (val) {
+            setState(() => query = val);
+          },
+          onFilterChanged: (filter) {
+            setState(() {
+              selectedFileType = filter;
+            });
+          },
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -531,7 +545,16 @@ class _DriveHomeState extends State<DriveHome>
             if (mounted) Navigator.pop(context);
           },
         ),
-        title: const CustomSearchBar(),
+        title: CustomSearchBar(
+          onQueryChanged: (val) {
+            setState(() => query = val);
+          },
+          onFilterChanged: (filter) {
+            setState(() {
+              selectedFileType = filter;
+            });
+          },
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -700,7 +723,7 @@ class _DriveHomeState extends State<DriveHome>
           id: apiInput.id ?? 0,
           parentId: apiInput.parentId,
           userId: apiInput.userId,
-          parentName: 'cek: drive_home line 613',
+          parentName: 'cek: drive_home line 703',
           type: DriveItemType.file,
           nama: apiInput.name!,
           createdAt: apiInput.createdAtAsDate ?? DateTime.now(),
@@ -719,17 +742,74 @@ class _DriveHomeState extends State<DriveHome>
     return combinedList;
   }
 
-  List<DriveItemModel> getFilteredAndSortedFolders(
+
+
+  List<DriveItemModel> _getFilteredAndSortedFolders(
     List<DriveItemModel> sourceFolders,
   ) {
-    // 🔍 Filter berdasarkan pencarian
-    final filtered = sourceFolders
-        .where((f) => f.nama.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+    final filtered = sourceFolders.where((f) {
+      final fileName = f.nama.toLowerCase();
+      final mimeType = f.mimeType?.toLowerCase() ?? "";
+      final queryLower = query.toLowerCase();
 
-    // 🔢 Urutkan berdasarkan currentSortBy & currentSortOrder
+      // Filter berdasarkan teks pencarian
+      final matchesQuery = fileName.contains(queryLower);
+
+      // Default: semua cocok jika tidak ada filter
+      bool matchesType = true;
+
+      if (selectedFileType != null) {
+        switch (selectedFileType) {
+          case "Folders":
+            matchesType = f.type == DriveItemType.folder;
+            break;
+
+          case "Word":
+            matchesType =
+                mimeType.contains("application/msword") ||
+                mimeType.contains(
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ) ||
+                mimeType.endsWith("doc") ||
+                mimeType.endsWith("docx");
+            break;
+
+          case "Excel":
+            matchesType =
+                mimeType.contains("application/vnd.ms-excel") ||
+                mimeType.contains(
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ) ||
+                mimeType.endsWith("xls") ||
+                mimeType.endsWith("xlsx");
+            break;
+
+          case "PDF":
+            matchesType =
+                mimeType.contains("application/pdf") ||
+                mimeType.endsWith("pdf");
+            break;
+
+          case "Photos & Image":
+            matchesType =
+                mimeType.startsWith("image/") ||
+                mimeType.endsWith("png") ||
+                mimeType.endsWith("jpg") ||
+                mimeType.endsWith("jpeg") ||
+                mimeType.endsWith("gif") ||
+                mimeType.endsWith("svg");
+            break;
+
+          default:
+            matchesType = true;
+        }
+      }
+
+      return matchesQuery && matchesType;
+    }).toList();
+
+    // 🔢 Urutkan
     int compare<T extends Comparable>(T a, T b) {
-      // Fungsi bantu agar bisa balik urutan jika desc
       return currentSortOrder == SortOrder.desc
           ? b.compareTo(a)
           : a.compareTo(b);
@@ -745,13 +825,7 @@ class _DriveHomeState extends State<DriveHome>
       case SortBy.modifiedDate:
         filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
         break;
-
-      case SortBy.modifiedByMe:
-        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
-        break;
-
-      case SortBy.openedByMe:
-        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+      default:
         break;
     }
 

@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfx/pdfx.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
@@ -143,7 +142,7 @@ class DriveItemCard extends StatelessWidget {
               subtitle: Text(subtitleText, style: TextStyle(fontSize: 12)),
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showOptions(context), // buka menu opsi
+                onPressed: () => _showOptions(context,mainIcon), // buka menu opsi
               ),
             ),
           ),
@@ -223,7 +222,7 @@ class DriveItemCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.more_vert),
                       visualDensity: VisualDensity.compact,
-                      onPressed: () => _showOptions(context),
+                      onPressed: () => _showOptions(context,mainIcon),
                     ),
                   ],
                 ),
@@ -273,13 +272,10 @@ class DriveItemCard extends StatelessWidget {
   // Ditampilkan saat user menekan tombol "more" (3 titik)
   // Berisi aksi seperti: Rename, Download, Tambah Bintang, Detail, Hapus
   // =============================================================
-  void _showOptions(BuildContext context) {
+  void _showOptions(BuildContext context, IconData mainIcon) {
     final rootContext = context;
 
     final bool isFolder = type == DriveItemType.folder;
-    final IconData headerIcon = isFolder
-        ? Icons.folder
-        : Icons.description_outlined;
     final String itemTypeText = isFolder ? "Folder" : "File";
 
     showModalBottomSheet(
@@ -310,7 +306,7 @@ class DriveItemCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(headerIcon, color: orangeNewAmikom, size: 28),
+                      Icon(mainIcon, color: orangeNewAmikom, size: 28),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -378,8 +374,8 @@ class DriveItemCard extends StatelessWidget {
                         );
 
                         final directory =
-                            await getExternalStorageDirectory(); // Android
-                        final filePath = "${directory!.path}/${item.nama}";
+                            await getDownloadsDirectory(); // Android
+                        final filePath = "${directory!.path}/${item.nama}.${item.mimeType}";
                         final file = await File(
                           filePath,
                         ).writeAsBytes(response.bodyBytes);
@@ -462,9 +458,7 @@ class DriveItemCard extends StatelessWidget {
                               : "${item.nama}.${item.mimeType}",
                           item: item,
                           lokasi: parentName,
-                          icon: isFolder
-                              ? Icons.folder_rounded
-                              : Icons.description_rounded,
+                          icon: mainIcon
                         ),
                         transitionType: RoutingTransitionType.slide,
                       ),

@@ -42,6 +42,9 @@ class FolderPageState extends State<FolderPage>
   SortBy currentSortBy = SortBy.name;
   SortOrder currentSortOrder = SortOrder.asc;
 
+  String query='';
+  String? selectedFileType;
+
   // =========== Variabel untuk halaman detail ===========
   bool showDetail = false;
   DriveItemModel? selectedFolder;
@@ -391,27 +394,11 @@ class FolderPageState extends State<FolderPage>
     });
   }
 
-  // =========== Fungsi sorting untuk mengurutkan isi folder ===========
-  List<DriveItemModel> getFilteredAndSortedFolders(List<DriveItemModel> input) {
-    final filtered = List<DriveItemModel>.from(input);
-    switch (currentSort) {
-      case SortOrder.asc:
-        filtered.sort((a, b) => a.nama.compareTo(b.nama));
-        break;
-      case SortOrder.desc:
-        filtered.sort((a, b) => b.nama.compareTo(a.nama));
-        break;
-      case SortOrder.date:
-        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        break;
-    }
-    return filtered;
-  }
 
   // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
-    final items = getFilteredAndSortedFolders(currentItems);
+    final items = _getFilteredAndSortedFolders(currentItems);
 
     return PopScope(
       canPop: false,
@@ -518,5 +505,94 @@ class FolderPageState extends State<FolderPage>
         ),
       ],
     );
+  }
+
+
+
+  List<DriveItemModel> _getFilteredAndSortedFolders(
+      List<DriveItemModel> sourceFolders,
+      ) {
+    final filtered = sourceFolders.where((f) {
+      final fileName = f.nama.toLowerCase();
+      final mimeType = f.mimeType?.toLowerCase() ?? "";
+      final queryLower = query.toLowerCase();
+
+      // Filter berdasarkan teks pencarian
+      final matchesQuery = fileName.contains(queryLower);
+
+      // Default: semua cocok jika tidak ada filter
+      bool matchesType = true;
+
+      if (selectedFileType != null) {
+        switch (selectedFileType) {
+          case "Folders":
+            matchesType = f.type == DriveItemType.folder;
+            break;
+
+          case "Word":
+            matchesType =
+                mimeType.contains("application/msword") ||
+                    mimeType.contains(
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    ) ||
+                    mimeType.endsWith("doc") ||
+                    mimeType.endsWith("docx");
+            break;
+
+          case "Excel":
+            matchesType =
+                mimeType.contains("application/vnd.ms-excel") ||
+                    mimeType.contains(
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    ) ||
+                    mimeType.endsWith("xls") ||
+                    mimeType.endsWith("xlsx");
+            break;
+
+          case "PDF":
+            matchesType =
+                mimeType.contains("application/pdf") ||
+                    mimeType.endsWith("pdf");
+            break;
+
+          case "Photos & Image":
+            matchesType =
+                mimeType.startsWith("image/") ||
+                    mimeType.endsWith("png") ||
+                    mimeType.endsWith("jpg") ||
+                    mimeType.endsWith("jpeg") ||
+                    mimeType.endsWith("gif") ||
+                    mimeType.endsWith("svg");
+            break;
+
+          default:
+            matchesType = true;
+        }
+      }
+
+      return matchesQuery && matchesType;
+    }).toList();
+
+    // 🔢 Urutkan
+    int compare<T extends Comparable>(T a, T b) {
+      return currentSortOrder == SortOrder.desc
+          ? b.compareTo(a)
+          : a.compareTo(b);
+    }
+
+    switch (currentSortBy) {
+      case SortBy.name:
+        filtered.sort(
+              (a, b) => compare(a.nama.toLowerCase(), b.nama.toLowerCase()),
+        );
+        break;
+      case SortBy.modifiedDate:
+        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
   }
 }
