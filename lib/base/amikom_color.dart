@@ -1,0 +1,16 @@
+import 'package:flutter/material.dart';
+
+const Color pinkNewAmikom = Color(0xFFFFC9C9);
+const Color blackNewAmikom = Color(0xFF501508);
+const Color yellowNewAmikom = Color(0xFFFFE4BC);
+const Color blueNewAmikom = Color(0xFF989AFF);
+const Color greenNewAmikom = Color(0xFFA1D688);
+const Color grayNewAmikom = Color(0x33000000);
+const Color softGrayNewAmikom = Color(0xFFD8D8D8);
+const Color creamNewAmikom = Color(0x33BCDE7D);
+const Color brownNewAmikom = Color(0xFFA87171);
+const Color orangeNewAmikom = Color(0xFFEB7961);
+const Color softestGrayNewAmikom = Color(0x80D9D9D9);
+const Color darkGrayNewAmikom = Color(0x80000000);
+const Color mistyRoseNewAmikom = Color(0xFFFFEAEA);
+const Color magnoliaWhiteNewAmikom = Color(0xFFFEF7FF);
