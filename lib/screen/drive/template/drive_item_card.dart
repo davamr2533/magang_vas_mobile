@@ -682,6 +682,15 @@ class DriveItemCard extends StatelessWidget {
               ),
             );
             return;
+          } else if ( item.isStarred ){
+            ScaffoldMessenger.of(rootContext).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Tidak dapat menghapus item berbintang.",
+                ),
+              ),
+            );
+            return;
           }
           await addToTrash(
             rootContext,
@@ -741,7 +750,7 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
-  // Fungsi reusable di dalam file ini saja
+
   Widget buildMimeIcon({
     required bool isFolder,
     required String? mimeType,

@@ -1,17 +1,13 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:vas_reporting/screen/drive/drive_home.dart';
-import '../../../base/amikom_color.dart';
-import '../../../utllis/app_shared_prefs.dart';
+import 'package:vas_reporting/screen/drive/template/folder_app_bar.dart';
 import '../data/cubit/get_drive_cubit.dart';
 import '../data/model/response/get_data_drive_response.dart';
 import '../drive_item_model.dart';
 import '../template/drive_layout.dart';
 import '../template/sort_and_layout_option.dart';
 import '../template/animated_fab.dart';
-import 'detail_page.dart';
 
 class FolderPage extends StatefulWidget {
   // =========== Properti awal yang dibutuhkan untuk halaman folder ===========
@@ -115,16 +111,12 @@ class FolderPageState extends State<FolderPage>
   // =========== FUNGSI REFRESH  ===========
   Future<void> _refreshData() async {
     if (widget.onRefresh != null) {
-      // 1. Fetch data terbaru dari server
       await widget.onRefresh!();
 
-      // 2. Tunggu sebentar untuk memastikan data sudah ter-update
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 3. Dapatkan data terbaru dari Cubit/Bloc
       final driveState = context.read<DriveCubit>().state;
       if (driveState is DriveDataSuccess) {
-        // 4. Cari folder yang sama dengan ID yang sedang dibuka
         final currentFolderId = currentFolder.id;
         final updatedFolder = _findFolderById(
           driveState.driveData.data ?? [],
@@ -132,24 +124,20 @@ class FolderPageState extends State<FolderPage>
         );
 
         if (updatedFolder != null) {
-          // 5. Update navigation stack dengan data terbaru
           setState(() {
             navigationStack.removeLast();
             navigationStack.add(updatedFolder);
           });
         } else {
-          // Jika folder tidak ditemukan (mungkin dihapus), refresh UI lokal
           setState(() {});
         }
       } else {
-        // Fallback: refresh UI lokal
         setState(() {});
       }
     } else if (widget.onUpdateChanged != null) {
       widget.onUpdateChanged!();
       setState(() {});
     } else {
-      // Final fallback
       setState(() {});
     }
   }
@@ -394,24 +382,6 @@ class FolderPageState extends State<FolderPage>
     return allItems;
   }
 
-  // =========== Fungsi untuk membuka dan menutup detail folder ===========
-  void openDetail(DriveItemModel folder) {
-    setState(() {
-      selectedFolder = folder;
-      showDetail = true;
-    });
-    _controller.forward(from: 0);
-  }
-
-  void closeDetail() {
-    _controller.reverse().then((_) {
-      setState(() {
-        showDetail = false;
-        selectedFolder = null;
-      });
-    });
-  }
-
   // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
@@ -426,28 +396,38 @@ class FolderPageState extends State<FolderPage>
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: _buildAppBar(),
+        appBar: FolderAppBar(
+          onQueryChanged: (val) {
+            setState(() => query = val);
+          },
+          popFolder: popFolder,
+          folderId: currentFolder.id,
+          isTrashed: currentFolder.isTrashed,
+          title: currentFolder.nama,
+        ),
 
         // =========== Body dengan RefreshIndicator ===========
-        body: Stack(
-          children: [
-            RefreshIndicator(
-              onRefresh: _refreshData,
-              child: PageTransitionSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (child, animation, secondaryAnimation) {
-                  return SharedAxisTransition(
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    transitionType: SharedAxisTransitionType.scaled,
-                    fillColor: Colors.white,
-                    child: child,
-                  );
-                },
-                child: _buildBody(items),
-              ),
-            ),
-          ],
+        body: PageTransitionSwitcher(
+          duration: const Duration(milliseconds: 400),
+          transitionBuilder:
+              (
+                Widget child,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+              ) {
+                return SharedAxisTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.scaled,
+                  fillColor: Colors.white,
+                  child: child,
+                );
+              },
+          child: RefreshIndicator(
+            key: ValueKey(currentFolder.id),
+            onRefresh: _refreshData,
+            child: _buildBodyContent(items),
+          ),
         ),
 
         // =========== Tombol tambah folder / upload file (FAB) ===========
@@ -463,102 +443,39 @@ class FolderPageState extends State<FolderPage>
     );
   }
 
-  // =========== Membuat AppBar sesuai kondisi folder ===========
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: magnoliaWhiteNewAmikom,
-      automaticallyImplyLeading: false,
-      elevation: 1,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-        onPressed: popFolder,
-      ),
-      title: Text(currentFolder.nama),
-      centerTitle: true,
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(
-          (currentFolder.id == -3 || currentFolder.isTrashed == true)
-              ? 50.0
-              : 1.0,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(color: Colors.grey.shade300, height: 1.0),
-            if (currentFolder.id == -3 || currentFolder.isTrashed == true)
-              Container(
-                width: double.infinity,
-                color: Colors.red.shade100,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete, color: Colors.redAccent, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Item dihapus selamanya setelah 30 hari.',
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // =========== Membuat isi halaman utama (daftar folder dan sort option) ===========
-  Widget _buildBody(List<DriveItemModel> items) {
-    return Scaffold(
-      backgroundColor: magnoliaWhiteNewAmikom,
-      body: Column(
-        key: ValueKey(currentFolder.id),
+  Widget _buildBodyContent(List<DriveItemModel> items) {
+    if (items.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          if (items.isNotEmpty)
-            SortAndViewOption(
-              selectedSortBy: currentSortBy,
-              selectedSortOrder: currentSortOrder,
-              selectedView: currentView,
-              onSortByChanged: (sortBy) =>
-                  setState(() => currentSortBy = sortBy),
-              onSortOrderChanged: (order) =>
-                  setState(() => currentSortOrder = order),
-              onViewChanged: (view) => setState(() => currentView = view),
-            ),
-
-          // =========== Daftar isi folder atau tampilan kosong ===========
-          Expanded(
-            child: items.isEmpty
-                ? Center(
-                    child: Text(
-                      "Folder Kosong",
-                      style: GoogleFonts.urbanist(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  )
-                : DriveGrid(
-                    items: items,
-                    isList: currentView == ViewOption.list,
-                    onItemTap: (tapped) {
-                      pushFolder(tapped);
-                    },
-                    onUpdateChanged: _refreshData,
-                    username: widget.username,
-                  ),
-          ),
+          const SizedBox(height: 200),
+          Center(child: emptyPageText(currentFolder.id)),
         ],
-      ),
+      );
+    }
+
+    return Column(
+      children: [
+        SortAndViewOption(
+          selectedSortBy: currentSortBy,
+          selectedSortOrder: currentSortOrder,
+          selectedView: currentView,
+          onSortByChanged: (sortBy) => setState(() => currentSortBy = sortBy),
+          onSortOrderChanged: (order) =>
+              setState(() => currentSortOrder = order),
+          onViewChanged: (view) => setState(() => currentView = view),
+        ),
+        Expanded(
+          child: DriveGrid(
+            items: items,
+            isList: currentView == ViewOption.list,
+            onItemTap: pushFolder,
+            onUpdateChanged: _refreshData,
+            username: widget.username,
+          ),
+        ),
+      ],
     );
   }
 
@@ -570,8 +487,9 @@ class FolderPageState extends State<FolderPage>
       final mimeType = f.mimeType?.toLowerCase() ?? "";
       final queryLower = query.toLowerCase();
 
-      // Filter berdasarkan teks pencarian
-      final matchesQuery = fileName.contains(queryLower);
+      // Filter berdasarkan teks pencarian (nama atau mime type)
+      final matchesQuery =
+          fileName.contains(queryLower) || mimeType.contains(queryLower);
 
       // Default: semua cocok jika tidak ada filter
       bool matchesType = true;
@@ -590,11 +508,11 @@ class FolderPageState extends State<FolderPage>
             matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
 
-          case "PDF":
+          case "PDFs":
             matchesType = mimeType.endsWith("pdf");
             break;
 
-          case "Photos & Image":
+          case "Photos & Images":
             matchesType =
                 mimeType.endsWith("png") ||
                 mimeType.endsWith("jpg") ||
@@ -607,7 +525,6 @@ class FolderPageState extends State<FolderPage>
             matchesType = true;
         }
       }
-
       return matchesQuery && matchesType;
     }).toList();
 
@@ -625,7 +542,7 @@ class FolderPageState extends State<FolderPage>
           : a.compareTo(b);
     }
 
-    // Urutkan sesuai enum SortBy
+    // mengurutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
@@ -643,5 +560,24 @@ class FolderPageState extends State<FolderPage>
     }
 
     return filtered;
+  }
+
+  Widget emptyPageText(int id) {
+    switch (id) {
+      case -1:
+        return Text(
+          "Tidak ada berkas terbaru",
+          style: TextStyle(color: Colors.grey),
+        );
+      case -2:
+        return Text(
+          "Tidak ada file berbintang",
+          style: TextStyle(color: Colors.grey),
+        );
+      case -3:
+        return Text("Sampah kosong", style: TextStyle(color: Colors.grey));
+      default:
+        return Text("Folder kosong", style: TextStyle(color: Colors.grey));
+    }
   }
 }

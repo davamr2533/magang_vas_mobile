@@ -24,10 +24,10 @@ class FolderItem {
   int? parentId;
   String? userId;
   String? name;
-  String? isStarred; // Disimpan sebagai String, dikonversi via extension
-  String? isTrashed; // Disimpan sebagai String, dikonversi via extension
-  String? createdAt; // Disimpan sebagai String, dikonversi via extension
-  String? updatedAt; // Disimpan sebagai String, dikonversi via extension
+  String? isStarred;
+  String? isTrashed;
+  String? createdAt;
+  String? updatedAt;
   List<FolderItem>? children;
   List<FileItem>? files;
 

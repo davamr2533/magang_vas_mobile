@@ -39,6 +39,8 @@ class _DriveHomeState extends State<DriveHome>
   int? parentId;
   int myDriveRootId = 1; // Default
   int sharedDriveRootId = 2; // Default
+  final GlobalKey<CustomSearchBarState> _searchBarKey = GlobalKey<CustomSearchBarState>();
+
 
   late DriveCubit getDriveData;
 
@@ -128,6 +130,10 @@ class _DriveHomeState extends State<DriveHome>
     List<DriveItemModel> sharedDriveFolders,
   ) {
     final myDriveItems = _getFilteredAndSortedFolders(myDriveFolders);
+    final sharedDriveItems = _getFilteredAndSortedFolders(sharedDriveFolders);
+
+    final bool isMyDriveEmpty = myDriveItems.isEmpty;
+    final bool isSharedDriveEmpty = sharedDriveItems.isEmpty;
 
     return Scaffold(
       backgroundColor: magnoliaWhiteNewAmikom,
@@ -138,10 +144,13 @@ class _DriveHomeState extends State<DriveHome>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            if (mounted) Navigator.pop(context);
+            _searchBarKey.currentState?.unfocus(); // unfocus TextField
+            if (mounted) Navigator.pop(context);   // baru pop route
           },
         ),
+
         title: CustomSearchBar(
+          key: _searchBarKey, // <-- key penting agar bisa akses state
           onQueryChanged: (val) {
             setState(() => query = val);
           },
@@ -151,6 +160,7 @@ class _DriveHomeState extends State<DriveHome>
             });
           },
         ),
+
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -164,6 +174,7 @@ class _DriveHomeState extends State<DriveHome>
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
+          indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
             Tab(text: "My Drive"),
             Tab(text: "Shared Drive"),
@@ -172,31 +183,52 @@ class _DriveHomeState extends State<DriveHome>
       ),
       body: Column(
         children: [
-          SortAndViewOption(
-            selectedSortBy: currentSortBy,
-            selectedSortOrder: currentSortOrder,
-            selectedView: currentView,
-            onSortByChanged: (sortBy) => setState(() => currentSortBy = sortBy),
-            onSortOrderChanged: (order) =>
-                setState(() => currentSortOrder = order),
-            onViewChanged: (view) => setState(() => currentView = view),
-          ),
+          if (!((_tabController.index == 0 && isMyDriveEmpty) ||
+              (_tabController.index == 1 && isSharedDriveEmpty)))
+            SortAndViewOption(
+              selectedSortBy: currentSortBy,
+              selectedSortOrder: currentSortOrder,
+              selectedView: currentView,
+              onSortByChanged: (sortBy) =>
+                  setState(() => currentSortBy = sortBy),
+              onSortOrderChanged: (order) =>
+                  setState(() => currentSortOrder = order),
+              onViewChanged: (view) => setState(() => currentView = view),
+            ),
 
           Expanded(
             child: TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: _tabController,
               children: [
+                // MY DRIVE
                 RefreshIndicator(
                   onRefresh: () async {
                     await fetchData();
                   },
-                  child: buildDriveGrid(myDriveItems),
+                  child: isMyDriveEmpty
+                      ? const Center(
+                          child: Text(
+                            "Tidak ada apa-apa di sini",
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : buildDriveGrid(myDriveItems),
                 ),
+
+                // SHARED DRIVE
                 RefreshIndicator(
                   onRefresh: () async {
                     await fetchData();
                   },
-                  child: buildDriveGrid(sharedDriveFolders),
+                  child: isSharedDriveEmpty
+                      ? const Center(
+                          child: Text(
+                            "Tidak ada apa-apa di sini",
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : buildDriveGrid(sharedDriveItems),
                 ),
               ],
             ),
@@ -206,7 +238,7 @@ class _DriveHomeState extends State<DriveHome>
       floatingActionButton: AnimatedFabMenu(
         parentId: parentId!,
         onFolderCreated: () async {
-          await fetchData(); // auto refresh folder list
+          await fetchData();
         },
       ),
     );
@@ -220,9 +252,7 @@ class _DriveHomeState extends State<DriveHome>
           body: IndexedStack(
             index: _selectedIndex,
             children: [
-              // Halaman Drive Home (index 0)
               _buildDriveHomeContent(state),
-              // Halaman lainnya
               _buildRecentPage(state),
               _buildStarredPage(state),
               _buildTrashPage(state),
@@ -246,47 +276,36 @@ class _DriveHomeState extends State<DriveHome>
 
     if (state is DriveDataSuccess) {
       final apiData = state.driveData.data ?? [];
+      final filteredData = filterNonTrashedFolderItems(apiData);
 
-      // Ambil root "My Drive" dan "Shared Drive"
-      final driveRoot = apiData.firstWhere(
+      final driveRoot = filteredData.firstWhere(
         (i) => i.name == 'My Drive',
         orElse: () => FolderItem(),
       );
 
-      final sharedDriveRoot = apiData.firstWhere(
+      final sharedDriveRoot = filteredData.firstWhere(
         (i) => i.name == 'Shared Drive',
         orElse: () => FolderItem(),
       );
 
-      // Ambil semua folder My Drive milik user login
       final userDriveFolders = (driveRoot.children ?? [])
-          .where(
-            (child) => child.userId == username && child.isTrashed == 'FALSE',
-          )
+          .where((child) => child.userId == username)
           .toList();
 
-      // Ambil semua file My Drive milik user login (bisa di root)
       final userDriveFiles = (driveRoot.files ?? [])
-          .where((file) => file.userId == username && file.isTrashed == 'FALSE')
+          .where((file) => file.userId == username)
           .toList();
 
       final allMyDriveItems = [...userDriveFolders, ...userDriveFiles];
 
-      // Set ID root
       myDriveRootId = driveRoot.id ?? 1;
       sharedDriveRootId = sharedDriveRoot.id ?? 2;
       parentId ??= myDriveRootId;
 
-      // Shared Drive
-      final sharedFolders = (sharedDriveRoot.children ?? [])
-          .where((child) => child.isTrashed == 'FALSE')
-          .toList();
-      final sharedFiles = (sharedDriveRoot.files ?? [])
-          .where((file) => file.isTrashed == 'FALSE')
-          .toList();
+      final sharedFolders = (sharedDriveRoot.children ?? []);
+      final sharedFiles = (sharedDriveRoot.files ?? []);
       final allSharedDriveItems = [...sharedFolders, ...sharedFiles];
 
-      // Mapping ke model UI
       final myDriveItems = _mapApiItemsToUiModel(allMyDriveItems);
       final sharedDriveItems = _mapApiItemsToUiModel(allSharedDriveItems);
 
@@ -310,7 +329,7 @@ class _DriveHomeState extends State<DriveHome>
         onRefresh: fetchData,
       );
     }
-    return _buildGenericLoadingPage("Terbaru");
+    return _buildGenericLoadingPage("Berkas Terbaru");
   }
 
   // Method untuk halaman Starred
@@ -616,6 +635,30 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
+  List<FolderItem> filterNonTrashedFolderItems(List<FolderItem> folders) {
+    return folders.where((folder) => folder.isTrashed == 'FALSE').map((folder) {
+      final filteredChildren = filterNonTrashedFolderItems(
+        folder.children ?? [],
+      );
+      final filteredFiles = (folder.files ?? [])
+          .where((file) => file.isTrashed == 'FALSE')
+          .toList();
+
+      return FolderItem(
+        id: folder.id,
+        parentId: folder.parentId,
+        userId: folder.userId,
+        name: folder.name,
+        isStarred: folder.isStarred,
+        isTrashed: folder.isTrashed,
+        createdAt: folder.createdAt,
+        updatedAt: folder.updatedAt,
+        children: filteredChildren,
+        files: filteredFiles,
+      );
+    }).toList();
+  }
+
   List<DriveItemModel> _mapApiItemsToUiModel(dynamic apiInput) {
     final List<DriveItemModel> combinedList = [];
 
@@ -746,18 +789,17 @@ class _DriveHomeState extends State<DriveHome>
     return combinedList;
   }
 
-
-
   List<DriveItemModel> _getFilteredAndSortedFolders(
-      List<DriveItemModel> sourceFolders,
-      ) {
+    List<DriveItemModel> sourceFolders,
+  ) {
     final filtered = sourceFolders.where((f) {
       final fileName = f.nama.toLowerCase();
       final mimeType = f.mimeType?.toLowerCase() ?? "";
       final queryLower = query.toLowerCase();
 
-      // Filter berdasarkan teks pencarian
-      final matchesQuery = fileName.contains(queryLower);
+      // Filter berdasarkan teks pencarian (nama atau mime type)
+      final matchesQuery =
+          fileName.contains(queryLower) || mimeType.contains(queryLower);
 
       // Default: semua cocok jika tidak ada filter
       bool matchesType = true;
@@ -776,42 +818,45 @@ class _DriveHomeState extends State<DriveHome>
             matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
 
-          case "PDF":
+          case "PDFs":
             matchesType = mimeType.endsWith("pdf");
             break;
 
-          case "Photos & Image":
+          case "Photos & Images":
             matchesType =
                 mimeType.endsWith("png") ||
-                    mimeType.endsWith("jpg") ||
-                    mimeType.endsWith("jpeg") ||
-                    mimeType.endsWith("gif") ||
-                    mimeType.endsWith("svg");
+                mimeType.endsWith("jpg") ||
+                mimeType.endsWith("jpeg") ||
+                mimeType.endsWith("gif") ||
+                mimeType.endsWith("svg");
             break;
 
           default:
             matchesType = true;
         }
       }
-
       return matchesQuery && matchesType;
     }).toList();
 
     // Fungsi pembanding untuk teks (A–Z, Z–A)
     int compareText<T extends Comparable>(T a, T b) {
-      return currentSortOrder == SortOrder.desc ? b.compareTo(a) : a.compareTo(b);
+      return currentSortOrder == SortOrder.desc
+          ? b.compareTo(a)
+          : a.compareTo(b);
     }
 
     // Fungsi pembanding untuk tanggal (Terbaru, Terlama)
     int compareDate<T extends Comparable>(T a, T b) {
-      return currentSortOrder == SortOrder.asc ? b.compareTo(a) : a.compareTo(b);
+      return currentSortOrder == SortOrder.asc
+          ? b.compareTo(a)
+          : a.compareTo(b);
     }
 
-    // Urutkan sesuai enum SortBy
+    // mengurutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
-              (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
+          (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
         );
         break;
 
@@ -826,5 +871,4 @@ class _DriveHomeState extends State<DriveHome>
 
     return filtered;
   }
-
 }

@@ -23,7 +23,7 @@ class SortAndViewOption extends StatelessWidget {
     required this.onViewChanged,
   });
 
-  // 🔤 Label dinamis berdasarkan pilihan sort
+  // Label dinamis berdasarkan pilihan sort
   String _getSortLabel(SortBy sortBy) {
     switch (sortBy) {
       case SortBy.name:
@@ -45,7 +45,7 @@ class SortAndViewOption extends StatelessWidget {
         : Icons.arrow_upward_rounded;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
