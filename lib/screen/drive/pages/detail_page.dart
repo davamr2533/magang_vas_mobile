@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vas_reporting/screen/drive/drive_item_model.dart';
 
 class DetailPage extends StatelessWidget {
-  // =========== Deklarasi properti yang dibutuhkan ===========
+  // =========== Properti utama ===========
   final String title;
   final String lokasi;
   final DriveItemModel item;
-  final IconData icon;
+  final dynamic icon; // <- bisa IconData atau path SVG
 
   const DetailPage({
     super.key,
     required this.lokasi,
     required this.title,
     required this.item,
-    required this.icon
+    required this.icon,
   });
 
-  // =========== Fungsi untuk memformat tanggal agar lebih mudah dibaca ===========
+  // =========== Format tanggal ke format lokal ===========
   String formatDate(DateTime date) {
     try {
       return DateFormat('d MMM yyyy, HH:mm', 'id_ID').format(date);
@@ -26,18 +27,14 @@ class DetailPage extends StatelessWidget {
     }
   }
 
-  // =========== Membangun tampilan utama halaman detail ===========
+  // =========== Widget pembangun utama ===========
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F3F6), // Warna dasar halaman (pink muda)
+      backgroundColor: const Color(0xFFF9F3F6),
 
-      // =========== AppBar bagian atas ===========
       appBar: AppBar(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -48,7 +45,6 @@ class DetailPage extends StatelessWidget {
         ),
       ),
 
-      // =========== Bagian isi konten ===========
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -56,22 +52,26 @@ class DetailPage extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
 
-            // =========== Icon utama file/folder ===========
-            Icon(icon, size: 100, color: Colors.redAccent),
+            // ======= Icon utama fleksibel (IconData / SVG) =======
+            _buildFlexibleIcon(icon, size: 100, color: Colors.redAccent),
 
             const SizedBox(height: 24),
-
-            // =========== Garis pemisah ===========
             Container(height: 2, color: Colors.red.shade100),
-
             const SizedBox(height: 24),
 
-            // =========== Rincian informasi detail ===========
+            // ======= Detail informasi =======
             _buildDetailItem("Jenis", item.mimeType ?? 'Folder'),
-            if (item.isTrashed) _buildDetailItem("Hapus dari", lokasi, icon: Icons.folder_rounded),
-            if (!item.isTrashed) _buildDetailItem("Lokasi", lokasi, icon: Icons.folder_rounded),
+            if (item.isTrashed)
+              _buildDetailItem(
+                "Hapus dari",
+                lokasi,
+                icon: Icons.folder_rounded,
+              ),
+            if (!item.isTrashed)
+              _buildDetailItem("Lokasi", lokasi, icon: Icons.folder_rounded),
             if (item.size != null) _buildDetailItem("Ukuran", item.size!),
-            if (item.isTrashed) _buildDetailItem("Lokasi", "Sampah", icon: Icons.delete),
+            if (item.isTrashed)
+              _buildDetailItem("Lokasi", "Sampah", icon: Icons.delete),
             _buildDetailItem("Dibuat", formatDate(item.createdAt)),
             _buildDetailItem(
               "Diubah",
@@ -84,14 +84,29 @@ class DetailPage extends StatelessWidget {
     );
   }
 
-  // =========== Widget builder untuk menampilkan setiap baris detail ===========
-  Widget _buildDetailItem(String title, String value, {IconData? icon}) {
+  // =========== Widget ikon fleksibel ===========
+  Widget _buildFlexibleIcon(dynamic icon, {double size = 24, Color? color}) {
+    if (icon is IconData) {
+      return Icon(icon, size: size, color: color);
+    } else if (icon is String) {
+      // Asumsi path ke file SVG di assets
+      return SvgPicture.asset(
+        icon,
+        width: size,
+        height: size,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
+  // =========== Widget setiap baris detail ===========
+  Widget _buildDetailItem(String title, String value, {dynamic icon}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label judul seperti "Jenis", "Ukuran", dll.
           Text(
             title,
             style: const TextStyle(
@@ -100,24 +115,18 @@ class DetailPage extends StatelessWidget {
               color: Colors.black87,
             ),
           ),
-
           const SizedBox(height: 4),
-
-          // Nilai atau isi dari label di atas
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 16, color: Colors.black54),
+                _buildFlexibleIcon(icon, size: 16, color: Colors.black54),
                 const SizedBox(width: 4),
               ],
               Expanded(
                 child: Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Colors.black,
-                  ),
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ),
             ],

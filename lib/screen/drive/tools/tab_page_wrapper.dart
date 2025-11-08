@@ -6,16 +6,18 @@ import '../template/sort_and_layout_option.dart';
 
 class TabPageWrapper extends StatefulWidget {
   final DriveItemModel rootFolder;
+  final String username;
   final ViewOption initialView;
   final VoidCallback onRootPop;
-  final Future<void> Function()? onRefresh; // TAMBAHKAN INI
+  final Future<void> Function()? onRefresh;
 
   const TabPageWrapper({
     super.key,
     required this.rootFolder,
+    required this.username,
     required this.initialView,
     required this.onRootPop,
-    this.onRefresh, // TAMBAHKAN INI
+    this.onRefresh,
   });
 
   @override
@@ -24,7 +26,6 @@ class TabPageWrapper extends StatefulWidget {
 
 class _TabPageWrapperState extends State<TabPageWrapper>
     with AutomaticKeepAliveClientMixin {
-  // Kunci #1: Jaga state tetap hidup
   @override
   bool get wantKeepAlive => true;
 
@@ -69,6 +70,7 @@ class _TabPageWrapperState extends State<TabPageWrapper>
       child: FolderPage(
         key: _folderKey, // GlobalKey untuk akses state
         initialFolder: widget.rootFolder,
+        username: widget.username,
         initialView: widget.initialView,
         onRootPop: widget.onRootPop,
         onRefresh: () async {

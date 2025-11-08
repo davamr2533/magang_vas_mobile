@@ -23,6 +23,7 @@ class DriveItemCard extends StatelessWidget {
   final String title;
   final String parentName;
   final DriveItemModel item;
+  final String username;
   final bool isList;
   final bool isStarred;
   final DriveItemType type;
@@ -34,6 +35,7 @@ class DriveItemCard extends StatelessWidget {
     required this.title,
     required this.parentName,
     required this.item,
+    required this.username,
     required this.type,
     this.isList = false,
     this.isStarred = false,
@@ -42,7 +44,7 @@ class DriveItemCard extends StatelessWidget {
   });
 
   // Tetap dipakai di logic internal
-  IconData getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
+  dynamic getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
     if (isFolder) return Icons.folder;
     if (mimeType == null) return Icons.insert_drive_file;
 
@@ -54,11 +56,11 @@ class DriveItemCard extends StatelessWidget {
         ext.contains('svg')) {
       return Icons.image_rounded;
     } else if (ext.contains('pdf')) {
-      return Icons.picture_as_pdf_rounded;
+      return "assets/pdf.svg";
     } else if (ext.contains('doc') || ext.contains('docx')) {
-      return Icons.description_rounded;
+      return "assets/word.svg";
     } else if (ext.contains('xls')) {
-      return Icons.table_chart_rounded;
+      return "assets/excel.svg";
     } else {
       return Icons.insert_drive_file_rounded;
     }
@@ -67,7 +69,7 @@ class DriveItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isFolder = type == DriveItemType.folder;
-    final IconData mainIcon = getFileIcon(item.mimeType, isFolder, isStarred);
+    final dynamic mainIcon = getFileIcon(item.mimeType, isFolder, isStarred);
 
     final String diubah = DateFormat('d MMM yyyy').format(item.updateAt);
     final String dibuat = DateFormat('d MMM yyyy').format(item.createdAt);
@@ -130,29 +132,51 @@ class DriveItemCard extends StatelessWidget {
               ),
 
               title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: item.isStarred == true
-                  ? RichText(
-                      text: TextSpan(
+              subtitle: (item.isStarred == true && item.userId == username)
+                  ? Text.rich(
+                      TextSpan(
                         style: const TextStyle(
                           fontSize: 12,
-                          height: 1.0,
-                          color: Colors.black,
                         ),
                         children: [
                           WidgetSpan(
                             alignment: PlaceholderAlignment.baseline,
                             baseline: TextBaseline.alphabetic,
                             child: Transform.translate(
-                              offset: const Offset(0, 1.5),
+                              offset: const Offset(0, 3.0),
                               child: const Icon(
                                 Icons.star,
-                                size: 12,
+                                size: 16,
                                 color: orangeNewAmikom,
                               ),
                             ),
                           ),
                           const WidgetSpan(child: SizedBox(width: 4)),
                           TextSpan(text: subtitleText),
+                        ],
+                      ),
+                    )
+                  : (item.userId != username)
+                  ? Text.rich(
+                       TextSpan(
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(text: subtitleText),
+                          const WidgetSpan(child: SizedBox(width: 4)),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.baseline,
+                            baseline: TextBaseline.alphabetic,
+                            child: Transform.translate(
+                              offset: const Offset(0, 3.5),
+                              child: const Icon(
+                                Icons.group,
+                                size: 16,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     )
@@ -259,7 +283,15 @@ class DriveItemCard extends StatelessWidget {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
-                            errorBuilder: (_, __, ___) => Icon(
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Icon(
+                                mainIcon,
+                                size: 100,
+                                color: orangeNewAmikom,
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Icon(
                               mainIcon,
                               size: 100,
                               color: orangeNewAmikom,
@@ -267,7 +299,7 @@ class DriveItemCard extends StatelessWidget {
                           ),
                         ),
 
-                        if (item.isStarred)
+                        if (item.isStarred && item.userId == username)
                           Positioned(
                             bottom: 6,
                             right: 6,
@@ -279,6 +311,23 @@ class DriveItemCard extends StatelessWidget {
                               padding: const EdgeInsets.all(4),
                               child: const Icon(
                                 Icons.star,
+                                size: 18,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          )
+                        else if (item.userId != username)
+                          Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.group,
                                 size: 18,
                                 color: orangeNewAmikom,
                               ),
@@ -298,7 +347,7 @@ class DriveItemCard extends StatelessWidget {
                         PdfThumbnail(url: "$url${item.url!}"),
 
                         // Ikon bintang di kanan bawah jika item di-star
-                        if (item.isStarred)
+                        if (item.isStarred && item.userId == username)
                           Positioned(
                             bottom: 6,
                             right: 6,
@@ -310,6 +359,23 @@ class DriveItemCard extends StatelessWidget {
                               padding: const EdgeInsets.all(4),
                               child: const Icon(
                                 Icons.star,
+                                size: 18,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          )
+                        else if (item.userId != username)
+                          Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.group,
                                 size: 18,
                                 color: orangeNewAmikom,
                               ),
@@ -329,13 +395,23 @@ class DriveItemCard extends StatelessWidget {
                                 size: 100,
                                 color: orangeNewAmikom,
                               ),
-                              if (item.isStarred)
+                              if (item.isStarred && item.userId == username)
                                 Positioned(
                                   bottom: 6,
                                   right: 12,
                                   child: Icon(
                                     Icons.star,
                                     size: 20,
+                                    color: pinkNewAmikom,
+                                  ),
+                                )
+                              else if (item.userId != username)
+                                Positioned(
+                                  bottom: 8,
+                                  right: 16,
+                                  child: Icon(
+                                    Icons.group,
+                                    size: 18,
                                     color: pinkNewAmikom,
                                   ),
                                 ),
@@ -347,7 +423,8 @@ class DriveItemCard extends StatelessWidget {
                             mainIcon: mainIcon,
                             color: orangeNewAmikom,
                             size: 100,
-                      isStarred: item.isStarred,
+                            isStarred: item.isStarred,
+                            userId: item.userId,
                           ),
                   ),
               ],
@@ -359,7 +436,7 @@ class DriveItemCard extends StatelessWidget {
   }
 
   // bottom sheet (tidak diubah, tetap pakai mainIcon)
-  void _showOptions(BuildContext context, IconData mainIcon) {
+  void _showOptions(BuildContext context, dynamic mainIcon) {
     final rootContext = context;
     final bool isFolder = type == DriveItemType.folder;
 
@@ -390,7 +467,11 @@ class DriveItemCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(mainIcon, color: orangeNewAmikom, size: 28),
+                      _buildFlexibleIcon(
+                        mainIcon,
+                        size: 28,
+                        color: orangeNewAmikom,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -500,18 +581,27 @@ class DriveItemCard extends StatelessWidget {
                           ),
                     onTap: () async {
                       Navigator.pop(sheetContext);
+                      if (item.userId != username) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Hanya pemilik yang bisa menambahkan ke berbintang.",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
                       await toggleStarAction(
-                          rootContext,
-                          token!,
-                          isFolder ? item.id : null,
-                          isFolder ? null : item.id,
-                          item.userId!,
-                          !item.isStarred
+                        rootContext,
+                        token!,
+                        isFolder ? item.id : null,
+                        isFolder ? null : item.id,
+                        item.userId!,
+                        !item.isStarred,
                       );
 
                       onUpdateChanged?.call();
                     },
-
                   ),
 
                 // ============= Opsi: Lihat Detail Informasi ============
@@ -550,7 +640,7 @@ class DriveItemCard extends StatelessWidget {
                   item,
                   token!,
                   username!,
-                    isFolder,
+                  isFolder,
                 ),
 
                 const SizedBox(height: 8),
@@ -573,7 +663,7 @@ class DriveItemCard extends StatelessWidget {
     DriveItemModel item,
     String token,
     String username,
-      bool isFolder
+    bool isFolder,
   ) {
     // Remove the FutureBuilder from here since we're now passing the token directly
     if (!item.isTrashed) {
@@ -594,12 +684,12 @@ class DriveItemCard extends StatelessWidget {
             return;
           }
           await addToTrash(
-              rootContext,
-              token,
-              title,
-              isFolder ? item.id : null,
-              isFolder ? null : item.id,
-              item.userId!,
+            rootContext,
+            token,
+            title,
+            isFolder ? item.id : null,
+            isFolder ? null : item.id,
+            item.userId!,
           );
           onUpdateChanged?.call();
         },
@@ -655,17 +745,53 @@ class DriveItemCard extends StatelessWidget {
   Widget buildMimeIcon({
     required bool isFolder,
     required String? mimeType,
-    required IconData mainIcon,
+    required dynamic mainIcon,
     required Color color,
     required bool isStarred,
+    String? userId,
     double size = 28,
   }) {
     final mime = mimeType?.toLowerCase() ?? '';
-    Widget fallback = Icon(mainIcon, color: color, size: size);
+    // ======== Fallback (default icon) ========
+    Widget fallback;
+    if (mainIcon is IconData) {
+      fallback = Icon(mainIcon, color: color, size: size);
+    } else if (mainIcon is String) {
+      fallback = SvgPicture.asset(
+        mainIcon,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    } else {
+      fallback = Icon(
+        Icons.insert_drive_file_rounded,
+        color: color,
+        size: size,
+      );
+    }
 
-    // Fungsi pembungkus untuk menambahkan ikon bintang di kanan bawah jika perlu
     Widget withStar(Widget child) {
-      if (isStarred && size == 100) {
+      if (isStarred && size == 100 && userId == username) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            child,
+            Positioned(
+              bottom: 6,
+              right: 6,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(Icons.star, size: 18, color: orangeNewAmikom),
+              ),
+            ),
+          ],
+        );
+      } else if (size == 100 && userId != username) {
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -680,7 +806,7 @@ class DriveItemCard extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(4),
                 child: const Icon(
-                  Icons.star,
+                  Icons.group,
                   size: 18,
                   color: orangeNewAmikom,
                 ),
@@ -689,6 +815,7 @@ class DriveItemCard extends StatelessWidget {
           ],
         );
       }
+
       return child;
     }
 
@@ -730,4 +857,14 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
+  Widget _buildFlexibleIcon(dynamic icon, {double size = 24, Color? color}) {
+    if (icon is IconData) {
+      return Icon(icon, size: size, color: color);
+    } else if (icon is String) {
+      // path SVG di assets
+      return SvgPicture.asset(icon, width: size, height: size);
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
 }

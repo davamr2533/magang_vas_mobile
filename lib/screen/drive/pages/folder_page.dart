@@ -16,6 +16,7 @@ import 'detail_page.dart';
 class FolderPage extends StatefulWidget {
   // =========== Properti awal yang dibutuhkan untuk halaman folder ===========
   final DriveItemModel initialFolder;
+  final String username;
   final ViewOption initialView;
   final VoidCallback? onRootPop;
   final VoidCallback? onUpdateChanged;
@@ -24,6 +25,7 @@ class FolderPage extends StatefulWidget {
   const FolderPage({
     super.key,
     required this.initialFolder,
+    required this.username,
     this.initialView = ViewOption.grid,
     this.onRootPop,
     this.onUpdateChanged,
@@ -225,6 +227,7 @@ class FolderPageState extends State<FolderPage>
               )
               .toList(),
           type: DriveItemType.folder,
+          isSpecial: true,
         );
 
       case -2: // Starred
@@ -462,31 +465,55 @@ class FolderPageState extends State<FolderPage>
 
   // =========== Membuat AppBar sesuai kondisi folder ===========
   AppBar _buildAppBar() {
-    final isRoot = navigationStack.length == 1;
-    final isSpecial = widget.initialFolder.isSpecial;
-
     return AppBar(
       backgroundColor: magnoliaWhiteNewAmikom,
       automaticallyImplyLeading: false,
       elevation: 1,
-      leading: !isSpecial
-          ? IconButton(
+      leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
         onPressed: popFolder,
-      )
-          : null,
+      ),
       title: Text(currentFolder.nama),
       centerTitle: true,
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1.0),
-        child: Container(
-          color: Colors.grey.shade300,
-          height: 1.0,
+        preferredSize: Size.fromHeight(
+          (currentFolder.id == -3 || currentFolder.isTrashed == true)
+              ? 50.0
+              : 1.0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(color: Colors.grey.shade300, height: 1.0),
+            if (currentFolder.id == -3 || currentFolder.isTrashed == true)
+              Container(
+                width: double.infinity,
+                color: Colors.red.shade100,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Item dihapus selamanya setelah 30 hari.',
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
-
 
   // =========== Membuat isi halaman utama (daftar folder dan sort option) ===========
   Widget _buildBody(List<DriveItemModel> items) {
@@ -527,6 +554,7 @@ class FolderPageState extends State<FolderPage>
                       pushFolder(tapped);
                     },
                     onUpdateChanged: _refreshData,
+                    username: widget.username,
                   ),
           ),
         ],

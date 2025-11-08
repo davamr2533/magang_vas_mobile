@@ -83,6 +83,7 @@ class _DriveHomeState extends State<DriveHome>
       DriveRouting(
         page: FolderPage(
           key: ValueKey(folder.id),
+          username: username!,
           initialFolder: folder,
           initialView: currentView,
           onUpdateChanged: fetchData,
@@ -113,6 +114,7 @@ class _DriveHomeState extends State<DriveHome>
   Widget buildDriveGrid(List<DriveItemModel> items) {
     return DriveGrid(
       items: items,
+      username: username!,
       isList: currentView == ViewOption.list,
       onItemTap: (tapped) {
         _navigateToFolder(tapped);
@@ -214,7 +216,6 @@ class _DriveHomeState extends State<DriveHome>
   Widget build(BuildContext context) {
     return BlocBuilder<DriveCubit, DriveState>(
       builder: (context, state) {
-        // Scaffold utama dengan bottom navigation
         return Scaffold(
           body: IndexedStack(
             index: _selectedIndex,
@@ -301,6 +302,7 @@ class _DriveHomeState extends State<DriveHome>
       final recentFolder = _createRecentFolder(state);
       return TabPageWrapper(
         rootFolder: recentFolder,
+        username: username!,
         initialView: currentView,
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
@@ -317,6 +319,7 @@ class _DriveHomeState extends State<DriveHome>
       final starredFolder = _createStarredFolder(state);
       return TabPageWrapper(
         rootFolder: starredFolder,
+        username: username!,
         initialView: currentView,
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
@@ -333,6 +336,7 @@ class _DriveHomeState extends State<DriveHome>
       final trashFolder = _createTrashFolder(state);
       return TabPageWrapper(
         rootFolder: trashFolder,
+        username: username!,
         initialView: currentView,
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
@@ -383,6 +387,7 @@ class _DriveHomeState extends State<DriveHome>
           .where((f) => f.isTrashed == false && f.type == DriveItemType.file)
           .toList(),
       type: DriveItemType.folder,
+      isSpecial: true,
     );
   }
 

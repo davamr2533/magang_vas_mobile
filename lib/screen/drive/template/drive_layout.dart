@@ -1,13 +1,10 @@
-// Di file drive_layout.dart
-
 import 'package:flutter/material.dart';
-// Impor model UI Anda dan Card baru Anda
-import '../drive_home.dart';
 import '../drive_item_model.dart';
 import 'drive_item_card.dart';
 
 class DriveGrid extends StatelessWidget {
   final List<DriveItemModel> items;
+  final String username;
   final bool isList;
   final void Function(DriveItemModel)? onItemTap;
   final VoidCallback? onUpdateChanged;
@@ -15,6 +12,7 @@ class DriveGrid extends StatelessWidget {
   const DriveGrid({
     super.key,
     required this.items,
+    required this.username,
     this.isList = false,
     this.onItemTap,
     this.onUpdateChanged
@@ -36,10 +34,11 @@ class DriveGrid extends StatelessWidget {
             title: isFolder ? item.nama : "${item.nama}.${item.mimeType}",
             isList: true,
             isStarred: item.isStarred,
-            type: item.type, // <-- Kirim tipenya
+            type: item.type,
             onTap: (_) => onItemTap?.call(item),
             parentName: item.parentName!,
             item: item,
+            username: username,
             onUpdateChanged: onUpdateChanged,
           );
         },
@@ -56,10 +55,11 @@ class DriveGrid extends StatelessWidget {
             title: isFolder ? item.nama : "${item.nama}.${item.mimeType}",
             isList: false,
             isStarred: item.isStarred,
-            type: item.type, // <-- Kirim tipenya
+            type: item.type,
             onTap: (_) => onItemTap?.call(item),
             parentName: item.parentName!,
             item: item,
+            username: username,
             onUpdateChanged: onUpdateChanged,
           );
         }),

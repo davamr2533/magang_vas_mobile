@@ -22,6 +22,7 @@ import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dar
 import 'package:vas_reporting/tools/popup.dart';
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
+import '../drive/data/cubit/get_drive_cubit.dart';
 import 'list_ajuan.dart';
 import 'package:vas_reporting/base/base_colors.dart' as baseColors;
 
@@ -179,25 +180,26 @@ class _HomePageState extends State<HomePage> {
                       //Task Tracker VAS navigation
                       divisi == 'VAS' && jabatan == 'Staff'
                           ? ListTile(
-                        leading: const Icon(IconlyLight.document),
-                        title: Text(
-                          "Task Tracker",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            routingPage(
-                              BlocProvider(
-                                create: (context) => TaskTrackCubit(TaskTrackService()),
-                                child: TrackVasPage(),
+                              leading: const Icon(IconlyLight.document),
+                              title: Text(
+                                "Task Tracker",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
                               ),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  routingPage(
+                                    BlocProvider(
+                                      create: (context) =>
+                                          TaskTrackCubit(TaskTrackService()),
+                                      child: TrackVasPage(),
+                                    ),
+                                  ),
+                                );
+                              },
                             )
-                          );
-                        },
-                      )
                           : SizedBox(),
 
                       divisi == 'VAS' && jabatan == 'Staff'
@@ -212,13 +214,16 @@ class _HomePageState extends State<HomePage> {
                               ),
                               onTap: () {
                                 Navigator.of(context).push(
-                                  routingPage(DriveHome()),
+                                  routingPage(
+                                    BlocProvider(
+                                      create: (_) => DriveCubit(),
+                                      child: const DriveHome(),
+                                    ),
+                                  ),
                                 );
                               },
                             )
                           : SizedBox(),
-
-
 
                       jabatan != 'Manager' && divisi != 'VAS'
                           ? ListTile(
@@ -238,34 +243,30 @@ class _HomePageState extends State<HomePage> {
                             )
                           : SizedBox(),
 
-
                       //Task Tracker User Navigation
                       jabatan != 'Manager' && divisi != 'VAS'
                           ? ListTile(
-                        leading: const Icon(IconlyLight.document),
-                        title: Text(
-                          "Task Tracker",
-                          style: GoogleFonts.urbanist(
-                            color: Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
-
-                        onTap: () {
-                          Navigator.of(context).push(
-                            routingPage(
-                              BlocProvider(
-                                create: (context) => TaskTrackCubit(TaskTrackService()),
-                                child: TrackUserPage(),
+                              leading: const Icon(IconlyLight.document),
+                              title: Text(
+                                "Task Tracker",
+                                style: GoogleFonts.urbanist(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
                               ),
 
-                            ),
-                          );
-                        },
-                      )
-
-
-
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  routingPage(
+                                    BlocProvider(
+                                      create: (context) =>
+                                          TaskTrackCubit(TaskTrackService()),
+                                      child: TrackUserPage(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
                           : SizedBox(),
                       divisi == 'VAS' && jabatan == 'Manager'
                           ? ListTile(
@@ -364,7 +365,6 @@ class _HomePageState extends State<HomePage> {
           }
         }
         if (state is GetDataSuccess) {
-
           // Parsing aman
           final List<GetDataResponse.Data> dataList = state.response.data ?? [];
           // debug log untuk verifikasi
@@ -372,8 +372,12 @@ class _HomePageState extends State<HomePage> {
 
           // safe sort
           dataList.sort((a, b) {
-            final dateA = tryParseDate(a.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
-            final dateB = tryParseDate(b.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final dateA =
+                tryParseDate(a.createdAt) ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+            final dateB =
+                tryParseDate(b.createdAt) ??
+                DateTime.fromMillisecondsSinceEpoch(0);
             return dateB.compareTo(dateA);
           });
 
