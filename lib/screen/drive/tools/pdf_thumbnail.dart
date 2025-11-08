@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdfx/pdfx.dart';
 
@@ -36,10 +36,12 @@ class _PdfThumbnailState extends State<PdfThumbnail> {
       await page.close();
       await document.close();
 
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _pageImage = img;
         _loading = false;
       });
+      }
     } catch (e) {
       print("Gagal render thumbnail PDF: $e");
       if (mounted) setState(() => _loading = false);
@@ -49,10 +51,7 @@ class _PdfThumbnailState extends State<PdfThumbnail> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const SizedBox(
-        height: 100,
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      );
+      return SvgPicture.asset("assets/pdf.svg", height: 100, width: 100,);
     }
     if (_pageImage != null) {
       return AspectRatio(

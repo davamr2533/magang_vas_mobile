@@ -12,9 +12,10 @@ import '../data/model/body/recovery_drive_body.dart';
 Future<void> recoveryDrive(
     BuildContext context,
     String token,
-    int id,
     String title,
-    DriveItemType itemType,
+    int? folderId,
+    int? fileId,
+    String userId,
     ) async {
   if (!context.mounted) return;
 
@@ -25,9 +26,9 @@ Future<void> recoveryDrive(
   await cubit.recoveryDrive(
     token: "Bearer $token",
     body: RecoveryDriveBody(
-      id: id,
-      name: title,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
+      userId: userId,
+      folderId: folderId,
+      fileId: fileId,
     ),
   );
 

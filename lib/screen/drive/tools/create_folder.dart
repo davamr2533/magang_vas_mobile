@@ -14,7 +14,7 @@ Future<void> createNewFolder(
 
   final popup = PopUpWidget(context);
 
-  // ✅ Tampilkan dialog input nama folder
+  // Tampilkan dialog input nama folder
   final newName = await popup.showTextInputDialog(
     title: "Folder baru",
     hintText: "Folder tanpa nama",
@@ -30,16 +30,6 @@ Future<void> createNewFolder(
     return;
   }
 
-
-  // 🪵 Tambahkan print debug di sini
-  print("🛰️ [DEBUG] Data folder yang dikirim ke server:");
-  print("Token: $token");
-  print("Body JSON: ${AddFolderBody(
-    parentId: parentId,
-    userId: userId,
-    nameFolder: newName,
-  ).toJson()}");
-
   final cubit = context.read<AddFolderCubit>();
 
   // Jalankan proses tambah folder
@@ -53,7 +43,6 @@ Future<void> createNewFolder(
 
   final currentState = cubit.state;
 
-  print("DEBUG: membuat folder di parentId = $parentId");
   if (currentState is AddFolderSuccess) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(currentState.message)),

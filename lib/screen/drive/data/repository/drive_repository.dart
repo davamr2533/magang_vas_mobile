@@ -139,20 +139,10 @@ class DriveRepository {
       final dynamic payload;
       if (body is Map) {
         payload = body;
-      } else if (body is StarredBody) {
-        payload = body.toJson();
       } else {
-        throw Exception('Invalid body type for toggleStar: ${body.runtimeType}');
+        payload = body.toJson();
       }
 
-      // backend biasanya punya endpoint terpisah untuk star/unstar.
-      // Kita gunakan services.starItem / services.unstarItem bergantung pada payload['is_starred']
-      // final bool? isStarred = payload['is_starred'] as bool?;
-      final int? id = payload['id'] as int?;
-
-      if (id == null) {
-        throw Exception('id is required for toggleStar');
-      }
 
       if (payload['is_starred'] == 'FALSE') {
         // kalau sekarang sudah starred -> panggil unstar

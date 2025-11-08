@@ -5,27 +5,27 @@ part 'recovery_drive_body.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RecoveryDriveBody {
-  int? id;
-  String? name;
-  String? itemType;
+  String? userId;
+  int? folderId;
+  int? fileId;
+  String? isTrashed;
 
-  RecoveryDriveBody({
-    this.id,
-    this.name,
-    this.itemType
-  });
 
-  RecoveryDriveBody.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    itemType = json['item_type'];
-  }
+  RecoveryDriveBody({this.userId, this.folderId, this.fileId, this.isTrashed});
+
+  factory RecoveryDriveBody.fromJson(Map<String, dynamic> json) => RecoveryDriveBody(
+    userId: json['user_id'] as String?,
+    folderId: json['folder_id'] as int?,
+    fileId: json['file_id'] as int?,
+    isTrashed: json['is_trashed'] as String?,
+  );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['name'] = name;
-    data['item_type'] = itemType;
+    data['user_id'] = userId;
+    data['folder_id'] = folderId;
+    data['file_id'] = fileId;
+    data['is_trashed'] = isTrashed;
     return data;
   }
 }

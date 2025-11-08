@@ -7,20 +7,23 @@ import 'package:vas_reporting/screen/drive/data/model/body/rename_drive_body.dar
 import 'package:vas_reporting/screen/drive/tools/drive_popup.dart';
 import 'package:vas_reporting/tools/popup.dart';
 
-// ⭐ Tambah atau hapus berbintang
+// Tambah atau hapus berbintang
 Future<void> toggleStarAction(
     BuildContext context,
     String token,
-    int itemId,
+    int? folderId,
+    int? fileId,
     String userId,
-    String name,
     bool isStarred,
-    String itemType
     ) async {
   final cubit = context.read<StarredCubit>();
   await cubit.toggleStar(
     token: 'Bearer $token',
-    body: StarredBody(id: itemId, userId: userId, starred: isStarred, name: name, itemType: itemType),
+    body: StarredBody(
+        userId: userId,
+        folderId: folderId, 
+        fileId: fileId, 
+        isStarred: isStarred ? "TRUE" : "FALSE")
   );
 
   final state = cubit.state;

@@ -305,7 +305,7 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
-        onRefresh: fetchData, // TAMBAHKAN INI
+        onRefresh: fetchData,
       );
     }
     return _buildGenericLoadingPage("Terbaru");
@@ -321,7 +321,7 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
-        onRefresh: fetchData, // TAMBAHKAN INI
+        onRefresh: fetchData,
       );
     }
     return _buildGenericLoadingPage("Berbintang");
@@ -337,7 +337,7 @@ class _DriveHomeState extends State<DriveHome>
         onRootPop: () {
           if (mounted) setState(() => _selectedIndex = 0);
         },
-        onRefresh: fetchData, // TAMBAHKAN INI
+        onRefresh: fetchData,
       );
     }
     return _buildGenericLoadingPage("Sampah");
@@ -383,7 +383,6 @@ class _DriveHomeState extends State<DriveHome>
           .where((f) => f.isTrashed == false && f.type == DriveItemType.file)
           .toList(),
       type: DriveItemType.folder,
-      isSpecial: true,
     );
   }
 
@@ -738,15 +737,15 @@ class _DriveHomeState extends State<DriveHome>
       return combinedList;
     }
 
-    // default: kembalikan list kosong kalau tidak dikenali
+    // default: kembalikan list kosong
     return combinedList;
   }
 
 
 
   List<DriveItemModel> _getFilteredAndSortedFolders(
-    List<DriveItemModel> sourceFolders,
-  ) {
+      List<DriveItemModel> sourceFolders,
+      ) {
     final filtered = sourceFolders.where((f) {
       final fileName = f.nama.toLowerCase();
       final mimeType = f.mimeType?.toLowerCase() ?? "";
@@ -765,39 +764,24 @@ class _DriveHomeState extends State<DriveHome>
             break;
 
           case "Word":
-            matchesType =
-                mimeType.contains("application/msword") ||
-                mimeType.contains(
-                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                ) ||
-                mimeType.endsWith("doc") ||
-                mimeType.endsWith("docx");
+            matchesType = mimeType.endsWith("doc") || mimeType.endsWith("docx");
             break;
 
           case "Excel":
-            matchesType =
-                mimeType.contains("application/vnd.ms-excel") ||
-                mimeType.contains(
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                ) ||
-                mimeType.endsWith("xls") ||
-                mimeType.endsWith("xlsx");
+            matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
 
           case "PDF":
-            matchesType =
-                mimeType.contains("application/pdf") ||
-                mimeType.endsWith("pdf");
+            matchesType = mimeType.endsWith("pdf");
             break;
 
           case "Photos & Image":
             matchesType =
-                mimeType.startsWith("image/") ||
                 mimeType.endsWith("png") ||
-                mimeType.endsWith("jpg") ||
-                mimeType.endsWith("jpeg") ||
-                mimeType.endsWith("gif") ||
-                mimeType.endsWith("svg");
+                    mimeType.endsWith("jpg") ||
+                    mimeType.endsWith("jpeg") ||
+                    mimeType.endsWith("gif") ||
+                    mimeType.endsWith("svg");
             break;
 
           default:
@@ -808,27 +792,34 @@ class _DriveHomeState extends State<DriveHome>
       return matchesQuery && matchesType;
     }).toList();
 
-    // 🔢 Urutkan
-    int compare<T extends Comparable>(T a, T b) {
-      return currentSortOrder == SortOrder.desc
-          ? b.compareTo(a)
-          : a.compareTo(b);
+    // Fungsi pembanding untuk teks (A–Z, Z–A)
+    int compareText<T extends Comparable>(T a, T b) {
+      return currentSortOrder == SortOrder.desc ? b.compareTo(a) : a.compareTo(b);
     }
 
+    // Fungsi pembanding untuk tanggal (Terbaru, Terlama)
+    int compareDate<T extends Comparable>(T a, T b) {
+      return currentSortOrder == SortOrder.asc ? b.compareTo(a) : a.compareTo(b);
+    }
+
+    // Urutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
-          (a, b) => compare(a.nama.toLowerCase(), b.nama.toLowerCase()),
+              (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
         );
         break;
 
       case SortBy.modifiedDate:
-        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        filtered.sort((a, b) => compareDate(a.updateAt, b.updateAt));
         break;
-      default:
+
+      case SortBy.createdDate:
+        filtered.sort((a, b) => compareDate(a.createdAt, b.createdAt));
         break;
     }
 
     return filtered;
   }
+
 }

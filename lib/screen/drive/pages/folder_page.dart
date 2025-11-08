@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vas_reporting/screen/drive/drive_home.dart';
+import '../../../base/amikom_color.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../data/cubit/get_drive_cubit.dart';
 import '../data/model/response/get_data_drive_response.dart';
@@ -42,7 +43,7 @@ class FolderPageState extends State<FolderPage>
   SortBy currentSortBy = SortBy.name;
   SortOrder currentSortOrder = SortOrder.asc;
 
-  String query='';
+  String query = '';
   String? selectedFileType;
 
   // =========== Variabel untuk halaman detail ===========
@@ -123,7 +124,10 @@ class FolderPageState extends State<FolderPage>
       if (driveState is DriveDataSuccess) {
         // 4. Cari folder yang sama dengan ID yang sedang dibuka
         final currentFolderId = currentFolder.id;
-        final updatedFolder = _findFolderById(driveState.driveData.data ?? [], currentFolderId);
+        final updatedFolder = _findFolderById(
+          driveState.driveData.data ?? [],
+          currentFolderId,
+        );
 
         if (updatedFolder != null) {
           // 5. Update navigation stack dengan data terbaru
@@ -180,14 +184,17 @@ class FolderPageState extends State<FolderPage>
   }
 
   // =========== Recreate special folders dengan data terbaru ===========
-  DriveItemModel _recreateSpecialFolder(List<FolderItem> apiData, int folderId) {
+  DriveItemModel _recreateSpecialFolder(
+    List<FolderItem> apiData,
+    int folderId,
+  ) {
     final driveRoot = apiData.firstWhere(
-          (i) => i.name == 'My Drive',
+      (i) => i.name == 'My Drive',
       orElse: () => FolderItem(),
     );
 
     final sharedDriveRoot = apiData.firstWhere(
-          (i) => i.name == 'Shared Drive',
+      (i) => i.name == 'Shared Drive',
       orElse: () => FolderItem(),
     );
 
@@ -213,10 +220,11 @@ class FolderPageState extends State<FolderPage>
           createdAt: DateTime.now(),
           updateAt: DateTime.now(),
           children: allItems
-              .where((f) => f.isTrashed == false && f.type == DriveItemType.file)
+              .where(
+                (f) => f.isTrashed == false && f.type == DriveItemType.file,
+              )
               .toList(),
           type: DriveItemType.folder,
-          isSpecial: true,
         );
 
       case -2: // Starred
@@ -226,7 +234,12 @@ class FolderPageState extends State<FolderPage>
           createdAt: DateTime.now(),
           updateAt: DateTime.now(),
           children: allItems
-              .where((f) => f.isStarred && f.userId == widget.initialFolder.userId && f.isTrashed == false)
+              .where(
+                (f) =>
+                    f.isStarred &&
+                    f.userId == widget.initialFolder.userId &&
+                    f.isTrashed == false,
+              )
               .toList(),
           type: DriveItemType.folder,
           isSpecial: true,
@@ -239,7 +252,9 @@ class FolderPageState extends State<FolderPage>
           createdAt: DateTime.now(),
           updateAt: DateTime.now(),
           children: allItems
-              .where((f) => f.isTrashed && f.userId == widget.initialFolder.userId)
+              .where(
+                (f) => f.isTrashed && f.userId == widget.initialFolder.userId,
+              )
               .toList(),
           type: DriveItemType.folder,
           isSpecial: true,
@@ -394,7 +409,6 @@ class FolderPageState extends State<FolderPage>
     });
   }
 
-
   // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
@@ -436,11 +450,11 @@ class FolderPageState extends State<FolderPage>
         // =========== Tombol tambah folder / upload file (FAB) ===========
         floatingActionButton: !widget.initialFolder.isSpecial
             ? AnimatedFabMenu(
-          parentId: currentFolder.id,
-          onFolderCreated: () async {
-            await _refreshData();
-          },
-        )
+                parentId: currentFolder.id,
+                onFolderCreated: () async {
+                  await _refreshData();
+                },
+              )
             : null,
       ),
     );
@@ -452,8 +466,9 @@ class FolderPageState extends State<FolderPage>
     final isSpecial = widget.initialFolder.isSpecial;
 
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: magnoliaWhiteNewAmikom,
       automaticallyImplyLeading: false,
+      elevation: 1,
       leading: !isSpecial
           ? IconButton(
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
@@ -462,56 +477,66 @@ class FolderPageState extends State<FolderPage>
           : null,
       title: Text(currentFolder.nama),
       centerTitle: true,
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(
+          color: Colors.grey.shade300,
+          height: 1.0,
+        ),
+      ),
     );
   }
+
 
   // =========== Membuat isi halaman utama (daftar folder dan sort option) ===========
   Widget _buildBody(List<DriveItemModel> items) {
-    return Column(
-      key: ValueKey(currentFolder.id),
-      children: [
-        if (items.isNotEmpty)
-          SortAndViewOption(
-            selectedSortBy: currentSortBy,
-            selectedSortOrder: currentSortOrder,
-            selectedView: currentView,
-            onSortByChanged: (sortBy) => setState(() => currentSortBy = sortBy),
-            onSortOrderChanged: (order) =>
-                setState(() => currentSortOrder = order),
-            onViewChanged: (view) => setState(() => currentView = view),
-          ),
-
-        // =========== Daftar isi folder atau tampilan kosong ===========
-        Expanded(
-          child: items.isEmpty
-              ? Center(
-            child: Text(
-              "Folder Kosong",
-              style: GoogleFonts.urbanist(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey,
-              ),
+    return Scaffold(
+      backgroundColor: magnoliaWhiteNewAmikom,
+      body: Column(
+        key: ValueKey(currentFolder.id),
+        children: [
+          if (items.isNotEmpty)
+            SortAndViewOption(
+              selectedSortBy: currentSortBy,
+              selectedSortOrder: currentSortOrder,
+              selectedView: currentView,
+              onSortByChanged: (sortBy) =>
+                  setState(() => currentSortBy = sortBy),
+              onSortOrderChanged: (order) =>
+                  setState(() => currentSortOrder = order),
+              onViewChanged: (view) => setState(() => currentView = view),
             ),
-          )
-              : DriveGrid(
-            items: items,
-            isList: currentView == ViewOption.list,
-            onItemTap: (tapped) {
-              pushFolder(tapped);
-            },
-            onUpdateChanged: _refreshData,
+
+          // =========== Daftar isi folder atau tampilan kosong ===========
+          Expanded(
+            child: items.isEmpty
+                ? Center(
+                    child: Text(
+                      "Folder Kosong",
+                      style: GoogleFonts.urbanist(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  )
+                : DriveGrid(
+                    items: items,
+                    isList: currentView == ViewOption.list,
+                    onItemTap: (tapped) {
+                      pushFolder(tapped);
+                    },
+                    onUpdateChanged: _refreshData,
+                  ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-
-
   List<DriveItemModel> _getFilteredAndSortedFolders(
-      List<DriveItemModel> sourceFolders,
-      ) {
+    List<DriveItemModel> sourceFolders,
+  ) {
     final filtered = sourceFolders.where((f) {
       final fileName = f.nama.toLowerCase();
       final mimeType = f.mimeType?.toLowerCase() ?? "";
@@ -530,39 +555,24 @@ class FolderPageState extends State<FolderPage>
             break;
 
           case "Word":
-            matchesType =
-                mimeType.contains("application/msword") ||
-                    mimeType.contains(
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    ) ||
-                    mimeType.endsWith("doc") ||
-                    mimeType.endsWith("docx");
+            matchesType = mimeType.endsWith("doc") || mimeType.endsWith("docx");
             break;
 
           case "Excel":
-            matchesType =
-                mimeType.contains("application/vnd.ms-excel") ||
-                    mimeType.contains(
-                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    ) ||
-                    mimeType.endsWith("xls") ||
-                    mimeType.endsWith("xlsx");
+            matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
 
           case "PDF":
-            matchesType =
-                mimeType.contains("application/pdf") ||
-                    mimeType.endsWith("pdf");
+            matchesType = mimeType.endsWith("pdf");
             break;
 
           case "Photos & Image":
             matchesType =
-                mimeType.startsWith("image/") ||
-                    mimeType.endsWith("png") ||
-                    mimeType.endsWith("jpg") ||
-                    mimeType.endsWith("jpeg") ||
-                    mimeType.endsWith("gif") ||
-                    mimeType.endsWith("svg");
+                mimeType.endsWith("png") ||
+                mimeType.endsWith("jpg") ||
+                mimeType.endsWith("jpeg") ||
+                mimeType.endsWith("gif") ||
+                mimeType.endsWith("svg");
             break;
 
           default:
@@ -573,23 +583,34 @@ class FolderPageState extends State<FolderPage>
       return matchesQuery && matchesType;
     }).toList();
 
-    // 🔢 Urutkan
-    int compare<T extends Comparable>(T a, T b) {
+    // Fungsi pembanding untuk teks (A–Z, Z–A)
+    int compareText<T extends Comparable>(T a, T b) {
       return currentSortOrder == SortOrder.desc
           ? b.compareTo(a)
           : a.compareTo(b);
     }
 
+    // Fungsi pembanding untuk tanggal (Terbaru, Terlama)
+    int compareDate<T extends Comparable>(T a, T b) {
+      return currentSortOrder == SortOrder.asc
+          ? b.compareTo(a)
+          : a.compareTo(b);
+    }
+
+    // Urutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
-              (a, b) => compare(a.nama.toLowerCase(), b.nama.toLowerCase()),
+          (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
         );
         break;
+
       case SortBy.modifiedDate:
-        filtered.sort((a, b) => compare(a.updateAt, b.updateAt));
+        filtered.sort((a, b) => compareDate(a.updateAt, b.updateAt));
         break;
-      default:
+
+      case SortBy.createdDate:
+        filtered.sort((a, b) => compareDate(a.createdAt, b.createdAt));
         break;
     }
 

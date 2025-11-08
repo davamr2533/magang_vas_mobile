@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../base/amikom_color.dart';
 
 class CustomSearchBar extends StatefulWidget {
   final Function(String) onQueryChanged;
@@ -21,9 +23,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   final TextEditingController _searchController = TextEditingController();
   String? selectedFilter;
 
-  final Color pinkNewAmikom = const Color(0xFFFFD1CC);
-  final Color orangeNewAmikom = const Color(0xFFFF6F3C);
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -34,11 +33,10 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             height: 40,
             child: TextField(
               controller: _searchController,
-              onChanged: (val) {
-                widget.onQueryChanged(val);
-              },
+              onChanged: widget.onQueryChanged,
               style: GoogleFonts.urbanist(fontSize: 14),
               decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 hintText: "Search document",
                 hintStyle: GoogleFonts.urbanist(
                   fontSize: 14,
@@ -46,12 +44,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 ),
                 filled: true,
                 fillColor: pinkNewAmikom,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
-                suffixIcon: const Icon(Icons.search, color: Colors.grey),
               ),
             ),
           ),
@@ -72,34 +69,41 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            icon: selectedFilter != null
-                ? Icon(IconlyBold.closeSquare, color: orangeNewAmikom)
-                : Icon(IconlyBold.filter, color: orangeNewAmikom),
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: selectedFilter != null
+                  ? Icon(IconlyBold.closeSquare,
+                  key: const ValueKey('close'), color: orangeNewAmikom)
+                  : Icon(IconlyBold.filter,
+                  key: const ValueKey('filter'), color: orangeNewAmikom),
+            ),
             itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                value: "CLEAR_FILTER",
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.close, color: Colors.black54, size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      "Clear Filter",
-                      style: GoogleFonts.urbanist(
-                        fontSize: 13,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
+              if(selectedFilter != null)
+                   PopupMenuItem<String>(
+                      value: "CLEAR_FILTER",
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.close, color: Colors.black54, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Clear Filter",
+                            style: GoogleFonts.urbanist(
+                              fontSize: 13,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
+                    const PopupMenuDivider(),
+
               _buildMenuItem(Icons.folder, "Folders"),
-              _buildMenuItem(FontAwesomeIcons.fileWord, "Word"),
-              _buildMenuItem(FontAwesomeIcons.fileExcel, "Excel"),
-              _buildMenuItem(Icons.picture_as_pdf, "PDF"),
-              _buildMenuItem(Icons.image, "Photos & Image"),
+              _buildMenuItemSvg("assets/word.svg", "Word"),
+              _buildMenuItemSvg("assets/excel.svg", "Excel"),
+              _buildMenuItemSvg("assets/pdf.svg", "PDFs"),
+              _buildMenuItem(Icons.image, "Photos & Images"),
             ],
             onSelected: (value) {
               if (value == "CLEAR_FILTER") {
@@ -116,6 +120,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     );
   }
 
+  /// Menu item with IconData
   PopupMenuItem<String> _buildMenuItem(IconData icon, String title) {
     final bool isSelected = selectedFilter == title;
 
@@ -126,20 +131,50 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
         children: [
           Row(
             children: [
-              Icon(icon, color: Colors.redAccent),
+              Icon(icon, color: orangeNewAmikom),
               const SizedBox(width: 10),
               Text(
                 title,
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: isSelected ? Colors.deepOrange : Colors.black87,
+                  color: isSelected ? orangeNewAmikom : Colors.black87,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ],
           ),
           if (isSelected)
-            const Icon(Icons.check, color: Colors.deepOrange, size: 18),
+            Icon(Icons.check, color: orangeNewAmikom, size: 18),
+        ],
+      ),
+    );
+  }
+
+  /// Menu item with SVG icon
+  PopupMenuItem<String> _buildMenuItemSvg(String assetPath, String title) {
+    final bool isSelected = selectedFilter == title;
+
+    return PopupMenuItem<String>(
+      value: title,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              SvgPicture.asset(assetPath, height: 23, width: 23),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: GoogleFonts.urbanist(
+                  fontSize: 14,
+                  color: isSelected ? orangeNewAmikom : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+          if (isSelected)
+            Icon(Icons.check, color: orangeNewAmikom, size: 18),
         ],
       ),
     );

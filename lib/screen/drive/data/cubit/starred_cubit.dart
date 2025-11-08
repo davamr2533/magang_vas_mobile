@@ -18,7 +18,7 @@ class StarredCubit extends Cubit<StarredState> {
     final result = await repository.toggleStar(token, body);
 
     if (result.isSuccess) {
-      final message = body.starred!
+      final message = body.isStarred=='TRUE'
           ? 'Item berhasil ditambahkan ke berbintang'
           : 'Item berhasil dihapus dari berbintang';
 

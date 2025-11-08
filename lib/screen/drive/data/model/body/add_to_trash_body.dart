@@ -5,31 +5,25 @@ part 'add_to_trash_body.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class AddToTrashBody {
-  int? id;
   String? userId;
-  String? isTrashed;
-  String? itemType;
+  int? folderId;
+  int? fileId;
 
   AddToTrashBody({
-    this.id,
-    this.isTrashed = "TRUE",
-    this.userId,
-    this.itemType
+    this.userId, this.folderId, this.fileId
   });
 
-  AddToTrashBody.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['user_id'];
-    itemType = json['item_type'];
-    isTrashed = json['is_trashed'];
-  }
+  factory AddToTrashBody.fromJson(Map<String, dynamic> json) => AddToTrashBody(
+    userId: json['user_id'] as String?,
+    folderId: json['folder_id'] as int?,
+    fileId: json['file_id'] as int?,
+  );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
     data['user_id'] = userId;
-    data['item_type'] = itemType;
-    data['is_trashed'] = isTrashed;
+    data['folder_id'] = folderId;
+    data['file_id'] = fileId;
     return data;
   }
 }

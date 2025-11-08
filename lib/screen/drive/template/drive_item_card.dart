@@ -1,38 +1,33 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
 import 'package:vas_reporting/screen/drive/tools/delete_item.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/recovery_item.dart';
-
 import '../../../tools/popup.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../drive_item_model.dart';
 import '../tools/drive_controller.dart';
 import '../tools/pdf_thumbnail.dart';
 
-// =============================================================
-// ============= WIDGET: DRIVE ITEM CARD =======================
-// Widget ini digunakan untuk menampilkan 1 item di Drive (file/folder)
-// Bisa ditampilkan dalam dua mode: List View atau Grid View
-// =============================================================
 class DriveItemCard extends StatelessWidget {
   final String title;
   final String parentName;
   final DriveItemModel item;
-  final bool isList; // true = mode daftar, false = mode grid
-  final bool isStarred; // menandai apakah item diberi bintang
-  final DriveItemType type; // tipe item (folder/file)
-  final void Function(String)? onTap; // aksi ketika diklik
-  final VoidCallback? onUpdateChanged; // callback untuk refresh
+  final bool isList;
+  final bool isStarred;
+  final DriveItemType type;
+  final void Function(String)? onTap;
+  final VoidCallback? onUpdateChanged;
 
   const DriveItemCard({
     super.key,
@@ -46,13 +41,12 @@ class DriveItemCard extends StatelessWidget {
     this.onUpdateChanged,
   });
 
-  // Tentukan ikon sesuai tipe file (tanpa ubah struktur utama)
+  // Tetap dipakai di logic internal
   IconData getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
-    if (isFolder) return isStarred ? Icons.folder_special : Icons.folder;
+    if (isFolder) return Icons.folder;
     if (mimeType == null) return Icons.insert_drive_file;
 
     final ext = mimeType.toLowerCase();
-
     if (ext.contains('jpeg') ||
         ext.contains('jpg') ||
         ext.contains('png') ||
@@ -72,7 +66,6 @@ class DriveItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ============= Tentukan ikon & subtitle berdasarkan tipe item ============
     final bool isFolder = type == DriveItemType.folder;
     final IconData mainIcon = getFileIcon(item.mimeType, isFolder, isStarred);
 
@@ -82,10 +75,7 @@ class DriveItemCard extends StatelessWidget {
         ? "Dibuat pada $dibuat"
         : "Diubah pada $diubah";
 
-    // =============================================================
-    // ============= MODE LIST VIEW ===============================
-    // Tampilan berbentuk baris (seperti daftar file)
-    // =============================================================
+    // =============== LIST MODE ===================
     if (isList) {
       return Container(
         margin: const EdgeInsets.only(bottom: 5),
@@ -103,13 +93,10 @@ class DriveItemCard extends StatelessWidget {
             highlightColor: Colors.orange.withAlpha(20),
             onTap: () async {
               if (isFolder) {
-                // Folder → masuk folder
                 onTap?.call(title);
               } else {
-                // File → download dulu kalau URL remote, lalu buka
                 if (item.url != null && item.url!.isNotEmpty) {
                   try {
-                    // Download file ke temporary directory
                     final tempDir = await getTemporaryDirectory();
                     final filePath =
                         "${tempDir.path}/${item.nama}.${item.mimeType}";
@@ -119,14 +106,11 @@ class DriveItemCard extends StatelessWidget {
                     final file = await File(
                       filePath,
                     ).writeAsBytes(response.bodyBytes);
-
-                    // Buka file
                     await OpenFilex.open(file.path);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Gagal membuka file: $e")),
                     );
-                    print("Gagal membuka file: $e");
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -135,24 +119,55 @@ class DriveItemCard extends StatelessWidget {
                 }
               }
             },
-
             child: ListTile(
-              leading: Icon(mainIcon, color: orangeNewAmikom),
+              leading: buildMimeIcon(
+                isFolder: isFolder,
+                mimeType: item.mimeType,
+                mainIcon: mainIcon,
+                color: orangeNewAmikom,
+                size: 26,
+                isStarred: item.isStarred,
+              ),
+
               title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: Text(subtitleText, style: TextStyle(fontSize: 12)),
+              subtitle: item.isStarred == true
+                  ? RichText(
+                      text: TextSpan(
+                        style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.0,
+                          color: Colors.black,
+                        ),
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.baseline,
+                            baseline: TextBaseline.alphabetic,
+                            child: Transform.translate(
+                              offset: const Offset(0, 1.5),
+                              child: const Icon(
+                                Icons.star,
+                                size: 12,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          ),
+                          const WidgetSpan(child: SizedBox(width: 4)),
+                          TextSpan(text: subtitleText),
+                        ],
+                      ),
+                    )
+                  : Text(subtitleText, style: const TextStyle(fontSize: 12)),
+
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showOptions(context,mainIcon), // buka menu opsi
+                onPressed: () => _showOptions(context, mainIcon),
               ),
             ),
           ),
         ),
       );
     }
-    // =============================================================
-    // ============= MODE GRID VIEW ================================
-    // Tampilan berbentuk kotak (seperti grid folder/file)
-    // =============================================================
+    // =============== GRID MODE ===================
     else {
       return Material(
         color: Colors.transparent,
@@ -163,13 +178,10 @@ class DriveItemCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
             if (isFolder) {
-              // Folder → masuk folder
               onTap?.call(title);
             } else {
-              // File → download dulu kalau URL remote, lalu buka
               if (item.url != null && item.url!.isNotEmpty) {
                 try {
-                  // Download file ke temporary directory
                   final tempDir = await getTemporaryDirectory();
                   final filePath =
                       "${tempDir.path}/${item.nama}.${item.mimeType}";
@@ -179,14 +191,11 @@ class DriveItemCard extends StatelessWidget {
                   final file = await File(
                     filePath,
                   ).writeAsBytes(response.bodyBytes);
-
-                  // Buka file
                   await OpenFilex.open(file.path);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Gagal membuka file: $e")),
                   );
-                  print("Gagal membuka file: $e");
                 }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -195,7 +204,6 @@ class DriveItemCard extends StatelessWidget {
               }
             }
           },
-
           child: Ink(
             decoration: BoxDecoration(
               color: pinkNewAmikom,
@@ -205,11 +213,16 @@ class DriveItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // ============= Header (judul + tombol opsi) ============
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(mainIcon, color: orangeNewAmikom),
+                    buildMimeIcon(
+                      isFolder: isFolder,
+                      mimeType: item.mimeType,
+                      mainIcon: mainIcon,
+                      color: orangeNewAmikom,
+                      isStarred: item.isStarred,
+                    ),
                     const Padding(padding: EdgeInsets.only(right: 10)),
                     Expanded(
                       child: Text(
@@ -222,12 +235,12 @@ class DriveItemCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.more_vert),
                       visualDensity: VisualDensity.compact,
-                      onPressed: () => _showOptions(context,mainIcon),
+                      onPressed: () => _showOptions(context, mainIcon),
                     ),
                   ],
                 ),
 
-                // ============= Ikon Utama File / Folder ============
+                // thumbnail
                 if (!isFolder &&
                     item.mimeType != null &&
                     (item.mimeType!.contains('jpeg') ||
@@ -236,28 +249,106 @@ class DriveItemCard extends StatelessWidget {
                         item.mimeType!.contains('gif') ||
                         item.mimeType!.contains('svg')))
                   Flexible(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        "$url${item.url!}",
-                        height: 100,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                        errorBuilder: (_, __, ___) =>
-                            Icon(mainIcon, size: 100, color: orangeNewAmikom),
-                      ),
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            "$url${item.url!}",
+                            height: 100,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (_, __, ___) => Icon(
+                              mainIcon,
+                              size: 100,
+                              color: orangeNewAmikom,
+                            ),
+                          ),
+                        ),
+
+                        if (item.isStarred)
+                          Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.star,
+                                size: 18,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   )
                 else if (!isFolder && item.mimeType!.contains('pdf'))
                   SizedBox(
                     height: 83,
                     width: double.infinity,
-                    child: PdfThumbnail(url: "$url${item.url!}"),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Pratinjau file PDF
+                        PdfThumbnail(url: "$url${item.url!}"),
+
+                        // Ikon bintang di kanan bawah jika item di-star
+                        if (item.isStarred)
+                          Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.star,
+                                size: 18,
+                                color: orangeNewAmikom,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   )
                 else
                   Flexible(
-                    child: Icon(mainIcon, size: 100, color: orangeNewAmikom),
+                    child: isFolder
+                        ? Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                Icons.folder,
+                                size: 100,
+                                color: orangeNewAmikom,
+                              ),
+                              if (item.isStarred)
+                                Positioned(
+                                  bottom: 6,
+                                  right: 12,
+                                  child: Icon(
+                                    Icons.star,
+                                    size: 20,
+                                    color: pinkNewAmikom,
+                                  ),
+                                ),
+                            ],
+                          )
+                        : buildMimeIcon(
+                            isFolder: isFolder,
+                            mimeType: item.mimeType,
+                            mainIcon: mainIcon,
+                            color: orangeNewAmikom,
+                            size: 100,
+                      isStarred: item.isStarred,
+                          ),
                   ),
               ],
             ),
@@ -267,16 +358,10 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
-  // =============================================================
-  // ============= BOTTOM SHEET MENU OPSI ========================
-  // Ditampilkan saat user menekan tombol "more" (3 titik)
-  // Berisi aksi seperti: Rename, Download, Tambah Bintang, Detail, Hapus
-  // =============================================================
+  // bottom sheet (tidak diubah, tetap pakai mainIcon)
   void _showOptions(BuildContext context, IconData mainIcon) {
     final rootContext = context;
-
     final bool isFolder = type == DriveItemType.folder;
-    final String itemTypeText = isFolder ? "Folder" : "File";
 
     showModalBottomSheet(
       context: context,
@@ -301,7 +386,6 @@ class DriveItemCard extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // ============= Header BottomSheet =============
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -319,7 +403,6 @@ class DriveItemCard extends StatelessWidget {
                   ),
                 ),
                 const Divider(height: 1),
-
                 // ============= Opsi: Ganti Nama (jika belum dihapus) ============
                 if (!item.isTrashed)
                   ListTile(
@@ -332,12 +415,14 @@ class DriveItemCard extends StatelessWidget {
                       Navigator.pop(sheetContext);
                       print((item.userId != username));
                       if (item.userId != username) {
-                         ScaffoldMessenger.of(rootContext).showSnackBar(
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
                           const SnackBar(
-                            content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
+                            content: Text(
+                              "Anda tidak memiliki izin untuk mengubah item ini.",
+                            ),
                           ),
                         );
-                         return;
+                        return;
                       }
                       await renameAction(
                         rootContext,
@@ -351,7 +436,7 @@ class DriveItemCard extends StatelessWidget {
                   ),
 
                 // ============= Opsi: Download (khusus file) ============
-                if (!isFolder)
+                if (!isFolder && !item.isTrashed)
                   ListTile(
                     leading: const Icon(
                       Icons.download_outlined,
@@ -375,7 +460,8 @@ class DriveItemCard extends StatelessWidget {
 
                         final directory =
                             await getDownloadsDirectory(); // Android
-                        final filePath = "${directory!.path}/${item.nama}.${item.mimeType}";
+                        final filePath =
+                            "${directory!.path}/${item.nama}.${item.mimeType}";
                         final file = await File(
                           filePath,
                         ).writeAsBytes(response.bodyBytes);
@@ -415,59 +501,57 @@ class DriveItemCard extends StatelessWidget {
                     onTap: () async {
                       Navigator.pop(sheetContext);
                       await toggleStarAction(
-                        rootContext,
-                        token!,
-                        item.id,
-                        item.userId!,
-                        item.nama,
-                        !item.isStarred,
-                        item.type == DriveItemType.folder ? 'folder' : 'file',
+                          rootContext,
+                          token!,
+                          isFolder ? item.id : null,
+                          isFolder ? null : item.id,
+                          item.userId!,
+                          !item.isStarred
                       );
+
                       onUpdateChanged?.call();
                     },
+
                   ),
 
                 // ============= Opsi: Lihat Detail Informasi ============
-                ListTile(
-                  leading: const Icon(
-                    Icons.info_outline,
-                    color: orangeNewAmikom,
-                  ),
-                  title: Text(
-                    "Detail informasi",
-                    style: GoogleFonts.urbanist(),
-                  ),
-                  onTap: () {
-                    // Debug log informasi item
-                    print({
-                      'title': item.nama,
-                      'jenis': itemTypeText,
-                      'ukuran': item.size,
-                      'mimeType': item.mimeType,
-                      'lokasi': parentName,
-                      'dibuat': item.createdAt,
-                      'diubah': item.updateAt,
-                    });
-
-                    Navigator.pop(sheetContext);
-                    Navigator.of(rootContext).push(
-                      DriveRouting(
-                        page: DetailPage(
-                          title: isFolder
-                              ? item.nama
-                              : "${item.nama}.${item.mimeType}",
-                          item: item,
-                          lokasi: parentName,
-                          icon: mainIcon
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.info_outline,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text(
+                      "Detail informasi",
+                      style: GoogleFonts.urbanist(),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      Navigator.of(rootContext).push(
+                        DriveRouting(
+                          page: DetailPage(
+                            title: isFolder
+                                ? item.nama
+                                : "${item.nama}.${item.mimeType}",
+                            item: item,
+                            lokasi: parentName,
+                            icon: mainIcon,
+                          ),
+                          transitionType: RoutingTransitionType.slide,
                         ),
-                        transitionType: RoutingTransitionType.slide,
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
 
                 // ============= Opsi: Hapus / Pulihkan ============
-                _deleteButton(sheetContext, rootContext, item, token!, username!),
+                _deleteButton(
+                  sheetContext,
+                  rootContext,
+                  item,
+                  token!,
+                  username!,
+                    isFolder,
+                ),
 
                 const SizedBox(height: 8),
               ],
@@ -488,7 +572,8 @@ class DriveItemCard extends StatelessWidget {
     BuildContext rootContext,
     DriveItemModel item,
     String token,
-      String username
+    String username,
+      bool isFolder
   ) {
     // Remove the FutureBuilder from here since we're now passing the token directly
     if (!item.isTrashed) {
@@ -501,18 +586,20 @@ class DriveItemCard extends StatelessWidget {
           if (item.userId != username) {
             ScaffoldMessenger.of(rootContext).showSnackBar(
               const SnackBar(
-                content: Text("Anda tidak memiliki izin untuk mengubah item ini."),
+                content: Text(
+                  "Anda tidak memiliki izin untuk mengubah item ini.",
+                ),
               ),
             );
             return;
           }
           await addToTrash(
-            rootContext,
-            token,
-            item.id,
-            item.nama,
-            item.userId!,
-            item.type,
+              rootContext,
+              token,
+              title,
+              isFolder ? item.id : null,
+              isFolder ? null : item.id,
+              item.userId!,
           );
           onUpdateChanged?.call();
         },
@@ -531,9 +618,10 @@ class DriveItemCard extends StatelessWidget {
               await recoveryDrive(
                 rootContext,
                 token,
-                item.id,
-                item.nama,
-                item.type,
+                title,
+                isFolder ? item.id : null,
+                isFolder ? null : item.id,
+                item.userId!,
               );
               onUpdateChanged?.call();
             },
@@ -550,9 +638,10 @@ class DriveItemCard extends StatelessWidget {
               await deleteDrive(
                 rootContext,
                 token,
-                item.id,
-                item.nama,
-                item.type,
+                title,
+                isFolder ? item.id : null,
+                isFolder ? null : item.id,
+                item.userId!,
               );
               onUpdateChanged?.call();
             },
@@ -561,4 +650,84 @@ class DriveItemCard extends StatelessWidget {
       );
     }
   }
+
+  // Fungsi reusable di dalam file ini saja
+  Widget buildMimeIcon({
+    required bool isFolder,
+    required String? mimeType,
+    required IconData mainIcon,
+    required Color color,
+    required bool isStarred,
+    double size = 28,
+  }) {
+    final mime = mimeType?.toLowerCase() ?? '';
+    Widget fallback = Icon(mainIcon, color: color, size: size);
+
+    // Fungsi pembungkus untuk menambahkan ikon bintang di kanan bawah jika perlu
+    Widget withStar(Widget child) {
+      if (isStarred && size == 100) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            child,
+            Positioned(
+              bottom: 6,
+              right: 6,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(
+                  Icons.star,
+                  size: 18,
+                  color: orangeNewAmikom,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+      return child;
+    }
+
+    try {
+      if (isFolder) {
+        return withStar(fallback);
+      } else if (mime.contains('pdf')) {
+        return withStar(
+          SvgPicture.asset(
+            'assets/pdf.svg',
+            height: size,
+            width: size,
+            placeholderBuilder: (_) => fallback,
+          ),
+        );
+      } else if (mime.contains('doc') || mime.contains('docx')) {
+        return withStar(
+          SvgPicture.asset(
+            'assets/word.svg',
+            height: size,
+            width: size,
+            placeholderBuilder: (_) => fallback,
+          ),
+        );
+      } else if (mime.contains('xls') || mime.contains('xlsx')) {
+        return withStar(
+          SvgPicture.asset(
+            'assets/excel.svg',
+            height: size,
+            width: size,
+            placeholderBuilder: (_) => fallback,
+          ),
+        );
+      } else {
+        return withStar(fallback);
+      }
+    } catch (_) {
+      return withStar(fallback);
+    }
+  }
+
 }

@@ -10,12 +10,12 @@ import '../data/cubit/delete_drive_cubit.dart';
 import '../data/model/body/delete_drive_body.dart';
 
 Future<void> addToTrash(
-  BuildContext context,
-  String token,
-  int id,
-  String title,
-  String userId,
-  DriveItemType itemType,
+    BuildContext context,
+    String token,
+    String title,
+    int? folderId,
+    int? fileId,
+    String userId,
 ) async {
   if (!context.mounted) return;
 
@@ -31,20 +31,13 @@ Future<void> addToTrash(
 
   if (confirm != true) return; // batal
 
-  print("==========DEBUG-ADD-TO-TRASH============");
-  print("Body JSON: ${AddToTrashBody(
-    id: id,
-    userId: userId,
-    itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
-  ).toJson()}");
-
   final cubit = context.read<AddToTrashCubit>();
   await cubit.addToTrash(
     token: "Bearer $token",
     body: AddToTrashBody(
-      id: id,
       userId: userId,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
+      folderId: folderId,
+      fileId: fileId,
     ),
   );
 
@@ -66,9 +59,10 @@ Future<void> addToTrash(
 Future<void> deleteDrive(
     BuildContext context,
     String token,
-    int id,
     String title,
-    DriveItemType itemType,
+    int? folderId,
+    int? fileId,
+    String userId,
     ) async {
   if (!context.mounted) return;
 
@@ -86,20 +80,13 @@ Future<void> deleteDrive(
   if (confirm != true) return; // batal
 
 
-  print("==========DEBUG-PERMANENT-DELETE============");
-  print("Body JSON: ${DeleteDriveBody(
-    id: id,
-    name: title,
-    itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
-  ).toJson()}");
-
   final cubit = context.read<DeleteDriveCubit>();
   await cubit.deleteDrive(
     token: "Bearer $token",
     body: DeleteDriveBody(
-      id: id,
-      name: title,
-      itemType: itemType == DriveItemType.folder ? 'folder' : 'file',
+      userId: userId,
+      folderId: folderId,
+      fileId: fileId,
     ),
   );
 

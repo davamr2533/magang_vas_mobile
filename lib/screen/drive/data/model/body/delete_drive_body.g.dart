@@ -8,14 +8,14 @@ part of 'delete_drive_body.dart';
 
 DeleteDriveBody _$DeleteDriveBodyFromJson(Map<String, dynamic> json) =>
     DeleteDriveBody(
-      id: (json['id'] as num?)?.toInt(),
-      name: json['name'] as String?,
-      itemType: json['item_type'] as String?,
+      userId: json['user_id'] as String?,
+      folderId: (json['folder_id'] as num?)?.toInt(),
+      fileId: (json['file_id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$DeleteDriveBodyToJson(DeleteDriveBody instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'item_type': instance.itemType,
+      'user_id': instance.userId,
+      'folder_id': instance.folderId,
+      'file_id': instance.fileId,
     };

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 // ENUM untuk opsi
-enum SortBy { name, modifiedDate, modifiedByMe, openedByMe }
-enum SortOrder { asc, desc, date }
+enum SortBy { name, modifiedDate, createdDate }
+enum SortOrder { asc, desc }
 enum ViewOption { grid, list }
 
 class SortAndViewOption extends StatelessWidget {
@@ -30,10 +30,8 @@ class SortAndViewOption extends StatelessWidget {
         return "Nama";
       case SortBy.modifiedDate:
         return "Tanggal diubah";
-      case SortBy.modifiedByMe:
-        return "Tanggal diubah oleh saya";
-      case SortBy.openedByMe:
-        return "Tanggal dibuka oleh saya";
+      case SortBy.createdDate:
+        return "Tanggal dibuat";
     }
   }
 
@@ -41,7 +39,7 @@ class SortAndViewOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle style = Theme.of(context).textTheme.bodyMedium!;
 
-    // 🔼 Icon arah sort dinamis
+    // Icon arah sort dinamis
     final sortDirectionIcon = selectedSortOrder == SortOrder.asc
         ? Icons.arrow_downward_rounded
         : Icons.arrow_upward_rounded;
@@ -61,28 +59,28 @@ class SortAndViewOption extends StatelessWidget {
             onSelected: (value) {
               if (value == 1) onSortByChanged(SortBy.name);
               if (value == 2) onSortByChanged(SortBy.modifiedDate);
-              if (value == 3) onSortByChanged(SortBy.modifiedByMe);
-              if (value == 4) onSortByChanged(SortBy.openedByMe);
-              if (value == 5) onSortOrderChanged(SortOrder.asc);
-              if (value == 6) onSortOrderChanged(SortOrder.desc);
+              if (value == 3) onSortByChanged(SortBy.createdDate);
+              if (value == 4) onSortOrderChanged(SortOrder.asc);
+              if (value == 5) onSortOrderChanged(SortOrder.desc);
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              const PopupMenuItem(
                 enabled: false,
                 child: Text(
                   "Urutkan berdasarkan",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
               ),
               const PopupMenuDivider(),
+
+              // === Opsi SortBy ===
               ...[
                 MapEntry(1, "Nama"),
                 MapEntry(2, "Tanggal diubah"),
-                MapEntry(3, "Tanggal diubah oleh saya"),
-                MapEntry(4, "Tanggal dibuka oleh saya"),
+                MapEntry(3, "Tanggal dibuat")
               ].map(
                     (entry) => PopupMenuItem(
                   value: entry.key,
@@ -97,31 +95,62 @@ class SortAndViewOption extends StatelessWidget {
                   ),
                 ),
               ),
+
               const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 5,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("A ke Z", style: style),
-                    if (selectedSortOrder == SortOrder.asc)
-                      const Icon(Icons.check, color: Colors.black),
-                  ],
+
+              // === Opsi SortOrder ===
+              ...(selectedSortBy == SortBy.name
+                  ? [
+                PopupMenuItem(
+                  value: 4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("A ke Z", style: style),
+                      if (selectedSortOrder == SortOrder.asc)
+                        const Icon(Icons.check, color: Colors.black),
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem(
-                value: 6,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Z ke A", style: style),
-                    if (selectedSortOrder == SortOrder.desc)
-                      const Icon(Icons.check, color: Colors.black),
-                  ],
+                PopupMenuItem(
+                  value: 5,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Z ke A", style: style),
+                      if (selectedSortOrder == SortOrder.desc)
+                        const Icon(Icons.check, color: Colors.black),
+                    ],
+                  ),
                 ),
-              ),
+              ]
+                  : [
+                PopupMenuItem(
+                  value: 4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Terbaru", style: style),
+                      if (selectedSortOrder == SortOrder.asc)
+                        const Icon(Icons.check, color: Colors.black),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 5,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Terlama", style: style),
+                      if (selectedSortOrder == SortOrder.desc)
+                        const Icon(Icons.check, color: Colors.black),
+                    ],
+                  ),
+                ),
+              ]),
             ],
-            // ==== Teks & ikon utama berubah dinamis ====
+
+            // ==== Teks & ikon utama ====
             child: Row(
               children: [
                 Icon(sortDirectionIcon, size: 18, color: Colors.black87),
@@ -164,9 +193,7 @@ class SortAndViewOption extends StatelessWidget {
       case 2:
         return selectedSortBy == SortBy.modifiedDate;
       case 3:
-        return selectedSortBy == SortBy.modifiedByMe;
-      case 4:
-        return selectedSortBy == SortBy.openedByMe;
+        return selectedSortBy == SortBy.createdDate;
       default:
         return false;
     }

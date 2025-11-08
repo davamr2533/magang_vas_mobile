@@ -1,5 +1,7 @@
-
-enum DriveItemType { folder, file }
+enum DriveItemType {
+  folder,
+  file
+}
 
 class DriveItemModel {
   final int id;

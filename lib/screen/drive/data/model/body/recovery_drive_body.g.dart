@@ -8,14 +8,16 @@ part of 'recovery_drive_body.dart';
 
 RecoveryDriveBody _$RecoveryDriveBodyFromJson(Map<String, dynamic> json) =>
     RecoveryDriveBody(
-      id: (json['id'] as num?)?.toInt(),
-      name: json['name'] as String?,
-      itemType: json['item_type'] as String?,
+      userId: json['user_id'] as String?,
+      folderId: (json['folder_id'] as num?)?.toInt(),
+      fileId: (json['file_id'] as num?)?.toInt(),
+      isTrashed: json['is_trashed'] as String?,
     );
 
 Map<String, dynamic> _$RecoveryDriveBodyToJson(RecoveryDriveBody instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'item_type': instance.itemType,
+      'user_id': instance.userId,
+      'folder_id': instance.folderId,
+      'file_id': instance.fileId,
+      'is_trashed': instance.isTrashed,
     };

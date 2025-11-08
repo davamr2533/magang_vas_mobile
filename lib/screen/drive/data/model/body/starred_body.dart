@@ -5,40 +5,26 @@ part 'starred_body.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class StarredBody {
-  int? id;
   String? userId;
-  bool? starred;
-  String? name;
-  String? itemType;
+  int? folderId;
+  int? fileId;
+  String? isStarred;
 
-  StarredBody({
-    this.id,
-    this.userId,
-    this.starred,
-    this.name,
-    this.itemType
-  });
+  StarredBody({this.userId, this.folderId, this.fileId, this.isStarred});
 
   factory StarredBody.fromJson(Map<String, dynamic> json) => StarredBody(
-    id: json['id'] as int?,
     userId: json['user_id'] as String?,
-    starred: json['is_starred'] is String
-        ? (json['is_starred'].toString().toUpperCase() == 'TRUE')
-        : json['is_starred'] as bool?,
-    name: json['name'],
-    itemType: json['item_type']
-
+    folderId: json['folder_id'] as int?,
+    fileId: json['file_id'] as int?,
+    isStarred: json['is_starred'] as String?,
   );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
     data['user_id'] = userId;
-    data['is_starred'] = starred != null ? (starred! ? 'TRUE' : 'FALSE') : null;
-    data['name'] = name;
-    data['item_type'] = itemType;
+    data['folder_id'] = folderId;
+    data['file_id'] = fileId;
+    data['is_starred'] = isStarred;
     return data;
   }
-
-
 }

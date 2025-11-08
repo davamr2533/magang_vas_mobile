@@ -4,20 +4,38 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update detail page &amp; loading">
-      <change afterPath="$PROJECT_DIR$/lib/screen/drive/tools/pdf_thumbnail.dart" afterDir="false" />
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="local changes">
+      <change afterPath="$PROJECT_DIR$/assets/excel.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/pdf.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/word.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vas-mobile-main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vas-mobile-main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/cubit/starred_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/cubit/starred_cubit.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/add_to_trash_body.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/add_to_trash_body.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/add_to_trash_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/add_to_trash_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/delete_drive_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/recovery_drive_body.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/recovery_drive_body.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/recovery_drive_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/recovery_drive_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/starred_body.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/starred_body.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/model/body/starred_body.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/model/body/starred_body.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/data/repository/drive_repository.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/drive_item_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/drive_item_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/pages/folder_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/animated_fab.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/custom_search_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/custom_search_bar.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/drive_item_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/drive_item_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/tab_page_wrapper.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/template/sort_and_layout_option.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/template/sort_and_layout_option.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/create_folder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/create_folder.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/delete_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/delete_item.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/drive_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/drive_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/pdf_thumbnail.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/pdf_thumbnail.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/drive/tools/recovery_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/drive/tools/recovery_item.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,17 +93,19 @@
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/febryand/AndroidStudio/vas-mobile/lib/screen/drive/data/cubit&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/febryand/Downloads/vas-mobile-main/assets/drive&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;dart.settings&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/drive" />
       <recent name="$PROJECT_DIR$/lib/screen/drive/data/cubit" />
       <recent name="$PROJECT_DIR$/lib/screen/drive/data/model/body" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets" />
       <recent name="D:\vas-mobile\lib\screen\task_track\task_track_vas\track_vas_widget" />
       <recent name="D:\vas-mobile\lib\screen\UjicobaApiBaru\cubit" />
     </key>
@@ -270,6 +290,7 @@
     <MESSAGE value="update tambah berbintang" />
     <MESSAGE value="============ BIG UPDATE ==========&#10;-Trashed [done]&#10;-recovery [done]&#10;-permanently delete [done]&#10;-create/upload [done]&#10;-download [done]&#10;-open file [done]&#10;&#10;=====================&#10;filter &amp; search [on progress]" />
     <MESSAGE value="update detail page &amp; loading" />
-    <option name="LAST_COMMIT_MESSAGE" value="update detail page &amp; loading" />
+    <MESSAGE value="local changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="local changes" />
   </component>
 </project>

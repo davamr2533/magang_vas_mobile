@@ -5,27 +5,25 @@ part 'delete_drive_body.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class DeleteDriveBody {
-  int? id;
-  String? name;
-  String? itemType;
+  String? userId;
+  int? folderId;
+  int? fileId;
 
   DeleteDriveBody({
-    this.id,
-    this.name,
-    this.itemType
+    this.userId, this.folderId, this.fileId
   });
 
-  DeleteDriveBody.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    itemType = json['item_type'];
-  }
+  factory DeleteDriveBody.fromJson(Map<String, dynamic> json) => DeleteDriveBody(
+    userId: json['user_id'] as String?,
+    folderId: json['folder_id'] as int?,
+    fileId: json['file_id'] as int?,
+  );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['name'] = name;
-    data['item_type'] = itemType;
+    data['user_id'] = userId;
+    data['folder_id'] = folderId;
+    data['file_id'] = fileId;
     return data;
   }
 }
