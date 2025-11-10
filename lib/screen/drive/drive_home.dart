@@ -144,13 +144,13 @@ class _DriveHomeState extends State<DriveHome>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            _searchBarKey.currentState?.unfocus(); // unfocus TextField
-            if (mounted) Navigator.pop(context);   // baru pop route
+            _searchBarKey.currentState?.unfocus();
+            if (mounted) Navigator.pop(context);
           },
         ),
 
         title: CustomSearchBar(
-          key: _searchBarKey, // <-- key penting agar bisa akses state
+          key: _searchBarKey,
           onQueryChanged: (val) {
             setState(() => query = val);
           },

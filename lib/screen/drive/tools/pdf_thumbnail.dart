@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdfx/pdfx.dart';
 
+import '../../../base/amikom_color.dart';
+
 class PdfThumbnail extends StatefulWidget {
   final String url;
   const PdfThumbnail({super.key, required this.url});
@@ -38,9 +40,9 @@ class _PdfThumbnailState extends State<PdfThumbnail> {
 
       if (mounted) {
         setState(() {
-        _pageImage = img;
-        _loading = false;
-      });
+          _pageImage = img;
+          _loading = false;
+        });
       }
     } catch (e) {
       print("Gagal render thumbnail PDF: $e");
@@ -50,20 +52,60 @@ class _PdfThumbnailState extends State<PdfThumbnail> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return SvgPicture.asset("assets/pdf.svg", height: 100, width: 100,);
-    }
-    if (_pageImage != null) {
-      return AspectRatio(
-        aspectRatio: _pageImage!.width! / _pageImage!.height!,
-        child: Image.memory(
-          _pageImage!.bytes,
-          fit: BoxFit.cover,
-          width: double.infinity,
-        ),
-      );
-    }
-
-    return const Icon(Icons.picture_as_pdf, size: 100, color: Colors.red);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      child: _loading
+          ? ClipRRect(
+              key: const ValueKey('loading'),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 100,
+                width: double.infinity,
+                color: magnoliaWhiteNewAmikom,
+                child: Center(
+                  child: SvgPicture.asset(
+                    "assets/pdf.svg",
+                    height: 50,
+                    width: 50,
+                  ),
+                ),
+              ),
+            )
+          : _pageImage != null
+          ? ClipRRect(
+              key: const ValueKey('preview'),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 100,
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.grey[300]),
+                child: Image.memory(
+                  _pageImage!.bytes,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+          : ClipRRect(
+              key: const ValueKey('fallback'),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 100,
+                width: double.infinity,
+                color: Colors.black,
+                child: Center(
+                  child: SvgPicture.asset(
+                    "assets/pdf.svg",
+                    height: 50,
+                    width: 50,
+                  ),
+                ),
+              ),
+            ),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/drive_item_model.dart';
 
 class DetailPage extends StatelessWidget {
@@ -31,8 +32,7 @@ class DetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F3F6),
-
+      backgroundColor: magnoliaWhiteNewAmikom,
       appBar: AppBar(
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
@@ -89,7 +89,6 @@ class DetailPage extends StatelessWidget {
     if (icon is IconData) {
       return Icon(icon, size: size, color: color);
     } else if (icon is String) {
-      // Asumsi path ke file SVG di assets
       return SvgPicture.asset(
         icon,
         width: size,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -121,70 +122,102 @@ class DriveItemCard extends StatelessWidget {
                 }
               }
             },
-            child: ListTile(
-              leading: buildMimeIcon(
-                isFolder: isFolder,
-                mimeType: item.mimeType,
-                mainIcon: mainIcon,
-                color: orangeNewAmikom,
-                size: 26,
-                isStarred: item.isStarred,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 10.0,
               ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Leading icon
+                  buildMimeIcon(
+                    isFolder: isFolder,
+                    mimeType: item.mimeType,
+                    mainIcon: mainIcon,
+                    color: orangeNewAmikom,
+                    size: 28,
+                    isStarred: item.isStarred,
+                  ),
 
-              title: Text(title, overflow: TextOverflow.ellipsis),
-              subtitle: (item.isStarred == true && item.userId == username)
-                  ? Text.rich(
-                      TextSpan(
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        children: [
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.baseline,
-                            baseline: TextBaseline.alphabetic,
-                            child: Transform.translate(
-                              offset: const Offset(0, 3.0),
-                              child: const Icon(
-                                Icons.star,
-                                size: 16,
-                                color: orangeNewAmikom,
-                              ),
-                            ),
-                          ),
-                          const WidgetSpan(child: SizedBox(width: 4)),
-                          TextSpan(text: subtitleText),
-                        ],
-                      ),
-                    )
-                  : (item.userId != username)
-                  ? Text.rich(
-                       TextSpan(
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        children: [
-                          TextSpan(text: subtitleText),
-                          const WidgetSpan(child: SizedBox(width: 4)),
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.baseline,
-                            baseline: TextBaseline.alphabetic,
-                            child: Transform.translate(
-                              offset: const Offset(0, 3.5),
-                              child: const Icon(
-                                Icons.group,
-                                size: 16,
-                                color: orangeNewAmikom,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Text(subtitleText, style: const TextStyle(fontSize: 12)),
+                  const SizedBox(width: 16),
 
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showOptions(context, mainIcon),
+                  // Title & subtitle
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
+                        ),
+
+                        if (item.isStarred == true && item.userId == username)
+                          Text.rich(
+                            TextSpan(
+                              style: const TextStyle(fontSize: 12),
+                              children: [
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: Transform.translate(
+                                    offset: const Offset(0, 3.0),
+                                    child: const Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: orangeNewAmikom,
+                                    ),
+                                  ),
+                                ),
+                                const WidgetSpan(child: SizedBox(width: 4)),
+                                TextSpan(text: subtitleText),
+                              ],
+                            ),
+                          )
+                        else if (item.userId != username)
+                          Text.rich(
+                            TextSpan(
+                              style: const TextStyle(fontSize: 12),
+                              children: [
+                                TextSpan(text: subtitleText),
+                                const WidgetSpan(child: SizedBox(width: 4)),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: Transform.translate(
+                                    offset: const Offset(0, 3.5),
+                                    child: const Icon(
+                                      Icons.group,
+                                      size: 16,
+                                      color: orangeNewAmikom,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Text(
+                            subtitleText,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Trailing (more options)
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 24),
+                    onPressed: () => _showOptions(context, mainIcon),
+                    padding: const EdgeInsets.all(12),
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
             ),
           ),
@@ -277,28 +310,35 @@ class DriveItemCard extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            "$url${item.url!}",
+                          child: CachedNetworkImage(
+                            imageUrl: "$url${item.url!}",
                             height: 100,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            alignment: Alignment.topCenter,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Icon(
-                                mainIcon,
-                                size: 100,
-                                color: orangeNewAmikom,
+                            placeholder: (context, url) => Container(
+                              color: magnoliaWhiteNewAmikom,
+                              child: Center(
+                                child: Icon(
+                                  mainIcon,
+                                  size: 50,
+                                  color: orangeNewAmikom,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) {
+                              return Container(
+                                color: magnoliaWhiteNewAmikom,
+                                child: Center(
+                                  child: Icon(
+                                    mainIcon,
+                                    size: 50,
+                                    color: orangeNewAmikom,
+                                  ),
+                                ),
                               );
                             },
-                            errorBuilder: (context, error, stackTrace) => Icon(
-                              mainIcon,
-                              size: 100,
-                              color: orangeNewAmikom,
-                            ),
                           ),
                         ),
-
                         if (item.isStarred && item.userId == username)
                           Positioned(
                             bottom: 6,
@@ -682,12 +722,10 @@ class DriveItemCard extends StatelessWidget {
               ),
             );
             return;
-          } else if ( item.isStarred ){
+          } else if (item.isStarred) {
             ScaffoldMessenger.of(rootContext).showSnackBar(
               const SnackBar(
-                content: Text(
-                  "Tidak dapat menghapus item berbintang.",
-                ),
+                content: Text("Tidak dapat menghapus item berbintang."),
               ),
             );
             return;
@@ -750,7 +788,6 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
-
   Widget buildMimeIcon({
     required bool isFolder,
     required String? mimeType,
@@ -766,12 +803,24 @@ class DriveItemCard extends StatelessWidget {
     if (mainIcon is IconData) {
       fallback = Icon(mainIcon, color: color, size: size);
     } else if (mainIcon is String) {
-      fallback = SvgPicture.asset(
-        mainIcon,
-        width: size,
-        height: size,
-        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-      );
+      fallback = size != 100
+          ? SvgPicture.asset(
+              mainIcon,
+              width: size,
+              height: size,
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            )
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: size,
+                decoration: BoxDecoration(color: magnoliaWhiteNewAmikom),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SvgPicture.asset(mainIcon, width: 50, height: 50),
+                ),
+              ),
+            );
     } else {
       fallback = Icon(
         Icons.insert_drive_file_rounded,
@@ -833,30 +882,78 @@ class DriveItemCard extends StatelessWidget {
         return withStar(fallback);
       } else if (mime.contains('pdf')) {
         return withStar(
-          SvgPicture.asset(
-            'assets/pdf.svg',
-            height: size,
-            width: size,
-            placeholderBuilder: (_) => fallback,
-          ),
+          size != 100
+              ? SvgPicture.asset(
+                  "assets/pdf.svg",
+                  width: size,
+                  height: size,
+                  placeholderBuilder: (_) => fallback,
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: size,
+                    decoration: BoxDecoration(color: magnoliaWhiteNewAmikom),
+                    child: Align(
+                      child: SvgPicture.asset(
+                        "assets/pdf.svg",
+                        width: 50,
+                        height: 50,
+                        placeholderBuilder: (_) => fallback,
+                      ),
+                    ),
+                  ),
+                ),
         );
       } else if (mime.contains('doc') || mime.contains('docx')) {
         return withStar(
-          SvgPicture.asset(
-            'assets/word.svg',
-            height: size,
-            width: size,
-            placeholderBuilder: (_) => fallback,
-          ),
+          size != 100
+              ? SvgPicture.asset(
+                  "assets/word.svg",
+                  width: size,
+                  height: size,
+                  placeholderBuilder: (_) => fallback,
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: size,
+                    decoration: BoxDecoration(color: magnoliaWhiteNewAmikom),
+                    child: Align(
+                      child: SvgPicture.asset(
+                        "assets/word.svg",
+                        width: 50,
+                        height: 50,
+                        placeholderBuilder: (_) => fallback,
+                      ),
+                    ),
+                  ),
+                ),
         );
       } else if (mime.contains('xls') || mime.contains('xlsx')) {
         return withStar(
-          SvgPicture.asset(
-            'assets/excel.svg',
-            height: size,
-            width: size,
-            placeholderBuilder: (_) => fallback,
-          ),
+          size != 100
+              ? SvgPicture.asset(
+                  "assets/excel.svg",
+                  width: size,
+                  height: size,
+                  placeholderBuilder: (_) => fallback,
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: size,
+                    decoration: BoxDecoration(color: magnoliaWhiteNewAmikom),
+                    child: Align(
+                      child: SvgPicture.asset(
+                        "assets/excel.svg",
+                        width: 50,
+                        height: 50,
+                        placeholderBuilder: (_) => fallback,
+                      ),
+                    ),
+                  ),
+                ),
         );
       } else {
         return withStar(fallback);
@@ -870,7 +967,6 @@ class DriveItemCard extends StatelessWidget {
     if (icon is IconData) {
       return Icon(icon, size: size, color: color);
     } else if (icon is String) {
-      // path SVG di assets
       return SvgPicture.asset(icon, width: size, height: size);
     } else {
       return const SizedBox.shrink();
