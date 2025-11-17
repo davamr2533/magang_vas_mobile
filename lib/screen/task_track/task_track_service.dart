@@ -5,13 +5,13 @@ import 'dart:convert';
 class TaskTrackService {
 
   //API untuk get data dari tabel activity_task_tracker
-  static const String getTaskTrackerURL = "http://202.169.231.66:82/api/v1/vas/get-task-tracker";
+  static const String getTaskTrackerURL = "http://202.169.224.27:8081/api/v1/vas/get-task-tracker";
 
   //API untuk update progress task tracker ke tabel activity_task_tracker
-  static const String updateTaskTrackerURL = "http://202.169.231.66:82/api/v1/vas/update-progress-task";
+  static const String updateTaskTrackerURL = "http://202.169.224.27:8081/api/v1/vas/update-progress-task";
 
   //API untuk get data dari tabel history
-  static const String getHistoryTaskURL = "http://202.169.231.66:82/api/v1/vas/get-history";
+  static const String getHistoryTaskURL = "http://202.169.224.27:8081/api/v1/vas/get-history";
 
 
   //Method untuk get data dari tabel task tracker

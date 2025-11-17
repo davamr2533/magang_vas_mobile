@@ -30,7 +30,7 @@ class _LoginService implements LoginService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/login',
+            'http://202.169.224.27:8081/api/v1/vas/login',
             queryParameters: queryParameters,
             data: _data,
           )

@@ -31,7 +31,7 @@ class _FormService implements FormService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/form-ajuan',
+            'http://202.169.224.27:8081/api/v1/vas/form-ajuan',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -60,7 +60,7 @@ class _FormService implements FormService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/form-ajuan-vas',
+            'http://202.169.224.27:8081/api/v1/vas/form-ajuan-vas',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -89,7 +89,7 @@ class _FormService implements FormService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/form-uji',
+            'http://202.169.224.27:8081/api/v1/vas/form-uji',
             queryParameters: queryParameters,
             data: _data,
           )

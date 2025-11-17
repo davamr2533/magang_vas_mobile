@@ -18,10 +18,8 @@ class AddFolderCubit extends Cubit<AddFolderState> {
     required AddFolderBody body,
   }) async {
     try {
-      // 1️⃣ Emit state loading
       emit(AddFolderLoading());
 
-      // 2️⃣ Panggil repository
       final result = await repository.addFolder(token: token, body: body);
 
       // 3️⃣ Cek hasil dari repository

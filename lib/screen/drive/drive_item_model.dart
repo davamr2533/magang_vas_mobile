@@ -2,7 +2,6 @@ enum DriveItemType {
   folder,
   file
 }
-
 class DriveItemModel {
   final int id;
   final int? parentId;

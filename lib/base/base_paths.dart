@@ -1,4 +1,4 @@
-const String url = 'http://202.169.231.66:82/';
+const String url = 'http://202.169.224.27:8081/';
 const String urlLogin = url + 'api/v1/vas/login';
 
 //Form

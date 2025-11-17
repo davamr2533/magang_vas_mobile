@@ -30,7 +30,7 @@ class _GetDataService implements GetDataService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/get-data-all',
+            'http://202.169.224.27:8081/api/v1/vas/get-data-all',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -59,7 +59,7 @@ class _GetDataService implements GetDataService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/approval',
+            'http://202.169.224.27:8081/api/v1/vas/approval',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -92,7 +92,7 @@ class _GetDataService implements GetDataService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/get-data-vas-form',
+            'http://202.169.224.27:8081/api/v1/vas/get-data-vas-form',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -120,7 +120,7 @@ class _GetDataService implements GetDataService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/get-data-uji',
+            'http://202.169.224.27:8081/api/v1/vas/get-data-uji',
             queryParameters: queryParameters,
             data: _data,
           )

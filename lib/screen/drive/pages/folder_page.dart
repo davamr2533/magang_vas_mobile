@@ -273,7 +273,7 @@ class FolderPageState extends State<FolderPage>
     );
   }
 
-  // FIXED: Method untuk mapping FolderItem ke List<DriveItemModel>
+  // Method untuk mapping FolderItem ke List<DriveItemModel>
   List<DriveItemModel> _mapApiFolderToUiModel(FolderItem apiFolder) {
     final List<DriveItemModel> combinedList = [];
 
@@ -324,7 +324,7 @@ class FolderPageState extends State<FolderPage>
     return combinedList;
   }
 
-  // FIXED: Method untuk mapping List<dynamic> ke List<DriveItemModel>
+  // Method untuk mapping List<dynamic> ke List<DriveItemModel>
   List<DriveItemModel> _mapApiListToUiModel(List<dynamic> apiInput) {
     final List<DriveItemModel> combinedList = [];
 

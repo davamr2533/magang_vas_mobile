@@ -30,7 +30,7 @@ class _DriveService implements DriveService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/get-drive',
+            'http://202.169.224.27:8081/api/v1/vas/get-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -59,7 +59,7 @@ class _DriveService implements DriveService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/insert-folder-drive',
+            'http://202.169.224.27:8081/api/v1/vas/insert-folder-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -100,7 +100,7 @@ class _DriveService implements DriveService {
           )
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/upload-drive',
+            'http://202.169.224.27:8081/api/v1/vas/upload-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -132,7 +132,7 @@ class _DriveService implements DriveService {
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/rename-drive',
+            'http://202.169.224.27:8081/api/v1/vas/rename-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -156,7 +156,7 @@ class _DriveService implements DriveService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/starred-drive',
+            'http://202.169.224.27:8081/api/v1/vas/starred-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -183,7 +183,7 @@ class _DriveService implements DriveService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/unstarred-drive',
+            'http://202.169.224.27:8081/api/v1/vas/unstarred-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -207,7 +207,7 @@ class _DriveService implements DriveService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/trashed-drive',
+            'http://202.169.224.27:8081/api/v1/vas/trashed-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -239,7 +239,7 @@ class _DriveService implements DriveService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/recovery-drive',
+            'http://202.169.224.27:8081/api/v1/vas/recovery-drive',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -268,7 +268,7 @@ class _DriveService implements DriveService {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'http://202.169.231.66:82/api/v1/vas/delete-drive',
+            'http://202.169.224.27:8081/api/v1/vas/delete-drive',
             queryParameters: queryParameters,
             data: _data,
           )

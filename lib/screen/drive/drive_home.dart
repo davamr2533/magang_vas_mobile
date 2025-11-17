@@ -39,8 +39,8 @@ class _DriveHomeState extends State<DriveHome>
   int? parentId;
   int myDriveRootId = 1; // Default
   int sharedDriveRootId = 2; // Default
-  final GlobalKey<CustomSearchBarState> _searchBarKey = GlobalKey<CustomSearchBarState>();
-
+  final GlobalKey<CustomSearchBarState> _searchBarKey =
+      GlobalKey<CustomSearchBarState>();
 
   late DriveCubit getDriveData;
 
@@ -412,41 +412,40 @@ class _DriveHomeState extends State<DriveHome>
 
   DriveItemModel _createStarredFolder(DriveDataSuccess state) {
     final apiData = state.driveData.data ?? [];
+    final filteredData = filterNonTrashedFolderItems(apiData);
 
-    final driveRoot = apiData.firstWhere(
+    final driveRoot = filteredData.firstWhere(
       (i) => i.name == 'My Drive',
       orElse: () => FolderItem(),
     );
 
-    final sharedDriveRoot = apiData.firstWhere(
+    final sharedDriveRoot = filteredData.firstWhere(
       (i) => i.name == 'Shared Drive',
       orElse: () => FolderItem(),
     );
 
-    final myFolders = driveRoot.children ?? [];
-    final myFiles = driveRoot.files ?? [];
-    final allSharedFolders = sharedDriveRoot.children ?? [];
-    final allSharedFiles = sharedDriveRoot.files ?? [];
+    final myItems = [...?driveRoot.children, ...?driveRoot.files];
+    final sharedItems = [
+      ...?sharedDriveRoot.children,
+      ...?sharedDriveRoot.files,
+    ];
 
-    final myItems = [...myFolders, ...myFiles];
-    final sharedItems = [...allSharedFolders, ...allSharedFiles];
+    final allMyDriveItems = _mapApiItemsToUiModel(myItems);
+    final allSharedItems = _mapApiItemsToUiModel(sharedItems);
 
-    final allMyDriveItem = _mapApiItemsToUiModel(myItems);
-    final allSharedItem = _mapApiItemsToUiModel(sharedItems);
-
-    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allFolders = [...allMyDriveItems, ...allSharedItems];
     final allItems = _getAllItemsRecursive(allFolders);
+
+    final starredItems = allItems.where(
+      (f) => f.isStarred && !f.isTrashed && f.userId == username,
+    );
 
     return DriveItemModel(
       id: -2,
       nama: "Berbintang",
       createdAt: DateTime.now(),
       updateAt: DateTime.now(),
-      children: allItems
-          .where(
-            (f) => f.isStarred && f.userId == username && f.isTrashed == false,
-          )
-          .toList(),
+      children: starredItems.toList(),
       type: DriveItemType.folder,
       isSpecial: true,
     );
@@ -722,7 +721,7 @@ class _DriveHomeState extends State<DriveHome>
         if (item == null) continue;
 
         if (item is FolderItem) {
-          // ⬇️ Tambahkan folder level ini dulu
+          // Tambahkan folder level ini dulu
           combinedList.add(
             DriveItemModel(
               id: item.id ?? 0,
