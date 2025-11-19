@@ -190,22 +190,24 @@ class DriveRepository {
     required String fileName,
     required String userId,
     required int id,
+    Function(int, int)? onSendProgress,
   }) async {
     late RepositoriesResponse response;
 
     try {
-      // =========== Siapkan Multipart File ===========
+      // =========== Multipart File ===========
       final file = await MultipartFile.fromFile(
         filePath,
         filename: fileName,
       );
 
-      // =========== Panggil service upload ===========
+      // ===========  service upload ===========
       final result = await services.uploadFile(
         "Bearer $token",
         file,
         id,
         userId,
+        onSendProgress,
       );
 
       response = RepositoriesResponse(
@@ -219,14 +221,17 @@ class DriveRepository {
         response = RepositoriesResponse(
           isSuccess: false,
           statusCode: e.response?.statusCode ?? 0,
-          dataResponse:
-          e.response?.data?['message']?.toString() ?? 'Please check your connection..',
+          dataResponse: e.response?.data?['message']?.toString() ??
+              'Please check your connection..',
         );
-        debugPrint('DioException (uploadFile): ${e.response?.data?['message'] ?? e.message}');
+        debugPrint(
+            'DioException (uploadFile): ${e.response?.data?['message'] ?? e.message}');
       } else if (e is IOException) {
-        response = RepositoriesResponse(isSuccess: false, statusCode: 503, dataResponse: e.toString());
+        response = RepositoriesResponse(
+            isSuccess: false, statusCode: 503, dataResponse: e.toString());
       } else {
-        response = RepositoriesResponse(isSuccess: false, statusCode: 500, dataResponse: e.toString());
+        response = RepositoriesResponse(
+            isSuccess: false, statusCode: 500, dataResponse: e.toString());
       }
     }
 

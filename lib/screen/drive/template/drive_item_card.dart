@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,6 +17,7 @@ import 'package:vas_reporting/screen/drive/tools/delete_item.dart';
 import 'package:vas_reporting/screen/drive/tools/drive_routing.dart';
 import 'package:vas_reporting/screen/drive/tools/recovery_item.dart';
 import '../../../tools/popup.dart';
+import '../../../utllis/app_notification.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../drive_item_model.dart';
 import '../tools/drive_controller.dart';
@@ -578,43 +580,87 @@ class DriveItemCard extends StatelessWidget {
                       }
 
                       try {
-                        await Permission.storage.request();
+                        Directory? directory;
 
-                        // Ambil direktori Download
-                        final directory = Directory(
-                          '/storage/emulated/0/Download/VAS Download',
-                        );
+                        if (Platform.isAndroid) {
+                          await Permission.storage.request();
+                          directory = Directory(
+                            '/storage/emulated/0/Download/VAS Download',
+                          );
+                        } else {
+                          final docDir =
+                              await getApplicationDocumentsDirectory();
+                          directory = Directory('${docDir.path}/VAS Download');
+                        }
 
-                        // Jika belum ada, buat folder
                         if (!await directory.exists()) {
                           await directory.create(recursive: true);
                         }
 
-                        // Nama file
                         final filePath =
                             "${directory.path}/${item.nama}.${item.mimeType}";
+                        final dio = Dio();
 
-                        final response = await http.get(
-                          Uri.parse("$url${Uri.parse(item.url!).path}"),
+                        int lastReceived = 0;
+                        DateTime lastTime = DateTime.now();
+
+                        await NotificationService.showProgress(
+                          received: 0,
+                          total: 0,
+                          speed: "0 KB/s",
                         );
 
-                        // Simpan
-                        final file = await File(
+                        await dio.download(
+                          "$url${Uri.parse(item.url!).path}",
                           filePath,
-                        ).writeAsBytes(response.bodyBytes);
+                          onReceiveProgress: (received, total) {
+                            if (total != -1) {
+                              final now = DateTime.now();
+                              final diff = now
+                                  .difference(lastTime)
+                                  .inMilliseconds;
+
+                              if (diff > 800) {
+                                double speedBytesPerSec =
+                                    (received - lastReceived) / (diff / 1000);
+                                String speedText = "";
+
+                                if (speedBytesPerSec >= 1048576) {
+                                  speedText =
+                                      "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
+                                } else {
+                                  speedText =
+                                      "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+                                }
+
+                                NotificationService.showProgress(
+                                  received: received,
+                                  total: total,
+                                  speed: speedText,
+                                );
+
+                                lastReceived = received;
+                                lastTime = now;
+                              }
+                            }
+                          },
+                        );
+
+                        await NotificationService.cancelProgress();
+                        await NotificationService.showCompleted("${item.nama}${item.mimeType}",filePath);
 
                         ScaffoldMessenger.of(rootContext).showSnackBar(
                           SnackBar(
                             content: Text(
-                              "File berhasil disimpan di ${file.path}",
+                              "File berhasil disimpan di $filePath",
                             ),
                           ),
                         );
                       } catch (e) {
+                        await NotificationService.cancelProgress();
                         ScaffoldMessenger.of(rootContext).showSnackBar(
                           SnackBar(content: Text("Gagal mengunduh file: $e")),
                         );
-                        print("Gagal mengunduh file: $e");
                       }
                     },
                   ),

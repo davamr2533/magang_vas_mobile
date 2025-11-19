@@ -11,6 +11,7 @@ android {
     ndkVersion = "29.0.13599879"
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -49,6 +50,10 @@ buildscript {
     dependencies {
         classpath("com.google.gms:google-services:4.4.2")
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
 flutter {

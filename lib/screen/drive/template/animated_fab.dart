@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/drive/data/service/base_paths.dart';
+import '../../../utllis/app_notification.dart';
 import '../../../utllis/app_shared_prefs.dart';
 import '../data/cubit/get_drive_cubit.dart';
 import '../tools/create_folder.dart';
@@ -84,26 +85,80 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
           onTap: () async {
             if (!mounted || token == null || userId == null) return;
 
-            final success = await uploadNewFile(
-              context,
-              'Bearer $token',
-              widget.parentId,
-              userId!,
+            int lastSent = 0;
+            DateTime lastTime = DateTime.now();
+
+            await NotificationService.showUploadProgress(
+              sent: 0,
+              total: 0,
+              speed: "0 KB/s",
             );
 
-            if (mounted) {
-              // refresh data drive setelah upload
-              final driveCubit = context.read<DriveCubit>();
-              await driveCubit.getDriveData(token: 'Bearer $token');
+            try {
+              final success = await uploadNewFile(
+                context,
+                'Bearer $token',
+                widget.parentId,
+                userId!,
+                onProgress: (sent, total) {
+                  if (total != -1) {
+                    final now = DateTime.now();
+                    final diff = now.difference(lastTime).inMilliseconds;
 
-              // panggil callback agar refresh
-              widget.onFolderCreated?.call();
+                    if (diff > 800) {
+                      double speedBytesPerSec =
+                          (sent - lastSent) / (diff / 1000);
+                      String speedText = "";
 
-              // tampilkan notifikasi ke user
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('File berhasil diupload')),
+                      if (speedBytesPerSec >= 1048576) {
+                        speedText =
+                        "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
+                      } else {
+                        speedText =
+                        "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+                      }
+
+                      NotificationService.showUploadProgress(
+                        sent: sent,
+                        total: total,
+                        speed: speedText,
+                      );
+
+                      lastSent = sent;
+                      lastTime = now;
+                    }
+                  }
+                },
               );
-              _toggleMenu();
+
+              await NotificationService.cancelUploadProgress();
+
+              if (success) {
+                await NotificationService.showUploadCompleted();
+
+                if (mounted) {
+                  final driveCubit = context.read<DriveCubit>();
+                  await driveCubit.getDriveData(token: 'Bearer $token');
+
+                  widget.onFolderCreated?.call();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('File berhasil diupload')),
+                  );
+                  _toggleMenu();
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Gagal mengupload file')),
+                );
+              }
+            } catch (e) {
+              await NotificationService.cancelUploadProgress();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: $e')),
+                );
+              }
             }
           },
         ),

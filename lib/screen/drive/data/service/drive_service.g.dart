@@ -82,9 +82,11 @@ class _DriveService implements DriveService {
     MultipartFile file,
     int id,
     String userId,
+    void Function(int, int)? onSendProgress,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{r'Authorization': token};
     _headers.removeWhere((k, v) => v == null);
     final _data = FormData();
@@ -103,6 +105,7 @@ class _DriveService implements DriveService {
             'http://202.169.224.27:8081/api/v1/vas/upload-drive',
             queryParameters: queryParameters,
             data: _data,
+            onSendProgress: onSendProgress,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );

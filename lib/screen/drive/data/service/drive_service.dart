@@ -34,6 +34,7 @@ abstract class DriveService {
       @Part(name: "file") MultipartFile file,
       @Part(name: "id") int id,
       @Part(name: "user_id") String userId,
+      @SendProgress() ProgressCallback? onSendProgress,
       );
 
   @PATCH(basePaths.urlRenameDrive)
