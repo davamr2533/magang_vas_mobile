@@ -64,9 +64,9 @@ class _FolderAppBarState extends State<FolderAppBar> {
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
         onPressed: () {
           if (_isSearching) {
-            _stopSearch(); // keluar dari mode search
+            _stopSearch();
           } else {
-            widget.popFolder(); // kembali ke halaman sebelumnya
+            widget.popFolder();
           }
         },
       ),
@@ -107,21 +107,39 @@ class _FolderAppBarState extends State<FolderAppBar> {
       centerTitle: true,
       actionsPadding: const EdgeInsets.only(right: 12),
       actions: [
-        IconButton(
-          icon: Icon(
-            _isSearching ? Icons.close : Icons.search,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            if (_isSearching) {
-              _searchController.clear();
-              widget.onQueryChanged('');
-              setState(() {});
-            } else {
+        if (_isSearching)
+          if (_searchController.text.isNotEmpty)
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 1.0, end: 1.0),
+              duration: const Duration(milliseconds: 150),
+              builder: (context, scale, child) {
+                return AnimatedScale(
+                  scale: scale,
+                  duration: const Duration(milliseconds: 150),
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        _searchController.clear();
+                        widget.onQueryChanged('');
+                        setState(() {});
+                      });
+                    },
+                  ),
+                );
+              },
+            )
+          else
+            const SizedBox(width: 48),
+        if (!_isSearching)
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.black),
+            onPressed: () {
               _startSearch();
-            }
-          },
-        ),
+            },
+          ),
       ],
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(

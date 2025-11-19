@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
@@ -104,7 +105,7 @@ class DriveItemCard extends StatelessWidget {
                     final filePath =
                         "${tempDir.path}/${item.nama}.${item.mimeType}";
                     final response = await http.get(
-                      Uri.parse("$url${item.url!}"),
+                      Uri.parse("$url${Uri.parse(item.url!).path}"),
                     );
                     final file = await File(
                       filePath,
@@ -242,9 +243,11 @@ class DriveItemCard extends StatelessWidget {
                   final tempDir = await getTemporaryDirectory();
                   final filePath =
                       "${tempDir.path}/${item.nama}.${item.mimeType}";
+
                   final response = await http.get(
-                    Uri.parse("$url${item.url!}"),
+                    Uri.parse("$url${Uri.parse(item.url!).path}"),
                   );
+
                   final file = await File(
                     filePath,
                   ).writeAsBytes(response.bodyBytes);
@@ -311,7 +314,7 @@ class DriveItemCard extends StatelessWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: CachedNetworkImage(
-                            imageUrl: "$url${item.url!}",
+                            imageUrl: "$url${Uri.parse(item.url!).path}",
                             height: 100,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -575,14 +578,27 @@ class DriveItemCard extends StatelessWidget {
                       }
 
                       try {
-                        final response = await http.get(
-                          Uri.parse("$url${item.url!}"),
+                        await Permission.storage.request();
+
+                        // Ambil direktori Download
+                        final directory = Directory(
+                          '/storage/emulated/0/Download/VAS Download',
                         );
 
-                        final directory =
-                            await getDownloadsDirectory(); // Android
+                        // Jika belum ada, buat folder
+                        if (!await directory.exists()) {
+                          await directory.create(recursive: true);
+                        }
+
+                        // Nama file
                         final filePath =
-                            "${directory!.path}/${item.nama}.${item.mimeType}";
+                            "${directory.path}/${item.nama}.${item.mimeType}";
+
+                        final response = await http.get(
+                          Uri.parse("$url${Uri.parse(item.url!).path}"),
+                        );
+
+                        // Simpan
                         final file = await File(
                           filePath,
                         ).writeAsBytes(response.bodyBytes);
