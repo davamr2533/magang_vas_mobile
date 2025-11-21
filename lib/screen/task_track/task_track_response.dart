@@ -20,7 +20,7 @@ class TaskTrackResponse {
     required this.timeline,
   });
 
-  // Factory constructor untuk parsing JSON ke objek TaskTrackResponse.
+
   factory TaskTrackResponse.fromJson(Map<String, dynamic> json) {
     //ambil field dari json
     return TaskTrackResponse(
