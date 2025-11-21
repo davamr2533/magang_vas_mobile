@@ -65,6 +65,7 @@ dependencies:
   permission_handler: ^11.0.1
   flutter_local_notifications: ^18.0.0
   android_intent_plus: ^4.0.0
+  image_picker: ^1.1.2                       #untuk mengambil gambar
 
 dev_dependencies:
   flutter_test:

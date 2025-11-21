@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
@@ -9,10 +12,12 @@ import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dar
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 
-class TrackVasCard extends StatelessWidget {
+class TrackVasCard extends StatefulWidget {
   final dynamic task;
   final String nextProgress;
   final TextEditingController catatanController;
+
+
 
   const TrackVasCard({
     super.key,
@@ -20,6 +25,15 @@ class TrackVasCard extends StatelessWidget {
     required this.nextProgress,
     required this.catatanController,
   });
+
+  @override
+  State<TrackVasCard> createState() => _TrackVasCardState();
+
+}
+
+class _TrackVasCardState extends State<TrackVasCard> {
+  List<XFile> updateImages = [];
+  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +74,7 @@ class TrackVasCard extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    task.nomorPengajuan,
+                    widget.task.nomorPengajuan,
                     style: GoogleFonts.urbanist(
                       fontSize: 12,
                       color: blackNewAmikom,
@@ -77,7 +91,7 @@ class TrackVasCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    task.divisi,
+                    widget.task.divisi,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       color: blackNewAmikom,
@@ -101,7 +115,7 @@ class TrackVasCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    task.updatedAt.split(" ")[0],
+                    widget.task.updatedAt.split(" ")[0],
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                     ),
@@ -113,7 +127,7 @@ class TrackVasCard extends StatelessWidget {
               left: 10,
               top: 45,
               child: Text(
-                task.jenis,
+                widget.task.jenis,
                 style: GoogleFonts.urbanist(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -136,7 +150,7 @@ class TrackVasCard extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          task.currentProgress,
+                          widget.task.currentProgress,
                           style: GoogleFonts.urbanist(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -197,176 +211,260 @@ class TrackVasCard extends StatelessWidget {
       ),
       contentPadding:
       const EdgeInsets.only(left: 12, right: 12, bottom: 12),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            Divider(height: 1, color: grayNewAmikom),
-            const SizedBox(height: 8),
-            _labelForm("ID Pengajuan"),
-            _isiForm(task.nomorPengajuan),
-            const SizedBox(height: 12),
-            _labelForm("Nama Sistem"),
-            _isiForm(task.jenis),
-            const SizedBox(height: 12),
-            _labelForm("Next Progress"),
-            _isiForm(nextProgress),
-            const SizedBox(height: 12),
-            _labelForm("Diupdate oleh"),
-            FutureBuilder<String?>(
-              future: SharedPref.getName(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _isiForm("Loading...");
-                } else if (snapshot.hasError) {
-                  return _isiForm("Error");
-                } else {
-                  return _isiForm(snapshot.data ?? "_");
-                }
-              },
-            ),
-            const SizedBox(height: 12),
-            _labelForm("Catatan"),
-            SizedBox(
-              width: double.infinity,
-              height: 100,
-              child: TextField(
-                controller: catatanController,
-                maxLines: null,
-                minLines: 5,
-                style: GoogleFonts.urbanist(fontSize: 14),
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: "Opsional",
-                  filled: true,
-                  fillColor: yellowNewAmikom,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.transparent,
-                      width: 0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: greenNewAmikom,
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Divider(height: 1, color: grayNewAmikom),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      catatanController.clear();
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: greenNewAmikom,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+      content: StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+
+                  // === Upload Foto ===
+                  const SizedBox(height: 12),
+                  _labelForm("Lampiran Foto (Opsional)"),
+                  GestureDetector(
+                    onTap: () => _pickImageOptions(context, setStateDialog),
+
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: yellowNewAmikom.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: grayNewAmikom),
                       ),
-                    ),
-                    child: Text(
-                      "Back",
-                      style: GoogleFonts.urbanist(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.add_a_photo_outlined),
+                          const SizedBox(width: 10),
+                          Text(
+                            "Tambah Foto (maks 3)",
+                            style: GoogleFonts.urbanist(fontSize: 14),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (task.currentProgress == "Production") {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) =>
-                          const TrackVasPopUpProduction(),
-                        );
-                        Future.delayed(const Duration(seconds: 2), () {
-                          if (context.mounted) {
-                            Navigator.of(context).pushReplacement(
-                              routingPage(
-                                BlocProvider(
-                                  create: (context) =>
-                                      TaskTrackCubit(TaskTrackService()),
-                                  child: const TrackVasPage(),
+
+                  if (updateImages.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        children: updateImages.asMap().entries.map((entry) {
+                          final i = entry.key;
+                          final img = entry.value;
+                          return Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(img.path),
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                            );
-                          }
-                        });
-                        return;
-                      } else {
-                        final service = TaskTrackService();
-                        final success =
-                        await service.updateTaskTracker(
-                          nomorPengajuan: task.nomorPengajuan,
-                          taskClosed: task.currentProgress,
-                          taskProgress: nextProgress,
-                          updatedBy:
-                          await SharedPref.getName() ?? '_',
-                          catatan: catatanController.text,
-                        );
-                        if (success && context.mounted) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) =>
-                            const TrackVasPopUpSuccess(),
-                          );
-                          Future.delayed(const Duration(seconds: 2), () {
-                            if (context.mounted) {
-                              Navigator.of(context).pushReplacement(
-                                routingPage(
-                                  BlocProvider(
-                                    create: (context) =>
-                                        TaskTrackCubit(TaskTrackService()),
-                                    child: const TrackVasPage(),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setStateDialog(() {
+                                      updateImages.removeAt(i);
+                                    });
+
+                                  },
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black54,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    child: const Icon(Icons.close, size: 14, color: Colors.white),
                                   ),
                                 ),
-                              );
-                            }
-                          });
-                        }
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    )
+
+                  ],
+
+                  const SizedBox(height: 8),
+
+                  Divider(height: 1, color: grayNewAmikom),
+                  const SizedBox(height: 8),
+                  _labelForm("ID Pengajuan"),
+                  _isiForm(widget.task.nomorPengajuan),
+                  const SizedBox(height: 12),
+                  _labelForm("Nama Sistem"),
+                  _isiForm(widget.task.jenis),
+                  const SizedBox(height: 12),
+                  _labelForm("Next Progress"),
+                  _isiForm(widget.nextProgress),
+                  const SizedBox(height: 12),
+                  _labelForm("Diupdate oleh"),
+                  FutureBuilder<String?>(
+                    future: SharedPref.getName(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return _isiForm("Loading...");
+                      } else if (snapshot.hasError) {
+                        return _isiForm("Error");
+                      } else {
+                        return _isiForm(snapshot.data ?? "_");
                       }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: blueNewAmikom,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      "Update",
-                      style: GoogleFonts.urbanist(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 12),
+                  _labelForm("Catatan"),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 100,
+                    child: TextField(
+                      controller: widget.catatanController,
+                      maxLines: null,
+                      minLines: 5,
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: "Opsional",
+                        filled: true,
+                        fillColor: yellowNewAmikom,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.transparent,
+                            width: 0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: greenNewAmikom,
+                            width: 1.5,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                  const SizedBox(height: 12),
+                  Divider(height: 1, color: grayNewAmikom),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            widget.catatanController.clear();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: greenNewAmikom,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "Back",
+                            style: GoogleFonts.urbanist(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (widget.task.currentProgress == "Production") {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) =>
+                                const TrackVasPopUpProduction(),
+                              );
+                              Future.delayed(const Duration(seconds: 2), () {
+                                if (context.mounted) {
+                                  Navigator.of(context).pushReplacement(
+                                    routingPage(
+                                      BlocProvider(
+                                        create: (context) =>
+                                            TaskTrackCubit(TaskTrackService()),
+                                        child: const TrackVasPage(),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              });
+                              return;
+                            } else {
+                              final service = TaskTrackService();
+                              final success =
+                              await service.updateTaskTracker(
+                                nomorPengajuan: widget.task.nomorPengajuan,
+                                taskClosed: widget.task.currentProgress,
+                                taskProgress: widget.nextProgress,
+                                updatedBy:
+                                await SharedPref.getName() ?? '_',
+                                catatan: widget.catatanController.text,
+                              );
+                              if (success && context.mounted) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) =>
+                                  const TrackVasPopUpSuccess(),
+                                );
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  if (context.mounted) {
+                                    Navigator.of(context).pushReplacement(
+                                      routingPage(
+                                        BlocProvider(
+                                          create: (context) =>
+                                              TaskTrackCubit(TaskTrackService()),
+                                          child: const TrackVasPage(),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                });
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: blueNewAmikom,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "Update",
+                            style: GoogleFonts.urbanist(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          }
+      )
+
+
     );
   }
 
@@ -393,26 +491,26 @@ class TrackVasCard extends StatelessWidget {
             Divider(height: 1, color: grayNewAmikom),
             const SizedBox(height: 8),
             _labelForm("ID Pengajuan"),
-            _isiForm(task.nomorPengajuan),
+            _isiForm(widget.task.nomorPengajuan),
             const SizedBox(height: 12),
             _labelForm("Nama Sistem"),
-            _isiForm(task.jenis),
+            _isiForm(widget.task.jenis),
             const SizedBox(height: 12),
             _labelForm("Current Progress"),
-            _isiForm(task.currentProgress),
+            _isiForm(widget.task.currentProgress),
             const SizedBox(height: 12),
             _labelForm("Terakhir Update"),
-            _isiForm(task.updatedAt.split(" ")[0]),
+            _isiForm(widget.task.updatedAt.split(" ")[0]),
             const SizedBox(height: 12),
             _labelForm("Diupdate oleh"),
-            _isiForm(task.updatedBy),
+            _isiForm(widget.task.updatedBy),
             const SizedBox(height: 12),
             _labelForm("Catatan"),
 
 
 
 
-            if (task.catatan != null)
+            if (widget.task.catatan != null)
               Container(
                 width: double.infinity,
                 height: 100,
@@ -423,7 +521,7 @@ class TrackVasCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  task.catatan,
+                  widget.task.catatan,
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                   ),
@@ -458,7 +556,7 @@ class TrackVasCard extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      catatanController.clear();
+                      widget.catatanController.clear();
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
@@ -511,4 +609,64 @@ class TrackVasCard extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _pickImageOptions(
+      BuildContext context,
+      void Function(void Function()) setStateDialog,
+      ) async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+
+              // Kamera
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text("Ambil Foto dari Kamera",
+                    style: GoogleFonts.urbanist()),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? photo = await _picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 100,
+                  );
+                  if (photo != null && updateImages.length < 3) {
+                    setStateDialog(() {
+                      updateImages.add(photo);
+                    });
+                  }
+                },
+              ),
+
+              // Galeri
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text("Pilih dari Galeri",
+                    style: GoogleFonts.urbanist()),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final List<XFile> imgs = await _picker.pickMultiImage(
+                    imageQuality: 100,
+                  );
+                  if (imgs.isNotEmpty) {
+                    setStateDialog(() {
+                      updateImages.addAll(imgs.take(3 - updateImages.length));
+                    });
+
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
 }
