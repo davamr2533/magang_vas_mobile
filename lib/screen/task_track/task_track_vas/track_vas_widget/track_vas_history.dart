@@ -32,22 +32,13 @@ class _TrackVasHistoryState extends State<TrackVasHistory> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        Navigator.of(context).pushReplacement(
-          routingPage(const TrackVasPage()),
-        );
+        goToTrackVasPage(context);
       },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
-              Navigator.of(context).push(
-                routingPage(
-                  BlocProvider(
-                    create: (context) => TaskTrackCubit(TaskTrackService()),
-                    child: const TrackVasPage(),
-                  ),
-                ),
-              );
+              goToTrackVasPage(context);
             },
             icon: const Icon(Icons.arrow_back_ios_new),
             color: Colors.black,
@@ -254,4 +245,17 @@ class _TrackVasHistoryState extends State<TrackVasHistory> {
       ),
     );
   }
+
+  void goToTrackVasPage(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      routingPage(
+        BlocProvider(
+          create: (_) => TaskTrackCubit(TaskTrackService()),
+          child: const TrackVasPage(),
+        ),
+      ),
+    );
+  }
+
+
 }
