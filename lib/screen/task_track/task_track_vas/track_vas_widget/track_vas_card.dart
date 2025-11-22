@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
@@ -539,35 +540,45 @@ class _TrackVasCardState extends State<TrackVasCard> {
                         spacing: 10,
                         runSpacing: 10,
                         children: fotos.map((fotoUrl) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: ColorFiltered(
+                          final fixedUrl = buildImageURL(fotoUrl)!;
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FullImageView(imageUrl: fixedUrl),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: ColorFiltered(
                                 colorFilter: ColorFilter.mode(
                                   Colors.black.withValues(alpha: 0.2),
                                   BlendMode.darken,
                                 ),
-                              child: Image.network(
-                                buildImageURL(fotoUrl)!,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width: 90,
-                                    height: 90,
-                                    color: Colors.black12,
-                                    child: const Icon(Icons.broken_image, size: 30),
-                                  );
-                                },
+                                child: Image.network(
+                                  fixedUrl,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 90,
+                                      height: 90,
+                                      color: Colors.black12,
+                                      child: const Icon(Icons.broken_image, size: 30),
+                                    );
+                                  },
+                                ),
                               ),
-                            )
-
-
+                            ),
                           );
                         }).toList(),
-                      )
-                      ,
+                      ),
                     )
+
 
 
                   ],
@@ -756,6 +767,28 @@ class _TrackVasCardState extends State<TrackVasCard> {
       },
     );
   }
+}
 
+class FullImageView extends StatelessWidget {
+  final String imageUrl;
 
+  const FullImageView({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: PhotoView(
+        imageProvider: NetworkImage(imageUrl),
+        backgroundDecoration: const BoxDecoration(color: Colors.black),
+        minScale: PhotoViewComputedScale.contained * 1,
+        maxScale: PhotoViewComputedScale.covered * 3,
+      ),
+    );
+  }
 }
