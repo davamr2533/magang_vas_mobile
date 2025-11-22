@@ -10,8 +10,11 @@ import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_widget/track_vas_pop_up.dart';
 import 'package:vas_reporting/screen/task_track/track_cubit/task_track_cubit.dart';
+import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
+import 'package:photo_view/photo_view.dart';
+
 
 class TrackVasCard extends StatefulWidget {
   final dynamic task;
@@ -416,16 +419,31 @@ class _TrackVasCardState extends State<TrackVasCard> {
                               });
                               return;
                             } else {
+
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  elevation: 0,
+                                  child: AppWidget().LoadingWidget(),
+                                ),
+                              );
+
                               final service = TaskTrackService();
-                              final success =
-                              await service.updateTaskTracker(
+                              final success = await service.updateTaskTracker(
                                 nomorPengajuan: widget.task.nomorPengajuan,
                                 taskClosed: widget.task.currentProgress,
                                 taskProgress: widget.nextProgress,
-                                updatedBy:
-                                await SharedPref.getName() ?? '_',
+                                updatedBy: await SharedPref.getName() ?? '_',
                                 catatan: widget.catatanController.text,
+
+                                // 🔥 NEW: kirim foto
+                                foto1: updateImages.isNotEmpty ? File(updateImages[0].path) : null,
+                                foto2: updateImages.length > 1 ? File(updateImages[1].path) : null,
+                                foto3: updateImages.length > 2 ? File(updateImages[2].path) : null,
                               );
+
                               if (success && context.mounted) {
                                 showDialog(
                                   context: context,
@@ -433,19 +451,18 @@ class _TrackVasCardState extends State<TrackVasCard> {
                                   builder: (context) =>
                                   const TrackVasPopUpSuccess(),
                                 );
-                                Future.delayed(const Duration(seconds: 2), () {
-                                  if (context.mounted) {
-                                    Navigator.of(context).pushReplacement(
-                                      routingPage(
-                                        BlocProvider(
-                                          create: (context) =>
-                                              TaskTrackCubit(TaskTrackService()),
-                                          child: const TrackVasPage(),
-                                        ),
+                                await Future.delayed(const Duration(seconds: 2));
+
+                                if (context.mounted) {
+                                  Navigator.of(context).pushReplacement(
+                                    routingPage(
+                                      BlocProvider(
+                                        create: (context) => TaskTrackCubit(TaskTrackService()),
+                                        child: const TrackVasPage(),
                                       ),
-                                    );
-                                  }
-                                });
+                                    ),
+                                  );
+                                }
                               }
                             }
                           },

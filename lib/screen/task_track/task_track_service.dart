@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -41,35 +43,66 @@ class TaskTrackService {
     required String taskProgress,
     required String catatan,
     required String updatedBy,
+    File? foto1,
+    File? foto2,
+    File? foto3,
   }) async {
-    final token = await SharedPref.getToken();
+    try {
+      final token = await SharedPref.getToken();
 
-    final body = {
-      "nomor_pengajuan": nomorPengajuan,
-      "task_closed": taskClosed,
-      "task_progress": taskProgress,
-      "catatan": catatan,
-      "updated_by": updatedBy,
-    };
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(updateTaskTrackerURL),
+      );
 
-    final response = await http.post(
-      Uri.parse(updateTaskTrackerURL),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(body),
-    );
+      // Header
+      request.headers['Authorization'] = 'Bearer $token';
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data["status"] == "success";
-    } else {
+      // Fields (text)
+      request.fields['nomor_pengajuan'] = nomorPengajuan;
+      request.fields['task_closed'] = taskClosed;
+      request.fields['task_progress'] = taskProgress;
+      request.fields['catatan'] = catatan;
+      request.fields['updated_by'] = updatedBy;
+
+      // Files
+      if (foto1 != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'foto1',
+          foto1.path,
+        ));
+      }
+
+      if (foto2 != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'foto2',
+          foto2.path,
+        ));
+      }
+
+      if (foto3 != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'foto3',
+          foto3.path,
+        ));
+      }
+
+      // Kirim request
+      final response = await request.send();
+
+      if (response.statusCode == 201) {
+        final respStr = await response.stream.bytesToString();
+        final data = jsonDecode(respStr);
+
+        return data["status"] == "success";
+      } else {
+        return false;
+      }
+    } catch (e) {
       return false;
     }
-
-
   }
+
 
   //Method untuk get data dari tabel History
   Future<Map<String, dynamic>?> getTaskHistory() async {
