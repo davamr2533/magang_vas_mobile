@@ -35,6 +35,15 @@ class _TrackVasCardState extends State<TrackVasCard> {
   List<XFile> updateImages = [];
   final ImagePicker _picker = ImagePicker();
 
+  String? buildImageURL(String? path) {
+    const String baseURL = "http://202.169.224.27:8081";
+
+    if (path == null || path.isEmpty) return null;
+
+    if (path.startsWith("http")) return path;
+    return "$baseURL$path";
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -487,6 +496,86 @@ class _TrackVasCardState extends State<TrackVasCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            // === FOTO DARI TIMELINE ===
+            const SizedBox(height: 12),
+            _labelForm("Lampiran Foto Tahap Sebelumnya"),
+
+            Column(
+              children: widget.task.timeline
+                  .where((item) => item.tahap == widget.task.currentProgress)
+                  .map<Widget>((item) {
+
+                final List<String> fotos = [
+                  item.foto1,
+                  item.foto2,
+                  item.foto3,
+                ].where((f) => f != null && f!.isNotEmpty).cast<String>().toList();
+
+                if (fotos.isEmpty) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(top: 6, bottom: 12),
+                    decoration: BoxDecoration(
+                      color: yellowNewAmikom,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "Tidak ada foto",
+                      style: GoogleFonts.urbanist(fontSize: 14),
+                    ),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    const SizedBox(height: 8),
+
+                    Center(
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: fotos.map((fotoUrl) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: ColorFiltered(
+                                colorFilter: ColorFilter.mode(
+                                  Colors.black.withValues(alpha: 0.2),
+                                  BlendMode.darken,
+                                ),
+                              child: Image.network(
+                                buildImageURL(fotoUrl)!,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 90,
+                                    height: 90,
+                                    color: Colors.black12,
+                                    child: const Icon(Icons.broken_image, size: 30),
+                                  );
+                                },
+                              ),
+                            )
+
+
+                          );
+                        }).toList(),
+                      )
+                      ,
+                    )
+
+
+                  ],
+                );
+              }).toList(),
+            ),
+
+
             const SizedBox(height: 12),
             Divider(height: 1, color: grayNewAmikom),
             const SizedBox(height: 8),
