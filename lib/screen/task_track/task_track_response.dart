@@ -6,7 +6,7 @@ class TaskTrackResponse {
   final String divisi;
   final String? updatedBy; //nullable
   final String? catatan; //nullable
-  final String updatedAt;
+  final String? updatedAt; //nullable
   final List<TaskTrackTimeline> timeline;
 
   TaskTrackResponse({
@@ -16,10 +16,9 @@ class TaskTrackResponse {
     required this.divisi,
     this.updatedBy,
     this.catatan,
-    required this.updatedAt,
+    this.updatedAt,
     required this.timeline,
   });
-
 
   factory TaskTrackResponse.fromJson(Map<String, dynamic> json) {
     //ambil field dari json
@@ -37,7 +36,6 @@ class TaskTrackResponse {
 
     );
   }
-
 }
 
 
@@ -46,11 +44,17 @@ class TaskTrackTimeline {
   final String tahap;
   final String isDone;
   final String? updatedAt;
+  final String? foto1;
+  final String? foto2;
+  final String? foto3;
 
   TaskTrackTimeline({
     required this.tahap,
     required this.isDone,
     this.updatedAt,
+    this.foto1,
+    this.foto2,
+    this.foto3,
   });
 
   // Factory constructor untuk parsing JSON ke objek TaskTrackTimeline.
@@ -60,6 +64,9 @@ class TaskTrackTimeline {
       tahap: json['tahap'],
       isDone: json['isDone'],
       updatedAt: json['updated_at'],
+      foto1: json['foto1'],
+      foto2: json['foto2'],
+      foto3: json['foto3'],
     );
   }
 }
