@@ -8,14 +8,14 @@ part of 'rename_drive_body.dart';
 
 RenameDriveBody _$RenameDriveBodyFromJson(Map<String, dynamic> json) =>
     RenameDriveBody(
-      id: (json['id'] as num?)?.toInt(),
       name: json['name'] as String?,
-      itemType: json['item_type'] as String?,
+      folderId: (json['folder_id'] as num?)?.toInt(),
+      fileId: (json['file_id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RenameDriveBodyToJson(RenameDriveBody instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'name': instance.name,
-      'item_type': instance.itemType,
+      'folder_id': instance.folderId,
+      'file_id': instance.fileId,
     };
