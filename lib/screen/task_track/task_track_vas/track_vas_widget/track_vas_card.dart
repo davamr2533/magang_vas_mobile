@@ -637,12 +637,16 @@ class _TrackVasCardState extends State<TrackVasCard> {
                   color: yellowNewAmikom,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
-                  widget.task.catatan,
-                  style: GoogleFonts.urbanist(
-                    fontSize: 14,
+                child: SingleChildScrollView(
+                  child: Text(
+                    widget.task.catatan,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                    ),
                   ),
-                ),
+                )
+
+
               )
             else
               Container(

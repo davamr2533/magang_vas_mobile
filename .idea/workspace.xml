@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="refresh indicator">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="bottom padding" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -312,7 +310,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763816411102</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="bottom padding">
+      <option name="closed" value="true" />
+      <created>1764035768496</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1764035768496</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -350,6 +356,7 @@
     <MESSAGE value="image full preview" />
     <MESSAGE value="integrasi upload foto" />
     <MESSAGE value="refresh indicator" />
-    <option name="LAST_COMMIT_MESSAGE" value="refresh indicator" />
+    <MESSAGE value="bottom padding" />
+    <option name="LAST_COMMIT_MESSAGE" value="bottom padding" />
   </component>
 </project>
