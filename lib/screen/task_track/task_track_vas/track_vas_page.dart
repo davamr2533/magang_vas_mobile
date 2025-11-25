@@ -184,16 +184,11 @@ class _TrackVasPage extends State<TrackVasPage> {
                     else
                       Expanded(
                         child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: filteredTasks.length + 1,
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 80),
+                          itemCount: filteredTasks.length,
                           itemBuilder: (context, index) {
-                            if (index == filteredTasks.length) {
-                              return const SizedBox(height: 80);
-                            }
-
                             final task = filteredTasks[index];
 
-                            //Flow Progress
                             final Map<String, String> progressFlow = {
                               "Wawancara": "Konfirmasi Desain",
                               "Konfirmasi Desain": "Perancangan Database",
@@ -203,7 +198,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                               "Testing": "Trial",
                               "Trial": "Production",
                               "Production": "-",
-                              "-": "Wawancara", //bahan untuk test
+                              "-": "Wawancara",
                             };
 
                             final String nextProgress = progressFlow[task.currentProgress] ?? "-";
@@ -215,6 +210,7 @@ class _TrackVasPage extends State<TrackVasPage> {
                             );
                           },
                         ),
+
                       ),
                   ],
                 )
