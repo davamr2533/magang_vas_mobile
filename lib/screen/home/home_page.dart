@@ -202,6 +202,8 @@ class _HomePageState extends State<HomePage> {
                             )
                           : SizedBox(),
 
+
+                      //Navigasi ke VAS Drive
                       divisi == 'VAS' && jabatan == 'Staff'
                           ? ListTile(
                               leading: const Icon(IconlyLight.folder),
@@ -268,6 +270,8 @@ class _HomePageState extends State<HomePage> {
                               },
                             )
                           : SizedBox(),
+
+                      //Navigasi ke Approval Submission
                       divisi == 'VAS' && jabatan == 'Manager'
                           ? ListTile(
                               leading: const Icon(IconlyLight.shieldDone),
@@ -285,6 +289,58 @@ class _HomePageState extends State<HomePage> {
                               },
                             )
                           : SizedBox(),
+
+                      //Navigasi ke Task Tracker
+                      divisi == 'VAS' && jabatan == 'Manager'
+                          ? ListTile(
+                        leading: const Icon(IconlyLight.document),
+                        title: Text(
+                          "Task Tracker",
+                          style: GoogleFonts.urbanist(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            routingPage(
+                              BlocProvider(
+                                create: (context) =>
+                                    TaskTrackCubit(TaskTrackService()),
+                                child: TrackVasPage(),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                          : SizedBox(),
+
+
+                      //Navigasi ke VAS Drive
+                      divisi == 'VAS' && jabatan == 'Manager'
+                          ? ListTile(
+                        leading: const Icon(IconlyLight.folder),
+                        title: Text(
+                          "VAS Drive",
+                          style: GoogleFonts.urbanist(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            routingPage(
+                              BlocProvider(
+                                create: (_) => DriveCubit(),
+                                child: const DriveHome(),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                          : SizedBox(),
+
+
                     ],
                   ),
                   ListTile(
