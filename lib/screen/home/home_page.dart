@@ -246,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                           : SizedBox(),
 
                       //Task Tracker User Navigation
-                      jabatan != 'Manager' && divisi != 'VAS'
+                      divisi != 'VAS'
                           ? ListTile(
                               leading: const Icon(IconlyLight.document),
                               title: Text(
