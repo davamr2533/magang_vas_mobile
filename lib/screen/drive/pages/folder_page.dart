@@ -113,34 +113,25 @@ class FolderPageState extends State<FolderPage>
     if (widget.onRefresh != null) {
       await widget.onRefresh!();
 
-      await Future.delayed(const Duration(milliseconds: 500));
-
       final driveState = context.read<DriveCubit>().state;
-      if (driveState is DriveDataSuccess) {
-        final currentFolderId = currentFolder.id;
-        final updatedFolder = _findFolderById(
-          driveState.driveData.data ?? [],
-          currentFolderId,
-        );
 
-        if (updatedFolder != null) {
+      if (driveState is DriveDataSuccess) {
+        final currentId = currentFolder.id;
+        final updated = _findFolderById(driveState.driveData.data ?? [], currentId);
+
+        if (updated != null) {
           setState(() {
             navigationStack.removeLast();
-            navigationStack.add(updatedFolder);
+            navigationStack.add(updated);
           });
-        } else {
-          setState(() {});
         }
-      } else {
-        setState(() {});
       }
-    } else if (widget.onUpdateChanged != null) {
-      widget.onUpdateChanged!();
-      setState(() {});
-    } else {
-      setState(() {});
+
+      return;
     }
+    setState(() {});
   }
+
 
   // =========== Helper function untuk mencari folder by ID ===========
   DriveItemModel? _findFolderById(List<FolderItem> apiData, int folderId) {
@@ -169,7 +160,6 @@ class FolderPageState extends State<FolderPage>
         if (found != null) return found;
       }
     }
-
     return null;
   }
 
@@ -189,7 +179,10 @@ class FolderPageState extends State<FolderPage>
     );
 
     final myFolders = driveRoot.children ?? [];
-    final myFiles = driveRoot.files ?? [];
+    final myFiles = (driveRoot.files ?? [])
+        .where((f) => f.userId == widget.username)
+        .toList();
+
     final allSharedFolders = sharedDriveRoot.children ?? [];
     final allSharedFiles = sharedDriveRoot.files ?? [];
 
@@ -198,8 +191,11 @@ class FolderPageState extends State<FolderPage>
 
     final allMyDriveItem = _mapApiListToUiModel(myItems);
     final allSharedItem = _mapApiListToUiModel(sharedItems);
+    final allMyItems = allMyDriveItem
+        .where((f) => f.userId == widget.username)
+        .toList();
 
-    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allFolders = [...allMyItems, ...allSharedItem];
     final allItems = _getAllItemsRecursive(allFolders);
 
     switch (folderId) {
@@ -280,44 +276,48 @@ class FolderPageState extends State<FolderPage>
     // Process sub-folders
     if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
       for (var subFolder in apiFolder.children!) {
-        combinedList.add(
-          DriveItemModel(
-            id: subFolder.id ?? 0,
-            parentId: subFolder.parentId,
-            parentName: apiFolder.name,
-            userId: subFolder.userId,
-            type: DriveItemType.folder,
-            nama: subFolder.name ?? 'Folder Tanpa Nama',
-            createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
-            isStarred: subFolder.isStarred == 'TRUE',
-            isTrashed: subFolder.isTrashed == 'TRUE',
-            children: _mapApiFolderToUiModel(subFolder),
-            updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
-          ),
-        );
+       if(subFolder.isTrashed == 'TRUE'){
+         combinedList.add(
+           DriveItemModel(
+             id: subFolder.id ?? 0,
+             parentId: subFolder.parentId,
+             parentName: apiFolder.name,
+             userId: subFolder.userId,
+             type: DriveItemType.folder,
+             nama: subFolder.name ?? 'Folder Tanpa Nama',
+             createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
+             isStarred: subFolder.isStarred == 'TRUE',
+             isTrashed: subFolder.isTrashed == 'TRUE',
+             children: _mapApiFolderToUiModel(subFolder),
+             updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
+           ),
+         );
+       }
       }
     }
 
     // Process files
     if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
       for (var file in apiFolder.files!) {
-        combinedList.add(
-          DriveItemModel(
-            id: file.id ?? 0,
-            parentId: file.parentId,
-            parentName: apiFolder.name,
-            userId: file.userId,
-            type: DriveItemType.file,
-            nama: file.name!,
-            createdAt: file.createdAtAsDate ?? DateTime.now(),
-            isStarred: file.isStarred == 'TRUE',
-            isTrashed: file.isTrashed == 'TRUE',
-            mimeType: file.mimeType,
-            size: file.size,
-            url: file.urlFile,
-            updateAt: file.updatedAtAsDate ?? DateTime.now(),
-          ),
-        );
+        if (file.isTrashed!= 'TRUE') {
+          combinedList.add(
+            DriveItemModel(
+              id: file.id ?? 0,
+              parentId: file.parentId,
+              parentName: apiFolder.name,
+              userId: file.userId,
+              type: DriveItemType.file,
+              nama: file.name!,
+              createdAt: file.createdAtAsDate ?? DateTime.now(),
+              isStarred: file.isStarred == 'TRUE',
+              isTrashed: file.isTrashed == 'TRUE',
+              mimeType: file.mimeType,
+              size: file.size,
+              url: file.urlFile,
+              updateAt: file.updatedAtAsDate ?? DateTime.now(),
+            ),
+          );
+        }
       }
     }
 
@@ -423,10 +423,12 @@ class FolderPageState extends State<FolderPage>
                   child: child,
                 );
               },
-          child: RefreshIndicator(
+          child: Container(
             key: ValueKey(currentFolder.id),
-            onRefresh: _refreshData,
-            child: _buildBodyContent(items),
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: _buildBodyContent(items),
+            ),
           ),
         ),
 
@@ -468,10 +470,12 @@ class FolderPageState extends State<FolderPage>
         ),
         Expanded(
           child: DriveGrid(
-            items: items,
+            items: List.from(items),
             isList: currentView == ViewOption.list,
             onItemTap: pushFolder,
-            onUpdateChanged: _refreshData,
+            onUpdateChanged:() async {
+              await _refreshData();
+            },
             username: widget.username,
           ),
         ),

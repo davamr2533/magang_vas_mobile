@@ -381,17 +381,23 @@ class _DriveHomeState extends State<DriveHome>
     );
 
     final myFolders = driveRoot.children ?? [];
-    final myFiles = driveRoot.files ?? [];
+
+    final myFiles = (driveRoot.files ?? [])
+        .where((f) => f.userId == username)
+        .toList();
+
     final allSharedFolders = sharedDriveRoot.children ?? [];
     final allSharedFiles = sharedDriveRoot.files ?? [];
-
     final myItems = [...myFolders, ...myFiles];
     final sharedItems = [...allSharedFolders, ...allSharedFiles];
 
     final allMyDriveItem = _mapApiItemsToUiModel(myItems);
     final allSharedItem = _mapApiItemsToUiModel(sharedItems);
+    final allMyItems = allMyDriveItem
+        .where((f) => f.userId == username)
+        .toList();
 
-    final allFolders = [...allMyDriveItem, ...allSharedItem];
+    final allFolders = [...allMyItems, ...allSharedItem];
     final allItems = _getAllItemsRecursive(allFolders);
 
     // Urutkan berdasarkan tanggal terbaru

@@ -88,11 +88,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
             int lastSent = 0;
             DateTime lastTime = DateTime.now();
 
-            await NotificationService.showUploadProgress(
-              sent: 0,
-              total: 0,
-              speed: "0 KB/s",
-            );
+
 
             try {
               final success = await uploadNewFile(
