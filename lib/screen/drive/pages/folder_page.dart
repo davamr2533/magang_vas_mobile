@@ -276,7 +276,7 @@ class FolderPageState extends State<FolderPage>
     // Process sub-folders
     if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
       for (var subFolder in apiFolder.children!) {
-       if(subFolder.isTrashed == 'TRUE'){
+       if(subFolder.isTrashed != 'TRUE'){
          combinedList.add(
            DriveItemModel(
              id: subFolder.id ?? 0,
