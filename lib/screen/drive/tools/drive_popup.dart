@@ -84,6 +84,14 @@ extension PopUpInput on PopUpWidget {
           ),
           content: Text(message, style: GoogleFonts.urbanist(fontSize: 14)),
           actions: [
+
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                cancelText,
+                style: GoogleFonts.urbanist(color: Colors.black),
+              ),
+            ),
             CupertinoDialogAction(
               onPressed: () => Navigator.pop(context, true),
               child: Text(
@@ -92,13 +100,6 @@ extension PopUpInput on PopUpWidget {
                   color: confirmColor,
                   fontWeight: FontWeight.w600,
                 ),
-              ),
-            ),
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(
-                cancelText,
-                style: GoogleFonts.urbanist(color: Colors.black),
               ),
             ),
           ],

@@ -127,6 +127,7 @@ class FolderPageState extends State<FolderPage>
         }
       }
 
+      setState(() {});
       return;
     }
     setState(() {});

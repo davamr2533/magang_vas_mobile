@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -579,89 +581,92 @@ class DriveItemCard extends StatelessWidget {
                         return;
                       }
 
-                      try {
-                        Directory? directory;
+                      downloadFile(context, item, url);
 
-                        if (Platform.isAndroid) {
-                          await Permission.storage.request();
-                          directory = Directory(
-                            '/storage/emulated/0/Download/VAS Download',
-                          );
-                        } else {
-                          final docDir =
-                              await getApplicationDocumentsDirectory();
-                          directory = Directory('${docDir.path}/VAS Download');
-                        }
-
-                        if (!await directory.exists()) {
-                          await directory.create(recursive: true);
-                        }
-
-                        final filePath =
-                            "${directory.path}/${item.nama}.${item.mimeType}";
-                        final dio = Dio();
-
-                        int lastReceived = 0;
-                        DateTime lastTime = DateTime.now();
-
-                        await NotificationService.showProgress(
-                          received: 0,
-                          total: 0,
-                          speed: "0 KB/s",
-                        );
-
-                        await dio.download(
-                          "$url${Uri.parse(item.url!).path}",
-                          filePath,
-                          onReceiveProgress: (received, total) {
-                            if (total != -1) {
-                              final now = DateTime.now();
-                              final diff = now
-                                  .difference(lastTime)
-                                  .inMilliseconds;
-
-                              if (diff > 800) {
-                                double speedBytesPerSec =
-                                    (received - lastReceived) / (diff / 1000);
-                                String speedText = "";
-
-                                if (speedBytesPerSec >= 1048576) {
-                                  speedText =
-                                      "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
-                                } else {
-                                  speedText =
-                                      "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
-                                }
-
-                                NotificationService.showProgress(
-                                  received: received,
-                                  total: total,
-                                  speed: speedText,
-                                );
-
-                                lastReceived = received;
-                                lastTime = now;
-                              }
-                            }
-                          },
-                        );
-
-                        await NotificationService.cancelProgress();
-                        await NotificationService.showCompleted("${item.nama}${item.mimeType}",filePath);
-
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "File berhasil disimpan di $filePath",
-                            ),
-                          ),
-                        );
-                      } catch (e) {
-                        await NotificationService.cancelProgress();
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          SnackBar(content: Text("Gagal mengunduh file: $e")),
-                        );
-                      }
+                      // try {
+                      //   Directory? directory;
+                      //
+                      //   if (Platform.isAndroid) {
+                      //     await Permission.storage.request();
+                      //     directory = Directory(
+                      //       '/storage/emulated/0/Download/VAS Download',
+                      //     );
+                      //   } else {
+                      //     final docDir =
+                      //         await getApplicationDocumentsDirectory();
+                      //     directory = Directory('${docDir.path}/VAS Download');
+                      //   }
+                      //
+                      //   if (!await directory.exists()) {
+                      //     await directory.create(recursive: true);
+                      //   }
+                      //
+                      //   final filePath =
+                      //       "${directory.path}/${item.nama}.${item.mimeType}";
+                      //   final dio = Dio();
+                      //
+                      //   int lastReceived = 0;
+                      //   DateTime lastTime = DateTime.now();
+                      //
+                      //   await NotificationService.showProgress(
+                      //     received: 0,
+                      //     total: 0,
+                      //     speed: "0 KB/s",
+                      //   );
+                      //
+                      //   await dio.download(
+                      //     "$url${Uri.parse(item.url!).path}",
+                      //     filePath,
+                      //     onReceiveProgress: (received, total) {
+                      //       if (total != -1) {
+                      //         final now = DateTime.now();
+                      //         final diff = now
+                      //             .difference(lastTime)
+                      //             .inMilliseconds;
+                      //
+                      //         if (diff > 800) {
+                      //           double speedBytesPerSec =
+                      //               (received - lastReceived) / (diff / 1000);
+                      //           String speedText = "";
+                      //
+                      //           if (speedBytesPerSec >= 1048576) {
+                      //             speedText =
+                      //                 "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
+                      //           } else {
+                      //             speedText =
+                      //                 "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+                      //           }
+                      //
+                      //           NotificationService.showProgress(
+                      //             received: received,
+                      //             total: total,
+                      //             speed: speedText,
+                      //           );
+                      //
+                      //           lastReceived = received;
+                      //           lastTime = now;
+                      //         }
+                      //       }
+                      //     },
+                      //   );
+                      //
+                      //   await NotificationService.cancelProgress();
+                      //   await NotificationService.showCompleted("${item.nama}${item.mimeType}",filePath);
+                      //
+                      //   ScaffoldMessenger.of(rootContext).showSnackBar(
+                      //     SnackBar(
+                      //       content: Text(
+                      //         "File berhasil disimpan di $filePath",
+                      //       ),
+                      //     ),
+                      //   );
+                      // } catch (e) {
+                      //   await NotificationService.cancelProgress();
+                      //   ScaffoldMessenger.of(rootContext).showSnackBar(
+                      //     SnackBar(content: Text("Gagal mengunduh file: $e")),
+                      //   );
+                      //   print("gagal unduh file : $e");
+                      // }
                     },
                   ),
 
@@ -1034,4 +1039,123 @@ class DriveItemCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
   }
+
+
+  Future<void> downloadFile(
+      BuildContext context, DriveItemModel item, String url) async {
+    try {
+      // ========== ANDROID PERMISSION ==========
+      if (Platform.isAndroid) {
+        await Permission.storage.request();
+      }
+
+      final dio = Dio();
+      int lastReceived = 0;
+      DateTime lastTime = DateTime.now();
+
+      await NotificationService.showDownloadProgress(
+        received: 0,
+        total: 0,
+        speed: "0 KB/s",
+      );
+
+      // ========== DOWNLOAD BYTES ==========
+      final response = await dio.get<List<int>>(
+        "$url${Uri.parse(item.url!).path}",
+        options: Options(responseType: ResponseType.bytes),
+        onReceiveProgress: (received, total) {
+          if (total > 0) {
+            final now = DateTime.now();
+            final diff = now.difference(lastTime).inMilliseconds;
+
+            if (diff > 800) {
+              double speedBytesPerSec = (received - lastReceived) / (diff / 1000);
+
+              String speedText = speedBytesPerSec >= 1048576
+                  ? "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s"
+                  : "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+
+              NotificationService.showDownloadProgress(
+                received: received,
+                total: total,
+                speed: speedText,
+              );
+
+              lastReceived = received;
+              lastTime = now;
+            }
+          }
+        },
+      );
+
+      // =====================================================
+      // ============   ANDROID → SAVE TO DOWNLOADS  =========
+      // =====================================================
+      if (Platform.isAndroid && (await Permission.manageExternalStorage.request()).isGranted) {
+
+      // Buat file sementara dari bytes
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File("${tempDir.path}/${item.nama}.${item.mimeType}");
+        await tempFile.writeAsBytes(response.data!);
+
+        // Simpan ke MediaStore
+        final mediaStore = MediaStore();
+        final savedInfo = await mediaStore.saveFile(
+          tempFilePath: tempFile.path,
+          dirType: DirType.download,
+          dirName: DirName.download,
+        );
+
+        await NotificationService.cancelDownloadProgress();
+        NotificationService.showDownloadCompleted(
+          "${item.nama}.${item.mimeType}",
+          "Folder Download",
+        );
+        print("File tersimpan di ${savedInfo?.name ?? "Unknown URI"}");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("File berhasil disimpan di folder Download")),
+        );
+
+        try {
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        } catch (e) {
+          print("Failed to delete temp file: $e");
+        }
+
+
+
+        return;
+      }
+
+      // =====================================================
+      // ================       iOS SAVE      ================
+      // =====================================================
+      else {
+        final dir = await getApplicationDocumentsDirectory();
+        final file = File("${dir.path}/${item.nama}.${item.mimeType}");
+        await file.writeAsBytes(Uint8List.fromList(response.data!));
+
+        await NotificationService.cancelDownloadProgress();
+        NotificationService.showDownloadCompleted(
+          "${item.nama}.${item.mimeType}",
+          file.path,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("File tersimpan di ${file.path}")),
+        );
+
+      }
+    } catch (e) {
+      await NotificationService.cancelDownloadProgress();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal mengunduh file: $e")),
+      );
+      print("gagal unduh file : $e");
+    }
+  }
+
 }
