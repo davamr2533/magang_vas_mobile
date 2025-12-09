@@ -1,6 +1,8 @@
 # Keep Flutter local notifications
 -keep class com.dexterous.flutterlocalnotifications.** { *; }
 
+# Keep FileProvider for OpenFilex
+-keep class androidx.core.content.FileProvider { *; }
 
 # Keep DocumentFile / MediaStore classes
 -keep class androidx.documentfile.** { *; }
