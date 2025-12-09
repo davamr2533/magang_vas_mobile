@@ -89,7 +89,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
             DateTime lastTime = DateTime.now();
 
 
-
             try {
               final success = await uploadNewFile(
                 context,

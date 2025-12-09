@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vas_reporting/screen/drive/data/cubit/upload_file_cubit.dart';
 
+import '../../../utllis/app_notification.dart';
+
 Future<bool> uploadNewFile(
     BuildContext context,
     String token,
@@ -42,6 +44,11 @@ Future<bool> uploadNewFile(
   );
 
   if (!context.mounted) return false;
+  NotificationService.showUploadProgress(
+    sent: 0,
+    total: 0,
+    speed: "0 KB/s",
+  );
 
   final state = cubit.state;
 

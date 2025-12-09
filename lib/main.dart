@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:vas_reporting/screen/home/home_page.dart';
 import 'package:vas_reporting/screen/splash_page.dart';
 import 'package:vas_reporting/utllis/app_cubit.dart';
@@ -15,6 +18,12 @@ import 'utllis/app_services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.init();
+  if (Platform.isAndroid) {
+    // print("MediaStore initing....");
+    MediaStore.appFolder = "VAS Download";
+    await MediaStore.ensureInitialized();
+    // print("MediaStore initialized");
+  }
   final appCubit = AppCubit();
   bool isLogin = await SharedPref.getToken() == null ? false : true;
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
