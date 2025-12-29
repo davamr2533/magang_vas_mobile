@@ -408,6 +408,8 @@ class _FormUjiInternalState extends State<FormUjiInternal> {
                                     hasilHarapan: _hasilController.text,
                                     hasilUji: _hasilUjiController.text,
                                     keterangan: _noteController.text,
+                                    jenis: _perangkatController.text,
+                                    divisi: "NOC"
                                   ),
                                 );
                               } else {

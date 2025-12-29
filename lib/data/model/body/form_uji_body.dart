@@ -15,6 +15,8 @@ class FormUjiBody {
   String? hasilHarapan;
   String? hasilUji;
   String? keterangan;
+  String? jenis;
+  String? divisi;
 
   FormUjiBody(
       {this.status,
@@ -27,7 +29,10 @@ class FormUjiBody {
       this.kasusUji,
       this.hasilHarapan,
       this.hasilUji,
-      this.keterangan});
+      this.keterangan,
+      this.jenis,
+      this.divisi
+      });
 
   FormUjiBody.fromJson(Map<String, dynamic> json) {
     status = json['status'];
@@ -41,6 +46,9 @@ class FormUjiBody {
     hasilHarapan = json['hasilHarapan'];
     hasilUji = json['hasilUji'];
     keterangan = json['keterangan'];
+    jenis = json['jenis'];
+    divisi = json['divisi'];
+
   }
 
   Map<String, dynamic> toJson() {
@@ -56,6 +64,8 @@ class FormUjiBody {
     data['hasilHarapan'] = this.hasilHarapan;
     data['hasilUji'] = this.hasilUji;
     data['keterangan'] = this.keterangan;
+    data['jenis'] = this.jenis;
+    data['divisi'] = this.divisi;
     return data;
   }
 }

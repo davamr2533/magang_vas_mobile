@@ -18,6 +18,8 @@ FormUjiBody _$FormUjiBodyFromJson(Map<String, dynamic> json) => FormUjiBody(
   hasilHarapan: json['hasil_harapan'] as String?,
   hasilUji: json['hasil_uji'] as String?,
   keterangan: json['keterangan'] as String?,
+  jenis: json['jenis'] as String?,
+  divisi: json['divisi'] as String?,
 );
 
 Map<String, dynamic> _$FormUjiBodyToJson(FormUjiBody instance) =>
@@ -33,4 +35,6 @@ Map<String, dynamic> _$FormUjiBodyToJson(FormUjiBody instance) =>
       'hasil_harapan': instance.hasilHarapan,
       'hasil_uji': instance.hasilUji,
       'keterangan': instance.keterangan,
+      'jenis': instance.jenis,
+      'divisi': instance.divisi,
     };
