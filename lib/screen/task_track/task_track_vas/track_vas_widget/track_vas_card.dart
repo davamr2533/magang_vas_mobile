@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:linkify/linkify.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
@@ -16,6 +17,8 @@ import 'package:vas_reporting/tools/loading.dart';
 import 'package:vas_reporting/tools/routing.dart';
 import 'package:vas_reporting/utllis/app_shared_prefs.dart';
 import 'package:photo_view/photo_view.dart';
+
+
 
 
 class TrackVasCard extends StatefulWidget {
@@ -632,34 +635,54 @@ class _TrackVasCardState extends State<TrackVasCard> {
             if (widget.task.catatan != null)
               Container(
                 width: double.infinity,
-                height: 100,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
                   color: yellowNewAmikom,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: SingleChildScrollView(
-                  child: SelectableLinkify(
-                    text: widget.task.catatan,
-                    style: GoogleFonts.urbanist(
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                    linkStyle: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                    onOpen: (link) async {
-                      final uri = Uri.parse(link.url);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      }
-                    },
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 200,
                   ),
+                  child: SelectableText.rich(
+                    TextSpan(
+                      children: linkify(
+                        widget.task.catatan!,
+                        options: const LinkifyOptions(humanize: false),
+                      ).map((element) {
+                        if (element is LinkableElement) {
+                          return TextSpan(
+                            text: element.text,
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                final uri = Uri.parse(element.url);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
+                          );
+                        }
+                        return TextSpan(
+                          text: element.text,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  )
+
+
+
                 ),
               )
 
