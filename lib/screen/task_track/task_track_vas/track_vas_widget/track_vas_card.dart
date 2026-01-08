@@ -539,7 +539,7 @@ class _TrackVasCardState extends State<TrackVasCard> {
                   return Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(top: 6, bottom: 12),
+                    margin: const EdgeInsets.only(top: 6, bottom: 0),
                     decoration: BoxDecoration(
                       color: yellowNewAmikom,
                       borderRadius: BorderRadius.circular(12),
