@@ -638,16 +638,15 @@ class _TrackVasCardState extends State<TrackVasCard> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: SingleChildScrollView(
-                  child: Text(
+                  child: SelectableText(
                     widget.task.catatan,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                     ),
                   ),
                 )
-
-
               )
+
             else
               Container(
                 width: double.infinity,
