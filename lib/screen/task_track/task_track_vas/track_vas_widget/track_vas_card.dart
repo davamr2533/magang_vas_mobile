@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/screen/task_track/task_track_service.dart';
 import 'package:vas_reporting/screen/task_track/task_track_vas/track_vas_page.dart';
@@ -638,14 +640,29 @@ class _TrackVasCardState extends State<TrackVasCard> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: SingleChildScrollView(
-                  child: SelectableText(
-                    widget.task.catatan,
+                  child: SelectableLinkify(
+                    text: widget.task.catatan,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
+                      color: Colors.black,
                     ),
+                    linkStyle: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    onOpen: (link) async {
+                      final uri = Uri.parse(link.url);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
                   ),
-                )
+                ),
               )
+
 
             else
               Container(
