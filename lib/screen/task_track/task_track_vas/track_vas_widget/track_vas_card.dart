@@ -664,7 +664,7 @@ class _TrackVasCardState extends State<TrackVasCard> {
                                 if (await canLaunchUrl(uri)) {
                                   await launchUrl(
                                     uri,
-                                    mode: LaunchMode.externalApplication,
+                                    mode: LaunchMode.inAppBrowserView,
                                   );
                                 }
                               },

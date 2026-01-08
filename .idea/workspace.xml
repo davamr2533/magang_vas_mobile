@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="43ee2856-45e6-47be-aebd-84ae14bdfae2" name="Changes" comment="update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/task_track/task_track_vas/track_vas_widget/track_vas_card.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -393,7 +394,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767837962080</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="update">
+      <option name="closed" value="true" />
+      <created>1767838879190</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1767838879190</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
