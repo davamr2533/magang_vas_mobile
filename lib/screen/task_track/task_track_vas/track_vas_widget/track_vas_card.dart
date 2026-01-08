@@ -643,7 +643,7 @@ class _TrackVasCardState extends State<TrackVasCard> {
                 ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    maxHeight: 200,
+                    maxHeight: 100,
                   ),
                   child: SelectableText.rich(
                     TextSpan(
