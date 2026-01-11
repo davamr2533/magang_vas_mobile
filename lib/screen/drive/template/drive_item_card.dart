@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -11,7 +13,6 @@ import 'package:media_store_plus/media_store_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import 'package:vas_reporting/base/amikom_color.dart';
 import 'package:vas_reporting/base/base_paths.dart';
 import 'package:vas_reporting/screen/drive/pages/detail_page.dart';
@@ -21,6 +22,7 @@ import 'package:vas_reporting/screen/drive/tools/recovery_item.dart';
 import '../../../tools/popup.dart';
 import '../../../utllis/app_notification.dart';
 import '../../../utllis/app_shared_prefs.dart';
+import '../data/cubit/get_drive_cubit.dart';
 import '../drive_item_model.dart';
 import '../tools/drive_controller.dart';
 import '../tools/pdf_thumbnail.dart';
@@ -49,7 +51,6 @@ class DriveItemCard extends StatelessWidget {
     this.onUpdateChanged,
   });
 
-  // Tetap dipakai di logic internal
   dynamic getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
     if (isFolder) return Icons.folder;
     if (mimeType == null) return Icons.insert_drive_file;
@@ -83,7 +84,6 @@ class DriveItemCard extends StatelessWidget {
         ? "Dibuat pada $dibuat"
         : "Diubah pada $diubah";
 
-    // =============== LIST MODE ===================
     if (isList) {
       return Container(
         margin: const EdgeInsets.only(bottom: 5),
@@ -100,32 +100,7 @@ class DriveItemCard extends StatelessWidget {
             splashColor: Colors.orange.withAlpha(50),
             highlightColor: Colors.orange.withAlpha(20),
             onTap: () async {
-              if (isFolder) {
-                onTap?.call(title);
-              } else {
-                if (item.url != null && item.url!.isNotEmpty) {
-                  try {
-                    final tempDir = await getTemporaryDirectory();
-                    final filePath =
-                        "${tempDir.path}/${item.nama}.${item.mimeType}";
-                    final response = await http.get(
-                      Uri.parse("$url${Uri.parse(item.url!).path}"),
-                    );
-                    final file = await File(
-                      filePath,
-                    ).writeAsBytes(response.bodyBytes);
-                    await OpenFilex.open(file.path);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Gagal membuka file: $e")),
-                    );
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("File tidak ditemukan")),
-                  );
-                }
-              }
+              _handleItemTap(context, isFolder);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -135,7 +110,6 @@ class DriveItemCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Leading icon
                   buildMimeIcon(
                     isFolder: isFolder,
                     mimeType: item.mimeType,
@@ -144,10 +118,7 @@ class DriveItemCard extends StatelessWidget {
                     size: 28,
                     isStarred: item.isStarred,
                   ),
-
                   const SizedBox(width: 16),
-
-                  // Title & subtitle
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +132,6 @@ class DriveItemCard extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-
                         if (item.isStarred == true && item.userId == username)
                           Text.rich(
                             TextSpan(
@@ -214,8 +184,6 @@ class DriveItemCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Trailing (more options)
                   IconButton(
                     icon: const Icon(Icons.more_vert, size: 24),
                     onPressed: () => _showOptions(context, mainIcon),
@@ -228,9 +196,7 @@ class DriveItemCard extends StatelessWidget {
           ),
         ),
       );
-    }
-    // =============== GRID MODE ===================
-    else {
+    } else {
       return Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
@@ -239,34 +205,7 @@ class DriveItemCard extends StatelessWidget {
           highlightColor: Colors.orange.withAlpha(20),
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
-            if (isFolder) {
-              onTap?.call(title);
-            } else {
-              if (item.url != null && item.url!.isNotEmpty) {
-                try {
-                  final tempDir = await getTemporaryDirectory();
-                  final filePath =
-                      "${tempDir.path}/${item.nama}.${item.mimeType}";
-
-                  final response = await http.get(
-                    Uri.parse("$url${Uri.parse(item.url!).path}"),
-                  );
-
-                  final file = await File(
-                    filePath,
-                  ).writeAsBytes(response.bodyBytes);
-                  await OpenFilex.open(file.path);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Gagal membuka file: $e")),
-                  );
-                }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("File tidak ditemukan")),
-                );
-              }
-            }
+            _handleItemTap(context, isFolder);
           },
           child: Ink(
             decoration: BoxDecoration(
@@ -303,8 +242,6 @@ class DriveItemCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                // thumbnail
                 if (!isFolder &&
                     item.mimeType != null &&
                     (item.mimeType!.contains('jpeg') ||
@@ -383,17 +320,16 @@ class DriveItemCard extends StatelessWidget {
                       ],
                     ),
                   )
-                else if (!isFolder && item.mimeType!.contains('pdf'))
+                else if (!isFolder &&
+                    item.mimeType != null &&
+                    item.mimeType!.contains('pdf'))
                   SizedBox(
                     height: 83,
                     width: double.infinity,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        // Pratinjau file PDF
                         PdfThumbnail(url: "$url${item.url!}"),
-
-                        // Ikon bintang di kanan bawah jika item di-star
                         if (item.isStarred && item.userId == username)
                           Positioned(
                             bottom: 6,
@@ -482,376 +418,29 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
-  // bottom sheet (tidak diubah, tetap pakai mainIcon)
-  void _showOptions(BuildContext context, dynamic mainIcon) {
-    final rootContext = context;
-    final bool isFolder = type == DriveItemType.folder;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (sheetContext) {
-        final popup = PopUpWidget(rootContext);
-        return FutureBuilder<List<dynamic>>(
-          future: Future.wait([
-            SharedPref.getToken(),
-            SharedPref.getUsername(),
-          ]),
-          builder: (tokenContext, tokenSnapshot) {
-            if (!tokenSnapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final token = tokenSnapshot.data![0] as String?;
-            final username = tokenSnapshot.data![1] as String?;
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      _buildFlexibleIcon(
-                        mainIcon,
-                        size: 28,
-                        color: orangeNewAmikom,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: GoogleFonts.urbanist(fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // ============= Opsi: Ganti Nama (jika belum dihapus) ============
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.drive_file_rename_outline,
-                      color: orangeNewAmikom,
-                    ),
-                    title: Text("Ganti nama", style: GoogleFonts.urbanist()),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      print((item.userId != username));
-                      if (item.userId != username) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Anda tidak memiliki izin untuk mengubah item ini.",
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-                      await renameAction(
-                        rootContext,
-                        token!,
-                        item.id,
-                        item.type == DriveItemType.folder ? 'folder' : 'file',
-                        item.nama,
-                      );
-                      onUpdateChanged?.call();
-                    },
-                  ),
-
-                // ============= Opsi: Download (khusus file) ============
-                if (!isFolder && !item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.download_outlined,
-                      color: orangeNewAmikom,
-                    ),
-                    title: Text("Download", style: GoogleFonts.urbanist()),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-
-                      if (item.url == null || item.url!.isEmpty) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(content: Text("File tidak ditemukan")),
-                        );
-                        return;
-                      }
-
-                      downloadFile(context, item, url);
-
-                      // try {
-                      //   Directory? directory;
-                      //
-                      //   if (Platform.isAndroid) {
-                      //     await Permission.storage.request();
-                      //     directory = Directory(
-                      //       '/storage/emulated/0/Download/VAS Download',
-                      //     );
-                      //   } else {
-                      //     final docDir =
-                      //         await getApplicationDocumentsDirectory();
-                      //     directory = Directory('${docDir.path}/VAS Download');
-                      //   }
-                      //
-                      //   if (!await directory.exists()) {
-                      //     await directory.create(recursive: true);
-                      //   }
-                      //
-                      //   final filePath =
-                      //       "${directory.path}/${item.nama}.${item.mimeType}";
-                      //   final dio = Dio();
-                      //
-                      //   int lastReceived = 0;
-                      //   DateTime lastTime = DateTime.now();
-                      //
-                      //   await NotificationService.showProgress(
-                      //     received: 0,
-                      //     total: 0,
-                      //     speed: "0 KB/s",
-                      //   );
-                      //
-                      //   await dio.download(
-                      //     "$url${Uri.parse(item.url!).path}",
-                      //     filePath,
-                      //     onReceiveProgress: (received, total) {
-                      //       if (total != -1) {
-                      //         final now = DateTime.now();
-                      //         final diff = now
-                      //             .difference(lastTime)
-                      //             .inMilliseconds;
-                      //
-                      //         if (diff > 800) {
-                      //           double speedBytesPerSec =
-                      //               (received - lastReceived) / (diff / 1000);
-                      //           String speedText = "";
-                      //
-                      //           if (speedBytesPerSec >= 1048576) {
-                      //             speedText =
-                      //                 "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
-                      //           } else {
-                      //             speedText =
-                      //                 "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
-                      //           }
-                      //
-                      //           NotificationService.showProgress(
-                      //             received: received,
-                      //             total: total,
-                      //             speed: speedText,
-                      //           );
-                      //
-                      //           lastReceived = received;
-                      //           lastTime = now;
-                      //         }
-                      //       }
-                      //     },
-                      //   );
-                      //
-                      //   await NotificationService.cancelProgress();
-                      //   await NotificationService.showCompleted("${item.nama}${item.mimeType}",filePath);
-                      //
-                      //   ScaffoldMessenger.of(rootContext).showSnackBar(
-                      //     SnackBar(
-                      //       content: Text(
-                      //         "File berhasil disimpan di $filePath",
-                      //       ),
-                      //     ),
-                      //   );
-                      // } catch (e) {
-                      //   await NotificationService.cancelProgress();
-                      //   ScaffoldMessenger.of(rootContext).showSnackBar(
-                      //     SnackBar(content: Text("Gagal mengunduh file: $e")),
-                      //   );
-                      //   print("gagal unduh file : $e");
-                      // }
-                    },
-                  ),
-
-                // ============= Opsi: Tambah ke Berbintang ============
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.star_border,
-                      color: orangeNewAmikom,
-                    ),
-                    title: item.isStarred
-                        ? Text(
-                            "Hapus dari Berbintang",
-                            style: GoogleFonts.urbanist(),
-                          )
-                        : Text(
-                            "Tambahkan ke Berbintang",
-                            style: GoogleFonts.urbanist(),
-                          ),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      if (item.userId != username) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Hanya pemilik yang bisa menambahkan ke berbintang.",
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-                      await toggleStarAction(
-                        rootContext,
-                        token!,
-                        isFolder ? item.id : null,
-                        isFolder ? null : item.id,
-                        item.userId!,
-                        !item.isStarred,
-                      );
-
-                      onUpdateChanged?.call();
-                    },
-                  ),
-
-                // ============= Opsi: Lihat Detail Informasi ============
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.info_outline,
-                      color: orangeNewAmikom,
-                    ),
-                    title: Text(
-                      "Detail informasi",
-                      style: GoogleFonts.urbanist(),
-                    ),
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      Navigator.of(rootContext).push(
-                        DriveRouting(
-                          page: DetailPage(
-                            title: isFolder
-                                ? item.nama
-                                : "${item.nama}.${item.mimeType}",
-                            item: item,
-                            lokasi: parentName,
-                            icon: mainIcon,
-                          ),
-                          transitionType: RoutingTransitionType.slide,
-                        ),
-                      );
-                    },
-                  ),
-
-                // ============= Opsi: Hapus / Pulihkan ============
-                _deleteButton(
-                  sheetContext,
-                  rootContext,
-                  item,
-                  token!,
-                  username!,
-                  isFolder,
-                ),
-
-                const SizedBox(height: 8),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // =============================================================
-  // ============= BUILDER TOMBOL HAPUS / PULIHKAN ===============
-  // Menampilkan tombol "Hapus", atau jika item sudah dihapus,
-  // menampilkan dua tombol: "Pulihkan" & "Hapus Permanen"
-  // =============================================================
-  Widget _deleteButton(
-    BuildContext sheetContext,
-    BuildContext rootContext,
-    DriveItemModel item,
-    String token,
-    String username,
-    bool isFolder,
-  ) {
-    // Remove the FutureBuilder from here since we're now passing the token directly
-    if (!item.isTrashed) {
-      // ============= Tombol: Hapus (pindah ke Trash) ============
-      return ListTile(
-        leading: const Icon(Icons.delete_outline, color: orangeNewAmikom),
-        title: Text("Hapus", style: GoogleFonts.urbanist()),
-        onTap: () async {
-          Navigator.pop(sheetContext);
-          if (item.userId != username) {
-            ScaffoldMessenger.of(rootContext).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  "Anda tidak memiliki izin untuk mengubah item ini.",
-                ),
-              ),
-            );
-            return;
-          } else if (item.isStarred) {
-            ScaffoldMessenger.of(rootContext).showSnackBar(
-              const SnackBar(
-                content: Text("Tidak dapat menghapus item berbintang."),
-              ),
-            );
-            return;
-          }
-          await addToTrash(
-            rootContext,
-            token,
-            title,
-            isFolder ? item.id : null,
-            isFolder ? null : item.id,
-            item.userId!,
-          );
-          onUpdateChanged?.call();
-        },
-      );
+  Future<void> _handleItemTap(BuildContext context, bool isFolder) async {
+    if (isFolder) {
+      onTap?.call(title);
     } else {
-      // ============= Tombol: Pulihkan dan Hapus Permanen ============
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Pulihkan item dari Trash
-          ListTile(
-            leading: const Icon(Icons.restore_outlined, color: orangeNewAmikom),
-            title: Text("Pulihkan", style: GoogleFonts.urbanist()),
-            onTap: () async {
-              Navigator.pop(sheetContext);
-              await recoveryDrive(
-                rootContext,
-                token,
-                title,
-                isFolder ? item.id : null,
-                isFolder ? null : item.id,
-                item.userId!,
-              );
-              onUpdateChanged?.call();
-            },
-          ),
-          // Hapus permanen
-          ListTile(
-            leading: const Icon(
-              Icons.delete_forever_outlined,
-              color: orangeNewAmikom,
-            ),
-            title: Text("Hapus Permanen", style: GoogleFonts.urbanist()),
-            onTap: () async {
-              Navigator.pop(sheetContext);
-              await deleteDrive(
-                rootContext,
-                token,
-                title,
-                isFolder ? item.id : null,
-                isFolder ? null : item.id,
-                item.userId!,
-              );
-              onUpdateChanged?.call();
-            },
-          ),
-        ],
-      );
+      if (item.url != null && item.url!.isNotEmpty) {
+        try {
+          final tempDir = await getTemporaryDirectory();
+          final filePath = "${tempDir.path}/${item.nama}.${item.mimeType}";
+          final response = await http.get(
+            Uri.parse("$url${Uri.parse(item.url!).path}"),
+          );
+          final file = await File(filePath).writeAsBytes(response.bodyBytes);
+          await OpenFilex.open(file.path);
+        } catch (e) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Gagal membuka file: $e")));
+        }
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("File tidak ditemukan")));
+      }
     }
   }
 
@@ -865,7 +454,6 @@ class DriveItemCard extends StatelessWidget {
     double size = 28,
   }) {
     final mime = mimeType?.toLowerCase() ?? '';
-    // ======== Fallback (default icon) ========
     Widget fallback;
     if (mainIcon is IconData) {
       fallback = Icon(mainIcon, color: color, size: size);
@@ -940,7 +528,6 @@ class DriveItemCard extends StatelessWidget {
           ],
         );
       }
-
       return child;
     }
 
@@ -1040,11 +627,308 @@ class DriveItemCard extends StatelessWidget {
     }
   }
 
+  void _showOptions(BuildContext context, dynamic mainIcon) {
+    final rootContext = context;
+    final bool isFolder = type == DriveItemType.folder;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return FutureBuilder<List<dynamic>>(
+          future: Future.wait([
+            SharedPref.getToken(),
+            SharedPref.getUsername(),
+          ]),
+          builder: (tokenContext, tokenSnapshot) {
+            if (!tokenSnapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final token = tokenSnapshot.data![0] as String?;
+            final prefUsername = tokenSnapshot.data![1] as String?;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      _buildFlexibleIcon(
+                        mainIcon,
+                        size: 28,
+                        color: orangeNewAmikom,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.urbanist(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.drive_file_rename_outline,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text("Ganti nama", style: GoogleFonts.urbanist()),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      if (item.userId != prefUsername) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Anda tidak memiliki izin untuk mengubah item ini.",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      await renameAction(
+                        rootContext,
+                        token!,
+                        item.id,
+                        item.type == DriveItemType.folder ? 'folder' : 'file',
+                        item.nama,
+                      );
+
+                      await Future.delayed(const Duration(milliseconds: 500));
+
+                      if (rootContext.mounted) {
+                        rootContext.read<DriveCubit>().getDriveData(
+                          token: 'Bearer $token',
+                        );
+                        onUpdateChanged?.call();
+                      }
+                    },
+                  ),
+                if (!isFolder && !item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.download_outlined,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text("Download", style: GoogleFonts.urbanist()),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      if (item.url == null || item.url!.isEmpty) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(content: Text("File tidak ditemukan")),
+                        );
+                        return;
+                      }
+                      downloadFile(context, item, url);
+                    },
+                  ),
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.star_border,
+                      color: orangeNewAmikom,
+                    ),
+                    title: item.isStarred
+                        ? Text(
+                            "Hapus dari Berbintang",
+                            style: GoogleFonts.urbanist(),
+                          )
+                        : Text(
+                            "Tambahkan ke Berbintang",
+                            style: GoogleFonts.urbanist(),
+                          ),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      if (item.userId != prefUsername) {
+                        ScaffoldMessenger.of(rootContext).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Hanya pemilik yang bisa menambahkan ke berbintang.",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      await toggleStarAction(
+                        rootContext,
+                        token!,
+                        isFolder ? item.id : null,
+                        isFolder ? null : item.id,
+                        item.userId!,
+                        !item.isStarred,
+                      );
+
+                      await Future.delayed(const Duration(milliseconds: 500));
+
+                      if (rootContext.mounted) {
+                        rootContext.read<DriveCubit>().getDriveData(
+                          token: 'Bearer $token',
+                        );
+                        onUpdateChanged?.call();
+                      }
+                    },
+                  ),
+                if (!item.isTrashed)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.info_outline,
+                      color: orangeNewAmikom,
+                    ),
+                    title: Text(
+                      "Detail informasi",
+                      style: GoogleFonts.urbanist(),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      Navigator.of(rootContext).push(
+                        DriveRouting(
+                          page: DetailPage(
+                            title: isFolder
+                                ? item.nama
+                                : "${item.nama}.${item.mimeType}",
+                            item: item,
+                            lokasi: parentName,
+                            icon: mainIcon,
+                          ),
+                          transitionType: RoutingTransitionType.slide,
+                        ),
+                      );
+                    },
+                  ),
+                _deleteButton(
+                  sheetContext,
+                  rootContext,
+                  item,
+                  token!,
+                  prefUsername!,
+                  isFolder,
+                ),
+                const SizedBox(height: 8),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _deleteButton(
+    BuildContext sheetContext,
+    BuildContext rootContext,
+    DriveItemModel item,
+    String token,
+    String username,
+    bool isFolder,
+  ) {
+    if (!item.isTrashed) {
+      return ListTile(
+        leading: const Icon(Icons.delete_outline, color: orangeNewAmikom),
+        title: Text("Hapus", style: GoogleFonts.urbanist()),
+        onTap: () async {
+          Navigator.pop(sheetContext);
+          if (item.userId != username) {
+            ScaffoldMessenger.of(rootContext).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Anda tidak memiliki izin untuk mengubah item ini.",
+                ),
+              ),
+            );
+            return;
+          } else if (item.isStarred) {
+            ScaffoldMessenger.of(rootContext).showSnackBar(
+              const SnackBar(
+                content: Text("Tidak dapat menghapus item berbintang."),
+              ),
+            );
+            return;
+          }
+          await addToTrash(
+            rootContext,
+            token,
+            title,
+            isFolder ? item.id : null,
+            isFolder ? null : item.id,
+            item.userId!,
+          );
+
+          if (rootContext.mounted) {
+            rootContext.read<DriveCubit>().getDriveData(token: 'Bearer $token');
+            onUpdateChanged?.call();
+          }
+        },
+      );
+    } else {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.restore_outlined, color: orangeNewAmikom),
+            title: Text("Pulihkan", style: GoogleFonts.urbanist()),
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await recoveryDrive(
+                rootContext,
+                token,
+                title,
+                isFolder ? item.id : null,
+                isFolder ? null : item.id,
+                item.userId!,
+              );
+
+              if (rootContext.mounted) {
+                rootContext.read<DriveCubit>().getDriveData(
+                  token: 'Bearer $token',
+                );
+                onUpdateChanged?.call();
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.delete_forever_outlined,
+              color: orangeNewAmikom,
+            ),
+            title: Text("Hapus Permanen", style: GoogleFonts.urbanist()),
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await deleteDrive(
+                rootContext,
+                token,
+                title,
+                isFolder ? item.id : null,
+                isFolder ? null : item.id,
+                item.userId!,
+              );
+
+              if (rootContext.mounted) {
+                rootContext.read<DriveCubit>().getDriveData(
+                  token: 'Bearer $token',
+                );
+                onUpdateChanged?.call();
+              }
+            },
+          ),
+        ],
+      );
+    }
+  }
 
   Future<void> downloadFile(
-      BuildContext context, DriveItemModel item, String url) async {
+    BuildContext context,
+    DriveItemModel item,
+    String url,
+  ) async {
     try {
-      // ========== ANDROID PERMISSION ==========
       if (Platform.isAndroid) {
         await Permission.storage.request();
       }
@@ -1059,7 +943,6 @@ class DriveItemCard extends StatelessWidget {
         speed: "0 KB/s",
       );
 
-      // ========== DOWNLOAD BYTES ==========
       final response = await dio.get<List<int>>(
         "$url${Uri.parse(item.url!).path}",
         options: Options(responseType: ResponseType.bytes),
@@ -1069,7 +952,8 @@ class DriveItemCard extends StatelessWidget {
             final diff = now.difference(lastTime).inMilliseconds;
 
             if (diff > 800) {
-              double speedBytesPerSec = (received - lastReceived) / (diff / 1000);
+              double speedBytesPerSec =
+                  (received - lastReceived) / (diff / 1000);
 
               String speedText = speedBytesPerSec >= 1048576
                   ? "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s"
@@ -1088,19 +972,14 @@ class DriveItemCard extends StatelessWidget {
         },
       );
 
-      // =====================================================
-      // ============   ANDROID → SAVE TO DOWNLOADS  =========
-      // =====================================================
-      if (Platform.isAndroid && (await Permission.manageExternalStorage.request()).isGranted) {
-
-      // Buat file sementara dari bytes
+      if (Platform.isAndroid &&
+          (await Permission.manageExternalStorage.request()).isGranted) {
         final tempDir = await getTemporaryDirectory();
         final tempFile = File("${tempDir.path}/${item.nama}.${item.mimeType}");
         await tempFile.writeAsBytes(response.data!);
 
-        // Simpan ke MediaStore
         final mediaStore = MediaStore();
-        final savedInfo = await mediaStore.saveFile(
+        await mediaStore.saveFile(
           tempFilePath: tempFile.path,
           dirType: DirType.download,
           dirName: DirName.download,
@@ -1111,29 +990,20 @@ class DriveItemCard extends StatelessWidget {
           "${item.nama}.${item.mimeType}",
           "Folder Download",
         );
-        print("File tersimpan di ${savedInfo?.name ?? "Unknown URI"}");
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("File berhasil disimpan di folder Download")),
+          const SnackBar(
+            content: Text("File berhasil disimpan di folder Download"),
+          ),
         );
 
         try {
           if (await tempFile.exists()) {
             await tempFile.delete();
           }
-        } catch (e) {
-          print("Failed to delete temp file: $e");
-        }
-
-
-
+        } catch (_) {}
         return;
-      }
-
-      // =====================================================
-      // ================       iOS SAVE      ================
-      // =====================================================
-      else {
+      } else {
         final dir = await getApplicationDocumentsDirectory();
         final file = File("${dir.path}/${item.nama}.${item.mimeType}");
         await file.writeAsBytes(Uint8List.fromList(response.data!));
@@ -1147,15 +1017,12 @@ class DriveItemCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("File tersimpan di ${file.path}")),
         );
-
       }
     } catch (e) {
       await NotificationService.cancelDownloadProgress();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal mengunduh file: $e")),
-      );
-      print("gagal unduh file : $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal mengunduh file: $e")));
     }
   }
-
 }

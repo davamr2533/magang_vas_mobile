@@ -37,8 +37,8 @@ class _DriveHomeState extends State<DriveHome>
   String? username;
   late TabController _tabController;
   int? parentId;
-  int myDriveRootId = 1; // Default
-  int sharedDriveRootId = 2; // Default
+  int myDriveRootId = 1;
+  int sharedDriveRootId = 2;
   final GlobalKey<CustomSearchBarState> _searchBarKey =
       GlobalKey<CustomSearchBarState>();
 
@@ -148,7 +148,6 @@ class _DriveHomeState extends State<DriveHome>
             if (mounted) Navigator.pop(context);
           },
         ),
-
         title: CustomSearchBar(
           key: _searchBarKey,
           onQueryChanged: (val) {
@@ -160,7 +159,6 @@ class _DriveHomeState extends State<DriveHome>
             });
           },
         ),
-
         bottom: TabBar(
           controller: _tabController,
           labelColor: orangeNewAmikom,
@@ -195,13 +193,11 @@ class _DriveHomeState extends State<DriveHome>
                   setState(() => currentSortOrder = order),
               onViewChanged: (view) => setState(() => currentView = view),
             ),
-
           Expanded(
             child: TabBarView(
               physics: const NeverScrollableScrollPhysics(),
               controller: _tabController,
               children: [
-                // MY DRIVE
                 RefreshIndicator(
                   onRefresh: () async {
                     await fetchData();
@@ -215,8 +211,6 @@ class _DriveHomeState extends State<DriveHome>
                         )
                       : buildDriveGrid(myDriveItems),
                 ),
-
-                // SHARED DRIVE
                 RefreshIndicator(
                   onRefresh: () async {
                     await fetchData();
@@ -264,7 +258,6 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Method untuk Drive Home
   Widget _buildDriveHomeContent(DriveState state) {
     if (state is DriveInitial || state is DriveLoading) {
       return _buildDriveHomeWithLoading();
@@ -315,7 +308,6 @@ class _DriveHomeState extends State<DriveHome>
     return _buildDriveHomeWithError("State tidak valid");
   }
 
-  // Method untuk halaman Recent
   Widget _buildRecentPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final recentFolder = _createRecentFolder(state);
@@ -332,7 +324,6 @@ class _DriveHomeState extends State<DriveHome>
     return _buildGenericLoadingPage("Berkas Terbaru");
   }
 
-  // Method untuk halaman Starred
   Widget _buildStarredPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final starredFolder = _createStarredFolder(state);
@@ -349,7 +340,6 @@ class _DriveHomeState extends State<DriveHome>
     return _buildGenericLoadingPage("Berbintang");
   }
 
-  // Method untuk halaman Trash
   Widget _buildTrashPage(DriveState state) {
     if (state is DriveDataSuccess) {
       final trashFolder = _createTrashFolder(state);
@@ -366,7 +356,6 @@ class _DriveHomeState extends State<DriveHome>
     return _buildGenericLoadingPage("Sampah");
   }
 
-  // Helper methods untuk membuat special folders
   DriveItemModel _createRecentFolder(DriveDataSuccess state) {
     final apiData = state.driveData.data ?? [];
 
@@ -400,7 +389,6 @@ class _DriveHomeState extends State<DriveHome>
     final allFolders = [...allMyItems, ...allSharedItem];
     final allItems = _getAllItemsRecursive(allFolders);
 
-    // Urutkan berdasarkan tanggal terbaru
     allItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return DriveItemModel(
@@ -497,7 +485,6 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Method untuk loading page generic
   Widget _buildGenericLoadingPage(String pageName) {
     return Scaffold(
       appBar: AppBar(
@@ -512,7 +499,6 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Method untuk Drive Home dengan loading
   Widget _buildDriveHomeWithLoading() {
     return Scaffold(
       backgroundColor: magnoliaWhiteNewAmikom,
@@ -559,7 +545,6 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Method untuk Drive Home dengan error
   Widget _buildDriveHomeWithError(String message) {
     return Scaffold(
       backgroundColor: magnoliaWhiteNewAmikom,
@@ -606,7 +591,6 @@ class _DriveHomeState extends State<DriveHome>
     );
   }
 
-  // Bottom Navigation Bar
   BottomNavigationBar _buildBottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
@@ -669,11 +653,9 @@ class _DriveHomeState extends State<DriveHome>
 
     if (apiInput == null) return combinedList;
 
-    // 1) Kalau input adalah sebuah FolderItem tunggal
     if (apiInput is FolderItem) {
       final FolderItem apiFolder = apiInput;
 
-      // proses sub-folder (children)
       if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
         for (var subFolder in apiFolder.children!) {
           combinedList.add(
@@ -687,7 +669,6 @@ class _DriveHomeState extends State<DriveHome>
               createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
               isStarred: subFolder.isStarred == 'TRUE',
               isTrashed: subFolder.isTrashed == 'TRUE',
-              // rekursif: subFolder bisa punya children/files
               children: _mapApiItemsToUiModel(subFolder),
               updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
             ),
@@ -695,7 +676,6 @@ class _DriveHomeState extends State<DriveHome>
         }
       }
 
-      // proses file di dalam folder ini
       if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
         for (var file in apiFolder.files!) {
           combinedList.add(
@@ -721,13 +701,11 @@ class _DriveHomeState extends State<DriveHome>
       return combinedList;
     }
 
-    // 2) Kalau input adalah List (campuran FolderItem & FileItem)
     if (apiInput is List) {
       for (var item in apiInput) {
         if (item == null) continue;
 
         if (item is FolderItem) {
-          // Tambahkan folder level ini dulu
           combinedList.add(
             DriveItemModel(
               id: item.id ?? 0,
@@ -740,12 +718,10 @@ class _DriveHomeState extends State<DriveHome>
               isStarred: item.isStarred == 'TRUE',
               isTrashed: item.isTrashed == 'TRUE',
               updateAt: item.updatedAtAsDate ?? DateTime.now(),
-              // rekursif untuk isi folder
               children: _mapApiItemsToUiModel(item),
             ),
           );
         } else if (item is FileItem) {
-          // file tetap sama
           combinedList.add(
             DriveItemModel(
               id: item.id ?? 0,
@@ -768,14 +744,13 @@ class _DriveHomeState extends State<DriveHome>
       return combinedList;
     }
 
-    // 3) Kalau input adalah FileItem tunggal
     if (apiInput is FileItem) {
       combinedList.add(
         DriveItemModel(
           id: apiInput.id ?? 0,
           parentId: apiInput.parentId,
           userId: apiInput.userId,
-          parentName: 'cek: drive_home line 703',
+          parentName: '',
           type: DriveItemType.file,
           nama: apiInput.name!,
           createdAt: apiInput.createdAtAsDate ?? DateTime.now(),
@@ -790,7 +765,6 @@ class _DriveHomeState extends State<DriveHome>
       return combinedList;
     }
 
-    // default: kembalikan list kosong
     return combinedList;
   }
 
@@ -802,11 +776,9 @@ class _DriveHomeState extends State<DriveHome>
       final mimeType = f.mimeType?.toLowerCase() ?? "";
       final queryLower = query.toLowerCase();
 
-      // Filter berdasarkan teks pencarian (nama atau mime type)
       final matchesQuery =
           fileName.contains(queryLower) || mimeType.contains(queryLower);
 
-      // Default: semua cocok jika tidak ada filter
       bool matchesType = true;
 
       if (selectedFileType != null) {
@@ -814,19 +786,15 @@ class _DriveHomeState extends State<DriveHome>
           case "Folders":
             matchesType = f.type == DriveItemType.folder;
             break;
-
           case "Word":
             matchesType = mimeType.endsWith("doc") || mimeType.endsWith("docx");
             break;
-
           case "Excel":
             matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
-
           case "PDFs":
             matchesType = mimeType.endsWith("pdf");
             break;
-
           case "Photos & Images":
             matchesType =
                 mimeType.endsWith("png") ||
@@ -835,7 +803,6 @@ class _DriveHomeState extends State<DriveHome>
                 mimeType.endsWith("gif") ||
                 mimeType.endsWith("svg");
             break;
-
           default:
             matchesType = true;
         }
@@ -843,32 +810,27 @@ class _DriveHomeState extends State<DriveHome>
       return matchesQuery && matchesType;
     }).toList();
 
-    // Fungsi pembanding untuk teks (A–Z, Z–A)
     int compareText<T extends Comparable>(T a, T b) {
       return currentSortOrder == SortOrder.desc
           ? b.compareTo(a)
           : a.compareTo(b);
     }
 
-    // Fungsi pembanding untuk tanggal (Terbaru, Terlama)
     int compareDate<T extends Comparable>(T a, T b) {
       return currentSortOrder == SortOrder.asc
           ? b.compareTo(a)
           : a.compareTo(b);
     }
 
-    // mengurutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
           (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
         );
         break;
-
       case SortBy.modifiedDate:
         filtered.sort((a, b) => compareDate(a.updateAt, b.updateAt));
         break;
-
       case SortBy.createdDate:
         filtered.sort((a, b) => compareDate(a.createdAt, b.createdAt));
         break;

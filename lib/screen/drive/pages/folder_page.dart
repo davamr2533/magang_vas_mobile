@@ -10,7 +10,6 @@ import '../template/sort_and_layout_option.dart';
 import '../template/animated_fab.dart';
 
 class FolderPage extends StatefulWidget {
-  // =========== Properti awal yang dibutuhkan untuk halaman folder ===========
   final DriveItemModel initialFolder;
   final String username;
   final ViewOption initialView;
@@ -34,7 +33,7 @@ class FolderPage extends StatefulWidget {
 
 class FolderPageState extends State<FolderPage>
     with SingleTickerProviderStateMixin {
-  // =========== Variabel utama untuk navigasi dan tampilan ===========
+  // Navigation & View State
   late List<DriveItemModel> navigationStack;
   SortOrder currentSort = SortOrder.asc;
   late ViewOption currentView;
@@ -44,15 +43,14 @@ class FolderPageState extends State<FolderPage>
   String query = '';
   String? selectedFileType;
 
-  // =========== Variabel untuk halaman detail ===========
+  // Detail & Selection State
   bool showDetail = false;
   DriveItemModel? selectedFolder;
 
-  // =========== Variabel animasi untuk transisi detail ===========
+  // Animations
   late final AnimationController _controller;
   late final Animation<Offset> _slideAnimation;
 
-  // =========== Lifecycle init ===========
   @override
   void initState() {
     super.initState();
@@ -70,20 +68,18 @@ class FolderPageState extends State<FolderPage>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
-  // =========== Lifecycle dispose ===========
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  // =========== Getter bantu untuk navigasi folder ===========
+  // Helpers
   DriveItemModel get currentFolder => navigationStack.last;
   List<DriveItemModel> get currentItems => currentFolder.children;
   bool canGoBack() => navigationStack.length > 1;
   void goBack() => popFolder();
 
-  // =========== Navigasi antar folder ===========
   void pushFolder(DriveItemModel folder) {
     setState(() => navigationStack.add(folder));
   }
@@ -95,9 +91,7 @@ class FolderPageState extends State<FolderPage>
       if (widget.onRootPop != null) {
         widget.onRootPop!();
       } else {
-        if (widget.initialFolder.isSpecial) {
-          debugPrint("Back di tab spesial, tetap di root");
-        } else {
+        if (!widget.initialFolder.isSpecial) {
           Navigator.pop(context, currentView);
         }
       }
@@ -108,33 +102,13 @@ class FolderPageState extends State<FolderPage>
     await _refreshData();
   }
 
-  // =========== FUNGSI REFRESH  ===========
   Future<void> _refreshData() async {
     if (widget.onRefresh != null) {
       await widget.onRefresh!();
-
-      final driveState = context.read<DriveCubit>().state;
-
-      if (driveState is DriveDataSuccess) {
-        final currentId = currentFolder.id;
-        final updated = _findFolderById(driveState.driveData.data ?? [], currentId);
-
-        if (updated != null) {
-          setState(() {
-            navigationStack.removeLast();
-            navigationStack.add(updated);
-          });
-        }
-      }
-
-      setState(() {});
-      return;
     }
-    setState(() {});
   }
 
-
-  // =========== Helper function untuk mencari folder by ID ===========
+  // Logic: Find Folder by ID
   DriveItemModel? _findFolderById(List<FolderItem> apiData, int folderId) {
     // Handle special folders (Recent, Starred, Trash)
     if (folderId < 0) {
@@ -143,18 +117,18 @@ class FolderPageState extends State<FolderPage>
 
     for (var folder in apiData) {
       final found = _searchFolderRecursive(folder, folderId);
-      if (found != null) return found;
+      if (found != null) {
+        return found;
+      }
     }
     return null;
   }
 
   DriveItemModel? _searchFolderRecursive(FolderItem folder, int targetId) {
-    // Cek folder saat ini
     if (folder.id == targetId) {
       return _mapFolderItemToDriveItemModel(folder);
     }
 
-    // Cek di children
     if (folder.children != null) {
       for (var child in folder.children!) {
         final found = _searchFolderRecursive(child, targetId);
@@ -164,7 +138,7 @@ class FolderPageState extends State<FolderPage>
     return null;
   }
 
-  // =========== Recreate special folders dengan data terbaru ===========
+  // Logic: Recreate Special Folders
   DriveItemModel _recreateSpecialFolder(
     List<FolderItem> apiData,
     int folderId,
@@ -253,7 +227,7 @@ class FolderPageState extends State<FolderPage>
     }
   }
 
-  // =========== Mapping functions ===========
+  // Mappers
   DriveItemModel _mapFolderItemToDriveItemModel(FolderItem folder) {
     return DriveItemModel(
       id: folder.id ?? 0,
@@ -270,37 +244,36 @@ class FolderPageState extends State<FolderPage>
     );
   }
 
-  // Method untuk mapping FolderItem ke List<DriveItemModel>
   List<DriveItemModel> _mapApiFolderToUiModel(FolderItem apiFolder) {
     final List<DriveItemModel> combinedList = [];
 
     // Process sub-folders
     if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
       for (var subFolder in apiFolder.children!) {
-       if(subFolder.isTrashed != 'TRUE'){
-         combinedList.add(
-           DriveItemModel(
-             id: subFolder.id ?? 0,
-             parentId: subFolder.parentId,
-             parentName: apiFolder.name,
-             userId: subFolder.userId,
-             type: DriveItemType.folder,
-             nama: subFolder.name ?? 'Folder Tanpa Nama',
-             createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
-             isStarred: subFolder.isStarred == 'TRUE',
-             isTrashed: subFolder.isTrashed == 'TRUE',
-             children: _mapApiFolderToUiModel(subFolder),
-             updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
-           ),
-         );
-       }
+        if (subFolder.isTrashed != 'TRUE') {
+          combinedList.add(
+            DriveItemModel(
+              id: subFolder.id ?? 0,
+              parentId: subFolder.parentId,
+              parentName: apiFolder.name,
+              userId: subFolder.userId,
+              type: DriveItemType.folder,
+              nama: subFolder.name ?? 'Folder Tanpa Nama',
+              createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
+              isStarred: subFolder.isStarred == 'TRUE',
+              isTrashed: subFolder.isTrashed == 'TRUE',
+              children: _mapApiFolderToUiModel(subFolder),
+              updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
+            ),
+          );
+        }
       }
     }
 
     // Process files
     if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
       for (var file in apiFolder.files!) {
-        if (file.isTrashed!= 'TRUE') {
+        if (file.isTrashed != 'TRUE') {
           combinedList.add(
             DriveItemModel(
               id: file.id ?? 0,
@@ -325,7 +298,6 @@ class FolderPageState extends State<FolderPage>
     return combinedList;
   }
 
-  // Method untuk mapping List<dynamic> ke List<DriveItemModel>
   List<DriveItemModel> _mapApiListToUiModel(List<dynamic> apiInput) {
     final List<DriveItemModel> combinedList = [];
 
@@ -383,70 +355,87 @@ class FolderPageState extends State<FolderPage>
     return allItems;
   }
 
-  // =========== Bagian utama UI ===========
   @override
   Widget build(BuildContext context) {
     final items = _getFilteredAndSortedFolders(currentItems);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          popFolder();
+    return BlocListener<DriveCubit, DriveState>(
+      // Force listener on Success to handle updates (like rename/star)
+      listenWhen: (previous, current) {
+        if (current is DriveDataSuccess) return true;
+        return previous != current;
+      },
+      listener: (context, state) {
+        if (state is DriveDataSuccess) {
+          final currentId = currentFolder.id;
+          final updated = _findFolderById(
+            state.driveData.data ?? [],
+            currentId,
+          );
+
+          if (updated != null) {
+            setState(() {
+              navigationStack.removeLast();
+              navigationStack.add(updated);
+            });
+          }
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: FolderAppBar(
-          onQueryChanged: (val) {
-            setState(() => query = val);
-          },
-          popFolder: popFolder,
-          folderId: currentFolder.id,
-          isTrashed: currentFolder.isTrashed,
-          title: currentFolder.nama,
-        ),
-
-        // =========== Body dengan RefreshIndicator ===========
-        body: PageTransitionSwitcher(
-          duration: const Duration(milliseconds: 400),
-          transitionBuilder:
-              (
-                Widget child,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-              ) {
-                return SharedAxisTransition(
-                  animation: animation,
-                  secondaryAnimation: secondaryAnimation,
-                  transitionType: SharedAxisTransitionType.scaled,
-                  fillColor: Colors.white,
-                  child: child,
-                );
-              },
-          child: Container(
-            key: ValueKey(currentFolder.id),
-            child: RefreshIndicator(
-              onRefresh: _refreshData,
-              child: _buildBodyContent(items),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            popFolder();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: FolderAppBar(
+            onQueryChanged: (val) {
+              setState(() => query = val);
+            },
+            popFolder: popFolder,
+            folderId: currentFolder.id,
+            isTrashed: currentFolder.isTrashed,
+            title: currentFolder.nama,
+          ),
+          body: PageTransitionSwitcher(
+            duration: const Duration(milliseconds: 400),
+            transitionBuilder:
+                (
+                  Widget child,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                ) {
+                  return SharedAxisTransition(
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.scaled,
+                    fillColor: Colors.white,
+                    child: child,
+                  );
+                },
+            child: Container(
+              key: ValueKey(currentFolder.id),
+              child: RefreshIndicator(
+                onRefresh: _refreshData,
+                child: _buildBodyContent(items),
+              ),
             ),
           ),
+          floatingActionButton: !widget.initialFolder.isSpecial
+              ? AnimatedFabMenu(
+                  parentId: currentFolder.id,
+                  onFolderCreated: () async {
+                    await _refreshData();
+                  },
+                )
+              : null,
         ),
-
-        // =========== Tombol tambah folder / upload file (FAB) ===========
-        floatingActionButton: !widget.initialFolder.isSpecial
-            ? AnimatedFabMenu(
-                parentId: currentFolder.id,
-                onFolderCreated: () async {
-                  await _refreshData();
-                },
-              )
-            : null,
       ),
     );
   }
 
-  // =========== Membuat isi halaman utama (daftar folder dan sort option) ===========
   Widget _buildBodyContent(List<DriveItemModel> items) {
     if (items.isEmpty) {
       return ListView(
@@ -492,11 +481,9 @@ class FolderPageState extends State<FolderPage>
       final mimeType = f.mimeType?.toLowerCase() ?? "";
       final queryLower = query.toLowerCase();
 
-      // Filter berdasarkan teks pencarian (nama atau mime type)
       final matchesQuery =
           fileName.contains(queryLower) || mimeType.contains(queryLower);
 
-      // Default: semua cocok jika tidak ada filter
       bool matchesType = true;
 
       if (selectedFileType != null) {
@@ -504,19 +491,15 @@ class FolderPageState extends State<FolderPage>
           case "Folders":
             matchesType = f.type == DriveItemType.folder;
             break;
-
           case "Word":
             matchesType = mimeType.endsWith("doc") || mimeType.endsWith("docx");
             break;
-
           case "Excel":
             matchesType = mimeType.endsWith("xls") || mimeType.endsWith("xlsx");
             break;
-
           case "PDFs":
             matchesType = mimeType.endsWith("pdf");
             break;
-
           case "Photos & Images":
             matchesType =
                 mimeType.endsWith("png") ||
@@ -525,7 +508,6 @@ class FolderPageState extends State<FolderPage>
                 mimeType.endsWith("gif") ||
                 mimeType.endsWith("svg");
             break;
-
           default:
             matchesType = true;
         }
@@ -533,32 +515,27 @@ class FolderPageState extends State<FolderPage>
       return matchesQuery && matchesType;
     }).toList();
 
-    // Fungsi pembanding untuk teks (A–Z, Z–A)
     int compareText<T extends Comparable>(T a, T b) {
       return currentSortOrder == SortOrder.desc
           ? b.compareTo(a)
           : a.compareTo(b);
     }
 
-    // Fungsi pembanding untuk tanggal (Terbaru, Terlama)
     int compareDate<T extends Comparable>(T a, T b) {
       return currentSortOrder == SortOrder.asc
           ? b.compareTo(a)
           : a.compareTo(b);
     }
 
-    // mengurutkan sesuai enum SortBy
     switch (currentSortBy) {
       case SortBy.name:
         filtered.sort(
           (a, b) => compareText(a.nama.toLowerCase(), b.nama.toLowerCase()),
         );
         break;
-
       case SortBy.modifiedDate:
         filtered.sort((a, b) => compareDate(a.updateAt, b.updateAt));
         break;
-
       case SortBy.createdDate:
         filtered.sort((a, b) => compareDate(a.createdAt, b.createdAt));
         break;
@@ -570,19 +547,25 @@ class FolderPageState extends State<FolderPage>
   Widget emptyPageText(int id) {
     switch (id) {
       case -1:
-        return Text(
+        return const Text(
           "Tidak ada berkas terbaru",
           style: TextStyle(color: Colors.grey),
         );
       case -2:
-        return Text(
+        return const Text(
           "Tidak ada file berbintang",
           style: TextStyle(color: Colors.grey),
         );
       case -3:
-        return Text("Sampah kosong", style: TextStyle(color: Colors.grey));
+        return const Text(
+          "Sampah kosong",
+          style: TextStyle(color: Colors.grey),
+        );
       default:
-        return Text("Folder kosong", style: TextStyle(color: Colors.grey));
+        return const Text(
+          "Folder kosong",
+          style: TextStyle(color: Colors.grey),
+        );
     }
   }
 }
