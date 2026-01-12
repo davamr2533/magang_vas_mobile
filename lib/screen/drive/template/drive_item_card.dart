@@ -46,11 +46,11 @@ class DriveItemCard extends StatelessWidget {
     required this.item,
     required this.username,
     required this.type,
+    required this.existingNames,
     this.isList = false,
     this.isStarred = false,
     this.onTap,
     this.onUpdateChanged,
-    required this.existingNames,
   });
 
   dynamic getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
@@ -635,190 +635,198 @@ class DriveItemCard extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (sheetContext) {
-        return FutureBuilder<List<dynamic>>(
-          future: Future.wait([
-            SharedPref.getToken(),
-            SharedPref.getUsername(),
-          ]),
-          builder: (tokenContext, tokenSnapshot) {
-            if (!tokenSnapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        return SafeArea(
+          child: FutureBuilder<List<dynamic>>(
+            future: Future.wait([
+              SharedPref.getToken(),
+              SharedPref.getUsername(),
+            ]),
+            builder: (tokenContext, tokenSnapshot) {
+              if (!tokenSnapshot.hasData) {
+                return const SizedBox(
+                  height: 150,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-            final token = tokenSnapshot.data![0] as String?;
-            final prefUsername = tokenSnapshot.data![1] as String?;
+              final token = tokenSnapshot.data![0] as String?;
+              final prefUsername = tokenSnapshot.data![1] as String?;
 
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      _buildFlexibleIcon(
-                        mainIcon,
-                        size: 28,
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        _buildFlexibleIcon(
+                          mainIcon,
+                          size: 28,
+                          color: orangeNewAmikom,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: GoogleFonts.urbanist(fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  if (!item.isTrashed)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.drive_file_rename_outline,
                         color: orangeNewAmikom,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: GoogleFonts.urbanist(fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      title: Text("Ganti nama", style: GoogleFonts.urbanist()),
+                      onTap: () async {
+                        Navigator.pop(sheetContext);
+                        if (item.userId != prefUsername) {
+                          ScaffoldMessenger.of(rootContext).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Anda tidak memiliki izin untuk mengubah item ini.",
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        await renameAction(
+                          rootContext,
+                          token!,
+                          item.id,
+                          item.type == DriveItemType.folder ? 'folder' : 'file',
+                          item.nama,
+                          existingNames,
+                        );
+
+                        await Future.delayed(const Duration(milliseconds: 500));
+
+                        if (rootContext.mounted) {
+                          rootContext.read<DriveCubit>().getDriveData(
+                            token: 'Bearer $token',
+                          );
+                          onUpdateChanged?.call();
+                        }
+                      },
+                    ),
+                  if (!isFolder && !item.isTrashed)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.download_outlined,
+                        color: orangeNewAmikom,
                       ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.drive_file_rename_outline,
-                      color: orangeNewAmikom,
-                    ),
-                    title: Text("Ganti nama", style: GoogleFonts.urbanist()),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      if (item.userId != prefUsername) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Anda tidak memiliki izin untuk mengubah item ini.",
+                      title: Text("Download", style: GoogleFonts.urbanist()),
+                      onTap: () async {
+                        Navigator.pop(sheetContext);
+                        if (item.url == null || item.url!.isEmpty) {
+                          ScaffoldMessenger.of(rootContext).showSnackBar(
+                            const SnackBar(
+                              content: Text("File tidak ditemukan"),
                             ),
-                          ),
-                        );
-                        return;
-                      }
-
-                      await renameAction(
-                        rootContext,
-                        token!,
-                        item.id,
-                        item.type == DriveItemType.folder ? 'folder' : 'file',
-                        item.nama,
-                        existingNames,
-                      );
-
-                      await Future.delayed(const Duration(milliseconds: 500));
-
-                      if (rootContext.mounted) {
-                        rootContext.read<DriveCubit>().getDriveData(
-                          token: 'Bearer $token',
-                        );
-                        onUpdateChanged?.call();
-                      }
-                    },
-                  ),
-                if (!isFolder && !item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.download_outlined,
-                      color: orangeNewAmikom,
+                          );
+                          return;
+                        }
+                        downloadFile(context, item, url);
+                      },
                     ),
-                    title: Text("Download", style: GoogleFonts.urbanist()),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      if (item.url == null || item.url!.isEmpty) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(content: Text("File tidak ditemukan")),
-                        );
-                        return;
-                      }
-                      downloadFile(context, item, url);
-                    },
-                  ),
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.star_border,
-                      color: orangeNewAmikom,
-                    ),
-                    title: item.isStarred
-                        ? Text(
-                            "Hapus dari Berbintang",
-                            style: GoogleFonts.urbanist(),
-                          )
-                        : Text(
-                            "Tambahkan ke Berbintang",
-                            style: GoogleFonts.urbanist(),
-                          ),
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      if (item.userId != prefUsername) {
-                        ScaffoldMessenger.of(rootContext).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Hanya pemilik yang bisa menambahkan ke berbintang.",
+                  if (!item.isTrashed)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.star_border,
+                        color: orangeNewAmikom,
+                      ),
+                      title: item.isStarred
+                          ? Text(
+                              "Hapus dari Berbintang",
+                              style: GoogleFonts.urbanist(),
+                            )
+                          : Text(
+                              "Tambahkan ke Berbintang",
+                              style: GoogleFonts.urbanist(),
                             ),
+                      onTap: () async {
+                        Navigator.pop(sheetContext);
+                        if (item.userId != prefUsername) {
+                          ScaffoldMessenger.of(rootContext).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Hanya pemilik yang bisa menambahkan ke berbintang.",
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        await toggleStarAction(
+                          rootContext,
+                          token!,
+                          isFolder ? item.id : null,
+                          isFolder ? null : item.id,
+                          item.userId!,
+                          !item.isStarred,
+                        );
+
+                        await Future.delayed(const Duration(milliseconds: 500));
+
+                        if (rootContext.mounted) {
+                          rootContext.read<DriveCubit>().getDriveData(
+                            token: 'Bearer $token',
+                          );
+                          onUpdateChanged?.call();
+                        }
+                      },
+                    ),
+                  if (!item.isTrashed)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.info_outline,
+                        color: orangeNewAmikom,
+                      ),
+                      title: Text(
+                        "Detail informasi",
+                        style: GoogleFonts.urbanist(),
+                      ),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        Navigator.of(rootContext).push(
+                          DriveRouting(
+                            page: DetailPage(
+                              title: isFolder
+                                  ? item.nama
+                                  : "${item.nama}.${item.mimeType}",
+                              item: item,
+                              lokasi: parentName,
+                              icon: mainIcon,
+                            ),
+                            transitionType: RoutingTransitionType.slide,
                           ),
                         );
-                        return;
-                      }
-
-                      await toggleStarAction(
-                        rootContext,
-                        token!,
-                        isFolder ? item.id : null,
-                        isFolder ? null : item.id,
-                        item.userId!,
-                        !item.isStarred,
-                      );
-
-                      await Future.delayed(const Duration(milliseconds: 500));
-
-                      if (rootContext.mounted) {
-                        rootContext.read<DriveCubit>().getDriveData(
-                          token: 'Bearer $token',
-                        );
-                        onUpdateChanged?.call();
-                      }
-                    },
-                  ),
-                if (!item.isTrashed)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.info_outline,
-                      color: orangeNewAmikom,
+                      },
                     ),
-                    title: Text(
-                      "Detail informasi",
-                      style: GoogleFonts.urbanist(),
-                    ),
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      Navigator.of(rootContext).push(
-                        DriveRouting(
-                          page: DetailPage(
-                            title: isFolder
-                                ? item.nama
-                                : "${item.nama}.${item.mimeType}",
-                            item: item,
-                            lokasi: parentName,
-                            icon: mainIcon,
-                          ),
-                          transitionType: RoutingTransitionType.slide,
-                        ),
-                      );
-                    },
+                  _deleteButton(
+                    sheetContext,
+                    rootContext,
+                    item,
+                    token!,
+                    prefUsername!,
+                    isFolder,
                   ),
-                _deleteButton(
-                  sheetContext,
-                  rootContext,
-                  item,
-                  token!,
-                  prefUsername!,
-                  isFolder,
-                ),
-                const SizedBox(height: 8),
-              ],
-            );
-          },
+                  const SizedBox(height: 8),
+                ],
+              );
+            },
+          ),
         );
       },
     );
