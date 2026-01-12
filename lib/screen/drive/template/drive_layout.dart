@@ -21,6 +21,7 @@ class DriveGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> allNames = items.map((e) => e.nama).toList();
     return Padding(
       padding: const EdgeInsets.only(left: 12, top: 0, right: 12),
       child: isList
@@ -42,6 +43,7 @@ class DriveGrid extends StatelessWidget {
             item: item,
             username: username,
             onUpdateChanged: onUpdateChanged,
+            existingNames: allNames,
           );
         },
       )
@@ -66,6 +68,7 @@ class DriveGrid extends StatelessWidget {
             item: item,
             username: username,
             onUpdateChanged: onUpdateChanged,
+            existingNames: allNames,
           );
         }),
       ),

@@ -37,6 +37,7 @@ class DriveItemCard extends StatelessWidget {
   final DriveItemType type;
   final void Function(String)? onTap;
   final VoidCallback? onUpdateChanged;
+  final List<String> existingNames;
 
   const DriveItemCard({
     super.key,
@@ -49,6 +50,7 @@ class DriveItemCard extends StatelessWidget {
     this.isStarred = false,
     this.onTap,
     this.onUpdateChanged,
+    required this.existingNames,
   });
 
   dynamic getFileIcon(String? mimeType, bool isFolder, bool isStarred) {
@@ -700,6 +702,7 @@ class DriveItemCard extends StatelessWidget {
                         item.id,
                         item.type == DriveItemType.folder ? 'folder' : 'file',
                         item.nama,
+                        existingNames,
                       );
 
                       await Future.delayed(const Duration(milliseconds: 500));

@@ -45,6 +45,7 @@ Future<void> renameAction(
   int id,
   String itemType,
   String currentName,
+  List<String> existingNames,
 ) async {
   final popup = PopUpWidget(context);
   final newName = await popup.showTextInputDialog(
@@ -54,6 +55,15 @@ Future<void> renameAction(
   );
 
   if (newName == null || newName.isEmpty) return;
+
+  if (newName == currentName) return;
+
+  if (existingNames.contains(newName)) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Nama sudah digunakan")));
+    return;
+  }
 
   final cubit = context.read<RenameDriveCubit>();
   await cubit.renameDrive(
