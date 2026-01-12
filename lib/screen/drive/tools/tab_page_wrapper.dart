@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../drive_home.dart';
 import '../drive_item_model.dart';
 import '../pages/folder_page.dart';
@@ -47,9 +48,11 @@ class _TabPageWrapperState extends State<TabPageWrapper>
       _folderKey.currentState!.refreshData();
     } else {
       // Force rebuild dengan key baru
-      setState(() {
-        _folderPageKey = UniqueKey();
-      });
+      if (mounted) {
+        setState(() {
+          _folderPageKey = UniqueKey();
+        });
+      }
     }
   }
 
@@ -65,7 +68,7 @@ class _TabPageWrapperState extends State<TabPageWrapper>
           _folderKey.currentState!.goBack();
           return false; // cegah langsung keluar
         }
-        return true; // biarkan system back keluar (misal ke DriveHome)
+        return true;
       },
       child: FolderPage(
         key: _folderKey, // GlobalKey untuk akses state
@@ -74,13 +77,14 @@ class _TabPageWrapperState extends State<TabPageWrapper>
         initialView: widget.initialView,
         onRootPop: widget.onRootPop,
         onRefresh: () async {
-          // Ketika refresh dipicu di FolderPage, panggil onRefresh dari parent
           if (widget.onRefresh != null) {
             await widget.onRefresh!();
-            // Setelah data ter-refresh, force rebuild FolderPage
-            setState(() {
-              _folderPageKey = UniqueKey();
-            });
+            // Check mounted agar tidak crash jika user pindah tab
+            if (mounted) {
+              setState(() {
+                _folderPageKey = UniqueKey();
+              });
+            }
           }
         },
       ),

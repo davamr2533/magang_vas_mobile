@@ -9,26 +9,28 @@ import '../data/cubit/get_drive_cubit.dart';
 import '../tools/create_folder.dart';
 import '../tools/upload_file.dart';
 
-// ============= Widget FAB Animasi dengan Menu Upload & Folder ============
 class AnimatedFabMenu extends StatefulWidget {
   final int parentId;
-  final VoidCallback? onFolderCreated; // callback agar DriveHome bisa refresh
+  final VoidCallback? onFolderCreated;
+  final List<String> existingFolderNames;
+  final List<String> existingFileNames;
 
   const AnimatedFabMenu({
     super.key,
     required this.parentId,
     this.onFolderCreated,
+    required this.existingFolderNames,
+    required this.existingFileNames,
   });
 
   @override
   State<AnimatedFabMenu> createState() => _AnimatedFabMenuState();
 }
 
-// ============= State Class untuk Animasi dan Aksi FAB ============
 class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     with SingleTickerProviderStateMixin {
-  bool isOpen = false; // status apakah menu terbuka
-  late AnimationController _controller; // controller animasi FAB
+  bool isOpen = false;
+  late AnimationController _controller;
   String? token;
   String? userId;
   late int parentId;
@@ -36,17 +38,14 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
   @override
   void initState() {
     super.initState();
-    // ============= Inisialisasi animasi ============
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
 
-    // ============= Ambil data user/token dari SharedPref ============
     fetchData();
   }
 
-  // ============= Ambil token dan userId secara async ============
   void fetchData() async {
     token = await SharedPref.getToken();
     userId = await SharedPref.getUsername();
@@ -59,25 +58,22 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     super.dispose();
   }
 
-  // ============= Fungsi untuk buka/tutup menu FAB ============
   void _toggleMenu() {
     setState(() {
       isOpen = !isOpen;
       if (isOpen) {
-        _controller.forward(); // buka animasi
+        _controller.forward();
       } else {
-        _controller.reverse(); // tutup animasi
+        _controller.reverse();
       }
     });
   }
 
-  // ============= Bangun UI FAB dan Sub-Menu ============
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        // ============= Tombol Upload File ============
         _buildAnimatedFab(
           offsetY: 140,
           icon: Icons.upload_file,
@@ -88,13 +84,13 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
             int lastSent = 0;
             DateTime lastTime = DateTime.now();
 
-
             try {
               final success = await uploadNewFile(
                 context,
                 'Bearer $token',
                 widget.parentId,
                 userId!,
+                widget.existingFileNames,
                 onProgress: (sent, total) {
                   if (total != -1) {
                     final now = DateTime.now();
@@ -107,10 +103,10 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
 
                       if (speedBytesPerSec >= 1048576) {
                         speedText =
-                        "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
+                            "${(speedBytesPerSec / 1048576).toStringAsFixed(1)} MB/s";
                       } else {
                         speedText =
-                        "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+                            "${(speedBytesPerSec / 1024).toStringAsFixed(1)} KB/s";
                       }
 
                       NotificationService.showUploadProgress(
@@ -137,28 +133,14 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
 
                   widget.onFolderCreated?.call();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('File berhasil diupload')),
-                  );
                   _toggleMenu();
                 }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Gagal mengupload file')),
-                );
               }
             } catch (e) {
               await NotificationService.cancelUploadProgress();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
             }
           },
         ),
-
-        // ============= Tombol Buat Folder ============
         _buildAnimatedFab(
           offsetY: 70,
           icon: Icons.create_new_folder,
@@ -171,35 +153,25 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
               'Bearer $token',
               widget.parentId,
               userId!,
+              widget.existingFolderNames,
             );
 
             if (mounted) {
-              // refresh data drive setelah folder dibuat
               final driveCubit = context.read<DriveCubit>();
               await driveCubit.getDriveData(token: 'Bearer $token');
 
-              // panggil callback agar DriveHome ikut refresh
               widget.onFolderCreated?.call();
 
-              // tampilkan notifikasi ke user
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Folder berhasil dibuat')),
-              );
               _toggleMenu();
             }
           },
         ),
-
-        // ============= Tombol Utama (ikon +) ============
         FloatingActionButton(
           heroTag: "mainFab",
           onPressed: _toggleMenu,
           backgroundColor: pinkNewAmikom,
           child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(
-              begin: 0,
-              end: isOpen ? 0.125 : 0, // 0.125 = rotasi 45°
-            ),
+            tween: Tween<double>(begin: 0, end: isOpen ? 0.125 : 0),
             duration: const Duration(milliseconds: 250),
             builder: (context, angle, child) {
               return Transform.rotate(
@@ -213,7 +185,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     );
   }
 
-  // ============= Builder untuk FAB dengan animasi geser dan fade ============
   Widget _buildAnimatedFab({
     required double offsetY,
     required IconData icon,
@@ -226,9 +197,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
         final slide = Tween<Offset>(
           begin: Offset(0, offsetY / 60),
           end: const Offset(0, 0),
-        ).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-        );
+        ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
         return Transform.translate(
           offset: Offset(0, slide.value.dy * offsetY),
@@ -236,11 +205,7 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
             opacity: _controller.value,
             child: Padding(
               padding: EdgeInsets.only(bottom: offsetY),
-              child: _buildFabWithLabel(
-                icon: icon,
-                label: label,
-                onTap: onTap,
-              ),
+              child: _buildFabWithLabel(icon: icon, label: label, onTap: onTap),
             ),
           ),
         );
@@ -248,7 +213,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     );
   }
 
-  // ============= Builder untuk tampilan FAB kecil + label teks ============
   Widget _buildFabWithLabel({
     required IconData icon,
     required String label,
@@ -257,7 +221,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Label teks di samping FAB
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           margin: const EdgeInsets.only(right: 8),
@@ -274,8 +237,6 @@ class _AnimatedFabMenuState extends State<AnimatedFabMenu>
           ),
           child: Text(label, style: const TextStyle(fontSize: 14)),
         ),
-
-        // Tombol aksi kecil
         FloatingActionButton(
           heroTag: label,
           backgroundColor: pinkNewAmikom,

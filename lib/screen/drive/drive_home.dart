@@ -28,7 +28,7 @@ class _DriveHomeState extends State<DriveHome>
   final TextEditingController _searchController = TextEditingController();
   SortBy currentSortBy = SortBy.name;
   SortOrder currentSortOrder = SortOrder.asc;
-
+  DriveDataSuccess? _lastSuccessState;
   ViewOption currentView = ViewOption.grid;
   String query = "";
   String? selectedFileType;
@@ -229,10 +229,27 @@ class _DriveHomeState extends State<DriveHome>
           ),
         ],
       ),
-      floatingActionButton: AnimatedFabMenu(
-        parentId: parentId!,
-        onFolderCreated: () async {
-          await fetchData();
+      floatingActionButton: Builder(
+        builder: (context) {
+          final sourceList = _tabController.index == 0
+              ? myDriveFolders
+              : sharedDriveFolders;
+          final existingFiles = sourceList
+              .where((item) => item.type == DriveItemType.file)
+              .map((e) => e.nama)
+              .toList();
+
+          return AnimatedFabMenu(
+            parentId: parentId!,
+            existingFolderNames: sourceList
+                .where((item) => item.type == DriveItemType.folder)
+                .map((e) => e.nama)
+                .toList(),
+            existingFileNames: existingFiles,
+            onFolderCreated: () async {
+              await fetchData();
+            },
+          );
         },
       ),
     );
@@ -242,6 +259,9 @@ class _DriveHomeState extends State<DriveHome>
   Widget build(BuildContext context) {
     return BlocBuilder<DriveCubit, DriveState>(
       builder: (context, state) {
+        if (state is DriveDataSuccess) {
+          _lastSuccessState = state;
+        }
         return Scaffold(
           body: IndexedStack(
             index: _selectedIndex,
@@ -259,16 +279,14 @@ class _DriveHomeState extends State<DriveHome>
   }
 
   Widget _buildDriveHomeContent(DriveState state) {
-    if (state is DriveInitial || state is DriveLoading) {
-      return _buildDriveHomeWithLoading();
-    }
+    final dataToUse = (state is DriveDataSuccess)
+        ? state
+        : (state is DriveLoading && _lastSuccessState != null)
+        ? _lastSuccessState
+        : null;
 
-    if (state is DriveDataFailure) {
-      return _buildDriveHomeWithError(state.message);
-    }
-
-    if (state is DriveDataSuccess) {
-      final apiData = state.driveData.data ?? [];
+    if (dataToUse != null) {
+      final apiData = dataToUse.driveData.data ?? [];
       final filteredData = filterNonTrashedFolderItems(apiData);
 
       final driveRoot = filteredData.firstWhere(
@@ -293,6 +311,7 @@ class _DriveHomeState extends State<DriveHome>
 
       myDriveRootId = driveRoot.id ?? 1;
       sharedDriveRootId = sharedDriveRoot.id ?? 2;
+
       parentId ??= myDriveRootId;
 
       final sharedFolders = (sharedDriveRoot.children ?? []);
@@ -305,12 +324,22 @@ class _DriveHomeState extends State<DriveHome>
       return _buildDriveHomePage(myDriveItems, sharedDriveItems);
     }
 
-    return _buildDriveHomeWithError("State tidak valid");
+    if (state is DriveDataFailure) {
+      return _buildDriveHomeWithError(state.message);
+    }
+
+    return _buildDriveHomeWithLoading();
   }
 
   Widget _buildRecentPage(DriveState state) {
-    if (state is DriveDataSuccess) {
-      final recentFolder = _createRecentFolder(state);
+    final dataToUse = (state is DriveDataSuccess)
+        ? state
+        : (state is DriveLoading && _lastSuccessState != null)
+        ? _lastSuccessState
+        : null;
+
+    if (dataToUse != null) {
+      final recentFolder = _createRecentFolder(dataToUse);
       return TabPageWrapper(
         rootFolder: recentFolder,
         username: username!,
@@ -325,8 +354,14 @@ class _DriveHomeState extends State<DriveHome>
   }
 
   Widget _buildStarredPage(DriveState state) {
-    if (state is DriveDataSuccess) {
-      final starredFolder = _createStarredFolder(state);
+    final dataToUse = (state is DriveDataSuccess)
+        ? state
+        : (state is DriveLoading && _lastSuccessState != null)
+        ? _lastSuccessState
+        : null;
+
+    if (dataToUse != null) {
+      final starredFolder = _createStarredFolder(dataToUse);
       return TabPageWrapper(
         rootFolder: starredFolder,
         username: username!,
@@ -341,8 +376,14 @@ class _DriveHomeState extends State<DriveHome>
   }
 
   Widget _buildTrashPage(DriveState state) {
-    if (state is DriveDataSuccess) {
-      final trashFolder = _createTrashFolder(state);
+    final dataToUse = (state is DriveDataSuccess)
+        ? state
+        : (state is DriveLoading && _lastSuccessState != null)
+        ? _lastSuccessState
+        : null;
+
+    if (dataToUse != null) {
+      final trashFolder = _createTrashFolder(dataToUse);
       return TabPageWrapper(
         rootFolder: trashFolder,
         username: username!,
@@ -482,6 +523,7 @@ class _DriveHomeState extends State<DriveHome>
           .toList(),
       type: DriveItemType.folder,
       isSpecial: true,
+      isTrashed: true,
     );
   }
 

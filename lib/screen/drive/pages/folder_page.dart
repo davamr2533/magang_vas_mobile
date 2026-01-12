@@ -33,7 +33,6 @@ class FolderPage extends StatefulWidget {
 
 class FolderPageState extends State<FolderPage>
     with SingleTickerProviderStateMixin {
-  // Navigation & View State
   late List<DriveItemModel> navigationStack;
   SortOrder currentSort = SortOrder.asc;
   late ViewOption currentView;
@@ -43,11 +42,9 @@ class FolderPageState extends State<FolderPage>
   String query = '';
   String? selectedFileType;
 
-  // Detail & Selection State
   bool showDetail = false;
   DriveItemModel? selectedFolder;
 
-  // Animations
   late final AnimationController _controller;
   late final Animation<Offset> _slideAnimation;
 
@@ -74,7 +71,6 @@ class FolderPageState extends State<FolderPage>
     super.dispose();
   }
 
-  // Helpers
   DriveItemModel get currentFolder => navigationStack.last;
   List<DriveItemModel> get currentItems => currentFolder.children;
   bool canGoBack() => navigationStack.length > 1;
@@ -108,9 +104,7 @@ class FolderPageState extends State<FolderPage>
     }
   }
 
-  // Logic: Find Folder by ID
   DriveItemModel? _findFolderById(List<FolderItem> apiData, int folderId) {
-    // Handle special folders (Recent, Starred, Trash)
     if (folderId < 0) {
       return _recreateSpecialFolder(apiData, folderId);
     }
@@ -138,7 +132,6 @@ class FolderPageState extends State<FolderPage>
     return null;
   }
 
-  // Logic: Recreate Special Folders
   DriveItemModel _recreateSpecialFolder(
     List<FolderItem> apiData,
     int folderId,
@@ -174,7 +167,7 @@ class FolderPageState extends State<FolderPage>
     final allItems = _getAllItemsRecursive(allFolders);
 
     switch (folderId) {
-      case -1: // Recent
+      case -1:
         return DriveItemModel(
           id: -1,
           nama: "Berkas Terbaru",
@@ -189,7 +182,7 @@ class FolderPageState extends State<FolderPage>
           isSpecial: true,
         );
 
-      case -2: // Starred
+      case -2:
         return DriveItemModel(
           id: -2,
           nama: "Berbintang",
@@ -199,7 +192,7 @@ class FolderPageState extends State<FolderPage>
               .where(
                 (f) =>
                     f.isStarred &&
-                    f.userId == widget.initialFolder.userId &&
+                    f.userId == widget.username &&
                     f.isTrashed == false,
               )
               .toList(),
@@ -207,19 +200,18 @@ class FolderPageState extends State<FolderPage>
           isSpecial: true,
         );
 
-      case -3: // Trash
+      case -3:
         return DriveItemModel(
           id: -3,
           nama: "Sampah",
           createdAt: DateTime.now(),
           updateAt: DateTime.now(),
           children: allItems
-              .where(
-                (f) => f.isTrashed && f.userId == widget.initialFolder.userId,
-              )
+              .where((f) => f.isTrashed && f.userId == widget.username)
               .toList(),
           type: DriveItemType.folder,
           isSpecial: true,
+          isTrashed: true,
         );
 
       default:
@@ -227,7 +219,6 @@ class FolderPageState extends State<FolderPage>
     }
   }
 
-  // Mappers
   DriveItemModel _mapFolderItemToDriveItemModel(FolderItem folder) {
     return DriveItemModel(
       id: folder.id ?? 0,
@@ -247,51 +238,45 @@ class FolderPageState extends State<FolderPage>
   List<DriveItemModel> _mapApiFolderToUiModel(FolderItem apiFolder) {
     final List<DriveItemModel> combinedList = [];
 
-    // Process sub-folders
     if (apiFolder.children != null && apiFolder.children!.isNotEmpty) {
       for (var subFolder in apiFolder.children!) {
-        if (subFolder.isTrashed != 'TRUE') {
-          combinedList.add(
-            DriveItemModel(
-              id: subFolder.id ?? 0,
-              parentId: subFolder.parentId,
-              parentName: apiFolder.name,
-              userId: subFolder.userId,
-              type: DriveItemType.folder,
-              nama: subFolder.name ?? 'Folder Tanpa Nama',
-              createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
-              isStarred: subFolder.isStarred == 'TRUE',
-              isTrashed: subFolder.isTrashed == 'TRUE',
-              children: _mapApiFolderToUiModel(subFolder),
-              updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
-            ),
-          );
-        }
+        combinedList.add(
+          DriveItemModel(
+            id: subFolder.id ?? 0,
+            parentId: subFolder.parentId,
+            parentName: apiFolder.name,
+            userId: subFolder.userId,
+            type: DriveItemType.folder,
+            nama: subFolder.name ?? 'Folder Tanpa Nama',
+            createdAt: subFolder.createdAtAsDate ?? DateTime.now(),
+            isStarred: subFolder.isStarred == 'TRUE',
+            isTrashed: subFolder.isTrashed == 'TRUE',
+            children: _mapApiFolderToUiModel(subFolder),
+            updateAt: subFolder.updatedAtAsDate ?? DateTime.now(),
+          ),
+        );
       }
     }
 
-    // Process files
     if (apiFolder.files != null && apiFolder.files!.isNotEmpty) {
       for (var file in apiFolder.files!) {
-        if (file.isTrashed != 'TRUE') {
-          combinedList.add(
-            DriveItemModel(
-              id: file.id ?? 0,
-              parentId: file.parentId,
-              parentName: apiFolder.name,
-              userId: file.userId,
-              type: DriveItemType.file,
-              nama: file.name!,
-              createdAt: file.createdAtAsDate ?? DateTime.now(),
-              isStarred: file.isStarred == 'TRUE',
-              isTrashed: file.isTrashed == 'TRUE',
-              mimeType: file.mimeType,
-              size: file.size,
-              url: file.urlFile,
-              updateAt: file.updatedAtAsDate ?? DateTime.now(),
-            ),
-          );
-        }
+        combinedList.add(
+          DriveItemModel(
+            id: file.id ?? 0,
+            parentId: file.parentId,
+            parentName: apiFolder.name,
+            userId: file.userId,
+            type: DriveItemType.file,
+            nama: file.name!,
+            createdAt: file.createdAtAsDate ?? DateTime.now(),
+            isStarred: file.isStarred == 'TRUE',
+            isTrashed: file.isTrashed == 'TRUE',
+            mimeType: file.mimeType,
+            size: file.size,
+            url: file.urlFile,
+            updateAt: file.updatedAtAsDate ?? DateTime.now(),
+          ),
+        );
       }
     }
 
@@ -360,7 +345,6 @@ class FolderPageState extends State<FolderPage>
     final items = _getFilteredAndSortedFolders(currentItems);
 
     return BlocListener<DriveCubit, DriveState>(
-      // Force listener on Success to handle updates (like rename/star)
       listenWhen: (previous, current) {
         if (current is DriveDataSuccess) return true;
         return previous != current;
@@ -368,6 +352,7 @@ class FolderPageState extends State<FolderPage>
       listener: (context, state) {
         if (state is DriveDataSuccess) {
           final currentId = currentFolder.id;
+
           final updated = _findFolderById(
             state.driveData.data ?? [],
             currentId,
@@ -423,9 +408,18 @@ class FolderPageState extends State<FolderPage>
               ),
             ),
           ),
-          floatingActionButton: !widget.initialFolder.isSpecial
+          floatingActionButton:
+              !currentFolder.isSpecial && !currentFolder.isTrashed
               ? AnimatedFabMenu(
                   parentId: currentFolder.id,
+                  existingFolderNames: currentItems
+                      .where((item) => item.type == DriveItemType.folder)
+                      .map((e) => e.nama)
+                      .toList(),
+                  existingFileNames: currentItems
+                      .where((item) => item.type == DriveItemType.file)
+                      .map((e) => e.nama)
+                      .toList(),
                   onFolderCreated: () async {
                     await _refreshData();
                   },
@@ -463,7 +457,7 @@ class FolderPageState extends State<FolderPage>
             items: List.from(items),
             isList: currentView == ViewOption.list,
             onItemTap: pushFolder,
-            onUpdateChanged:() async {
+            onUpdateChanged: () async {
               await _refreshData();
             },
             username: widget.username,
@@ -476,7 +470,13 @@ class FolderPageState extends State<FolderPage>
   List<DriveItemModel> _getFilteredAndSortedFolders(
     List<DriveItemModel> sourceFolders,
   ) {
+    final bool isTrashView = currentFolder.id == -3 || currentFolder.isTrashed;
+
     final filtered = sourceFolders.where((f) {
+      if (!isTrashView && f.isTrashed) {
+        return false;
+      }
+
       final fileName = f.nama.toLowerCase();
       final mimeType = f.mimeType?.toLowerCase() ?? "";
       final queryLower = query.toLowerCase();
