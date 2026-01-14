@@ -101,6 +101,7 @@ class TrackVasPopUpProduction extends StatelessWidget {
             Center(
               child: Text(
                 "Progress selesai!",
+                textAlign: TextAlign.center,
                 style: GoogleFonts.urbanist(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,

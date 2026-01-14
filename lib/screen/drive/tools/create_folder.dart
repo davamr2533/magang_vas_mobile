@@ -18,7 +18,7 @@ Future<void> createNewFolder(
 
   final newName = await popup.showTextInputDialog(
     title: "Folder baru",
-    hintText: "Folder tanpa nama",
+    hintText: "Masukkan Nama Folder",
     confirmText: "Buat",
   );
 
